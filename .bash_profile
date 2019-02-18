@@ -9,6 +9,9 @@ for file in ~/.{path,credentials,bash_prompt,exports,aliases,functions,extra}; d
 done;
 unset file;
 
+# Increase max open file descriptors
+ulimit -S -n 10000
+
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob;
 
