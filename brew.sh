@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# Install command-line tools using Homebrew.
-
 # Make sure we’re using the latest Homebrew.
 brew update
 
@@ -42,6 +40,7 @@ brew install gnupg
 brew install vim --with-override-system-vi
 brew install grep
 brew install openssh
+brew install openssl
 brew install screen
 brew install php
 brew install gmp
@@ -87,15 +86,20 @@ brew install gs
 brew install imagemagick --with-webp
 brew install lua
 brew install lynx
+brew install nvm
 brew install p7zip
 brew install pigz
 brew install pv
 brew install rename
 brew install rlwrap
+brew install safe-rm
 brew install ssh-copy-id
 brew install tree
 brew install vbindiff
 brew install zopfli
+
+# install gcloud cask
+brew cask install google-cloud-sdk
 
 # Remove outdated versions from the cellar.
 brew cleanup
