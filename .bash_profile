@@ -25,6 +25,10 @@ for option in autocd globstar; do
 	shopt -s "$option" 2> /dev/null;
 done;
 
+# Load node version manager
+export NVM_DIR="~/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
 	# Ensure existing Homebrew v1 completions continue to work
@@ -48,3 +52,11 @@ complete -W "NSGlobalDomain" defaults;
 
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
+
+# Add tab completion for gcloud
+#if [ -f ~/projects/tools/google-cloud-sdk/completion.bash.inc ]; then
+#  source '~/projects/tools/google-cloud-sdk/completion.bash.inc'
+#fi
+
+# Add tab completion for node version manager
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
