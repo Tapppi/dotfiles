@@ -21,6 +21,10 @@ alias gc="gcloud"
 alias rm="safe-rm"
 alias rf="safe-rm -rf"
 
+# Kafka remote with ssl auth
+alias kcatssl='kafkacat -b $REMOTE_KAFKA_SERVER -X security.protocol=ssl -X ssl.certificate.location=~/.ssl/kafka/ssl.crt -X ssl.ca.location=~/.ssl/kafka/ca.pem -X ssl.key.location=~/.ssl/kafka/ssl.key '
+alias kgroup='kafka-consumer-groups --bootstrap-server $REMOTE_KAFKA_SERVER --command-config ~/.ssl/kafka/consumer.properties '
+
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
 	colorflag="--color"
