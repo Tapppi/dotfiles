@@ -12,6 +12,9 @@ unset file;
 # Increase max open file descriptors
 ulimit -S -n 10000
 
+# Extended glob pattern matching
+shopt -s extglob
+
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob;
 
