@@ -43,7 +43,7 @@ elif [ -f /etc/bash_completion ]; then
 fi;
 
 # Enable tab completion for `g` by marking it as an alias for `git`
-if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+if type _git &> /dev/null; then
 	complete -o default -o nospace -F _git g;
 fi;
 
@@ -58,9 +58,26 @@ complete -W "NSGlobalDomain" defaults;
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
 
 # Turn on kubectl autocomplete.
-if [ -x "$(command -v kubectl)" ]; then
-  source <(kubectl completion bash)
+if which kubectl &> /dev/null then
+  if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
+		kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
+	else
+	  source <(kubectl completion bash)
+	fi
+	# Add aliases
+	complete -o default -o nospace -F __start_kubectl kc ks kp kl kd
 fi
 
 # Add tab completion for node version manager
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [ -s "$NVM_DIR/bash_completion" ]; then
+	if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
+		cp "$NVM_DIR/bash_completion" $(brew --prefix)/etc/bash_completion.d/nvm
+	else
+    \. "$NVM_DIR/bash_completion"
+	fi
+fi
+
+# Enable tab completion for `psql` aliases
+if type _psql &> /dev/null; then
+	complete -F _psql psqp psqs psqd;
+fi;
