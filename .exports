@@ -37,6 +37,9 @@ export MANPAGER='less -X';
 # https://stackoverflow.com/a/42265848/96656
 export GPG_TTY=$(tty);
 
+# Only update hombrew once every 6 hours
+export HOMEBREW_AUTO_UPDATE_SECS=21600
+
 # Kube config files
 export KUBECONFIG=~/.kube/config
 for i in $(ls ~/.kube/configs/); do
