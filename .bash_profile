@@ -59,10 +59,10 @@ complete -W "NSGlobalDomain" defaults;
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
 
-# Add tab completion for gcloud
-#if [ -f ~/projects/tools/google-cloud-sdk/completion.bash.inc ]; then
-#  source '~/projects/tools/google-cloud-sdk/completion.bash.inc'
-#fi
+# Turn on kubectl autocomplete.
+if [ -x "$(command -v kubectl)" ]; then
+  source <(kubectl completion bash)
+fi
 
 # Add tab completion for node version manager
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
