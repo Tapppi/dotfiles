@@ -60,7 +60,7 @@ complete -W "NSGlobalDomain" defaults;
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
 
 # Turn on kubectl autocomplete.
-if which kubectl &> /dev/null then
+if which kubectl &> /dev/null; then
   if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
 		kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
 	else
@@ -68,16 +68,16 @@ if which kubectl &> /dev/null then
 	fi
 	# Add aliases
 	complete -o default -o nospace -F __start_kubectl kc ks kp kl kd
-fi
+fi;
 
 # Add tab completion for node version manager
 if [ -s "$NVM_DIR/bash_completion" ]; then
 	if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
 		cp "$NVM_DIR/bash_completion" $(brew --prefix)/etc/bash_completion.d/nvm
 	else
-    \. "$NVM_DIR/bash_completion"
-	fi
-fi
+		\. "$NVM_DIR/bash_completion"
+	fi;
+fi;
 
 # Enable tab completion for `psql` aliases
 if type _psql &> /dev/null; then
