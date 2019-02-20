@@ -45,6 +45,8 @@ export HOMEBREW_AUTO_UPDATE_SECS=21600
 
 # Kube config files
 export KUBECONFIG=~/.kube/config
-for i in $(ls ~/.kube/configs/); do
-  export KUBECONFIG=$KUBECONFIG:"$i";
-done
+if [ -d ~/.kube/configs ]; then
+	for i in $(ls ~/.kube/configs/); do
+		export KUBECONFIG=$KUBECONFIG:"$i";
+	done
+fi
