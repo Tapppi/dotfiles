@@ -26,3 +26,5 @@ else
 	fi;
 fi;
 unset doIt;
+
+cd -;
