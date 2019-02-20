@@ -68,6 +68,13 @@ defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 # Disable the “Are you sure you want to open this application?” dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
+# Disable the beep sound
+defaults write com.apple.sound.beep.sound -string /System/Library/Sounds/Sosumi.aiff	
+
+# Disable UI and feedback audio
+defaults write com.apple.sound.uiaudio.enabled -int 0
+defaults write com.apple.sound.beep.feedback -int 0
+
 # Remove duplicates in the “Open With” menu (also see `lscleanup` alias)
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user
 
@@ -82,7 +89,7 @@ defaults write com.apple.systempreferences NSQuitAlwaysKeepsWindows -bool false
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
 
 # Disable the crash reporter
-#defaults write com.apple.CrashReporter DialogType -string "none"
+defaults write com.apple.CrashReporter DialogType -string "none"
 
 # Set Help Viewer windows to non-floating mode
 defaults write com.apple.helpviewer DevMode -bool true
@@ -133,12 +140,15 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # Disable hibernation (speeds up entering sleep mode)
 sudo pmset -a hibernatemode 0
 
+# Sleepimage is now under SIP control
+# To delete, disable by running `. csrutil disable` in recovery mode
+
 # Remove the sleep image file to save disk space
-sudo rm /private/var/vm/sleepimage
+#sudo rm /private/var/vm/sleepimage
 # Create a zero-byte file instead…
-sudo touch /private/var/vm/sleepimage
+#sudo touch /private/var/vm/sleepimage
 # …and make sure it can’t be rewritten
-sudo chflags uchg /private/var/vm/sleepimage
+#sudo chflags uchg /private/var/vm/sleepimage
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
@@ -640,7 +650,7 @@ tell application "Terminal"
 		   to remove the need to close them in order for the custom
 		   theme to be applied. *)
 		else
-			set current settings of tabs of (every window whose id is windowID) to settings set themeName
+			(* set current settings of tabs of (every window whose id is windowID) to settings set themeName *)
 		end if
 
 	end repeat
