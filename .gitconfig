@@ -24,20 +24,20 @@
 	# Clone a repository including all submodules
 	c = clone --recursive
 
-    # Commit
-    co = commit -v
+  # Commit
+  co = commit -v
 
-    # Commit with message from cli
-    com = commit -m
+  # Commit with message from cli
+  com = commit -m
     
 	# Commit all changes
 	ca = !git add -A && git commit -av
 
     # Commit all changes with message from cli
-    cam = !git add -A && git commit -am
+	cam = !git add -A && git commit -am
 
 	# Switch to a branch, creating it if necessary
-	go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+	go = "!f() { git checkout \"$1\" 2> /dev/null || git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
 
 	# Show verbose output about tags, branches or remotes
 	tags = tag -l
