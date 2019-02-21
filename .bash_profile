@@ -32,7 +32,7 @@ for option in autocd globstar; do
 done;
 
 # Load node version manager
-export NVM_DIR="~/.nvm"
+export NVM_DIR="${HOME}/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
 # Add tab completion for many Bash commands
