@@ -37,6 +37,9 @@ export NVM_DIR="~/.nvm"
 
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
+	if [ -d "$(brew --prefix)/etc/bash_completion.d" ]; then
+		export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
+	fi
 	source "$(brew --prefix)/share/bash-completion/bash_completion";
 elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
@@ -59,8 +62,8 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 
 # Turn on kubectl autocomplete.
 if which kubectl &> /dev/null; then
-  if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
-		kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
+  if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
+		kubectl completion bash > "$(brew --prefix)/share/bash-completion/completions/kubectl"
 	else
 	  source <(kubectl completion bash)
 	fi
@@ -70,8 +73,8 @@ fi;
 
 # Add tab completion for node version manager
 if [ -s "$NVM_DIR/bash_completion" ]; then
-	if which brew &> /dev/null && [ -d $(brew --prefix)/etc/bash_completion.d ]; then
-		cp "$NVM_DIR/bash_completion" $(brew --prefix)/etc/bash_completion.d/nvm
+	if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
+		cp "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
 	else
 		\. "$NVM_DIR/bash_completion"
 	fi;
