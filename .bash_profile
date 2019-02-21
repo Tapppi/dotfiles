@@ -63,8 +63,7 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 # Turn on kubectl autocomplete.
 if which kubectl &> /dev/null; then
   if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
-		sudo kubectl completion bash > "$(brew --prefix)/share/bash-completion/completions/kubectl"
-		sudo chown 755 "$(brew --prefix)/share/bash-completion/completions/kubectl"
+		kubectl completion bash > "$(brew --prefix)/share/bash-completion/completions/kubectl"
 	else
 	  source <(kubectl completion bash)
 	fi
@@ -75,8 +74,7 @@ fi;
 # Add tab completion for node version manager
 if [ -s "$NVM_DIR/bash_completion" ]; then
 	if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
-		sudo cp "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
-		sudo chown 755 "$(brew --prefix)/share/bash-completion/completions/nvm"
+		cp "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
 	else
 		\. "$NVM_DIR/bash_completion"
 	fi;
