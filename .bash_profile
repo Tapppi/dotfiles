@@ -9,6 +9,9 @@ for file in ~/.{path,credentials,bash_prompt,exports,aliases,functions,extra}; d
 done;
 unset file;
 
+# Set alias 'fuck' for 'thefuck'
+eval $(thefuck --alias fuck)
+
 # Increase max open file descriptors
 ulimit -S -n 10000
 
