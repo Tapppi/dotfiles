@@ -34,6 +34,15 @@ kafkassln() {
     ln -s "${1}" /etc/kafka
 }
 
+# Find zombie node proc
+alias psnode='ps aux | grep "node dist" | grep -v "grep"'
+alias killnode='kill $(ps aux | grep "node dist" | grep -v "grep" | awk "{print $2}")'
+# Find proc based on port
+alias psports='lsof -nP -i4TCP | grep LISTEN'
+psport() {
+    lsof -nP -i4TCP:"$1" | grep 'LISTEN'
+}
+
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
 	colorflag="--color"
