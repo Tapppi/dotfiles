@@ -21,8 +21,8 @@ p() {
     cd ~/project;
     for var in "$@"
     do
-        if which fasd_cd > /dev/null 2>&1; then
-            fasd_cd -d "$var"
+        if which fasd > /dev/null 2>&1; then
+            cd $(fasd -d "$var")
         else
             cd "$var"
         fi
