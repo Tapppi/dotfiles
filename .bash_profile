@@ -10,7 +10,9 @@ done;
 unset file;
 
 # Set alias 'fuck' for 'thefuck'
-eval $(thefuck --alias fuck)
+if which thefuck &> /dev/null 2>&1; then
+    eval $(thefuck --alias fuck)
+fi
 
 # Increase max open file descriptors
 ulimit -S -n 10000
@@ -37,6 +39,11 @@ done;
 # Load node version manager
 export NVM_DIR="${HOME}/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+# Enable pyenv shell integration
+if which pyenv &> /dev/null 2>&1; then
+    eval "$(pyenv init -)"
+fi
 
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
