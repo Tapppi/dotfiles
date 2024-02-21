@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
@@ -5,13 +7,13 @@ export PATH="$HOME/bin:$PATH";
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
 for file in ~/.{path,credentials,bash_prompt,exports,aliases,functions,extra}; do
-	[ -r "$file" ] && [ -f "$file" ] && source "$file";
+	[ -r "$file" ] && [ -f "$file" ] && echo "bash_profile: execute $file..." && time source "$file";
 done;
 unset file;
 
 # Set alias 'fuck' for 'thefuck'
 if which thefuck &> /dev/null 2>&1; then
-    eval $(thefuck --alias fuck)
+    eval "$(thefuck --alias fuck)"
 fi
 
 # Increase max open file descriptors
@@ -50,16 +52,17 @@ fi
 
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-	# Ensure existing Homebrew v1 completions continue to work
-	export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d";
-	source "$(brew --prefix)/etc/profile.d/bash_completion.sh";
-#if which brew &> /dev/null && [ -f "$(brew --prefix)/share/bash-completion/bash_completion" ]; then
-#	if [ -d "$(brew --prefix)/etc/bash_completion.d" ]; then
-#		export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
-#	fi
-#	source "$(brew --prefix)/share/bash-completion/bash_completion";
+    # Ensure existing Homebrew v1 completions continue to work
+    export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
+    time source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
 elif [ -f /etc/bash_completion ]; then
 	source /etc/bash_completion;
+fi;
+
+# Enable google-cloud-sdk and completion
+if [ -d "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
+    source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
+    source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc"
 fi;
 
 # Enable tab completion for `g` by marking it as an alias for `git`
@@ -91,7 +94,7 @@ fi;
 # Add tab completion for node version manager
 if [ -s "$NVM_DIR/bash_completion" ]; then
 	if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
-		cp "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
+		cp -f "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
 	else
 		\. "$NVM_DIR/bash_completion"
 	fi;

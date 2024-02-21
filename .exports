@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export XDG_DATA_HOME=~
+
 # Make micro the default editor.
 export EDITOR='micro';
 
@@ -13,6 +15,10 @@ export NODE_REPL_MODE='sloppy';
 # Set node-rdkafka openssl build flags
 export CPPFLAGS=-I/usr/local/opt/openssl@1.1/include
 export LDFLAGS=-L/usr/local/opt/openssl@1.1/lib
+
+# Go
+export GOPATH="${HOME}/go";
+export GOBIN="${GOPATH}/bin";
 
 # Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
 export PYTHONIOENCODING='UTF-8';
