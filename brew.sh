@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# UNUSED - AS REFERENCE FOR SOME CTF TOOLS ETC.
+
 # Make sure we’re using the latest Homebrew.
 brew update
 
