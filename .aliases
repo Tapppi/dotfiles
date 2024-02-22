@@ -16,19 +16,6 @@ alias g="git"
 alias kc="kubectl"
 alias gc="gcloud"
 
-# Move to projects
-p() {
-    cd ~/project;
-    for var in "$@"
-    do
-        if which fasd > /dev/null 2>&1; then
-            cd $(fasd -d "$var")
-        else
-            cd "$var"
-        fi
-    done
-}
-
 # Safe-rm
 alias rm="safe-rm"
 alias rf="safe-rm -rf"
