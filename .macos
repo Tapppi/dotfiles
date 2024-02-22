@@ -22,9 +22,6 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 #sudo scutil --set LocalHostName "0x6D746873"
 #sudo defaults write /Library/Preferences/SystemConfiguration/com.appl.smb.server NetBIOSName -string "0x6D746873"
 
-# Set standby delay to 4 hours (default is 1 hour)
-sudo pmset -a standbydelay 14400
-
 # Disable the sound effects on boot
 sudo nvram SystemAudioVolume=" "
 
@@ -227,8 +224,8 @@ sudo pmset -c sleep 0
 # Set machine sleep to 30 minutes on battery
 sudo pmset -b sleep 30
 
-# Set standby delay to 24 hours (default is 1 hour)
-sudo pmset -a standbydelay 86400
+# Set standby delay to 4 hours (default is 1 hour)
+sudo pmset -a standbydelay 14400
 
 # Never go into computer sleep mode
 sudo systemsetup -setcomputersleep Off > /dev/null
