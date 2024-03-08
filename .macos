@@ -178,6 +178,9 @@ sudo defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool tr
 # Disable press-and-hold for keys in favor of key repeat
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
+# Disable Sonoma keyboard layout popup in input fields
+defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0
+
 # Set a blazingly fast keyboard repeat rate
 # defaults write NSGlobalDomain KeyRepeat -int 3
 # defaults write NSGlobalDomain InitialKeyRepeat -int 20
