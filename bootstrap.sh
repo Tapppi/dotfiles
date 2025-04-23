@@ -6,8 +6,11 @@ git pull origin;
 
 function doIt() {
 	rsync --exclude ".git/" \
+		--exclude ".git" \
+		--exclude ".gitattributes" \
 		--exclude ".DS_Store" \
 		--exclude ".osx" \
+		--exclude ".editorconfig" \
 		--exclude "bootstrap.sh" \
 		--exclude "README.md" \
 		--exclude "brew.sh" \
