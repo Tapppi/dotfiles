@@ -35,7 +35,7 @@ defaults write NSGlobalDomain AppleHighlightColor -string "0.764700 0.976500 0.5
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2
 
 # Always show scrollbars
-defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
+#defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
 # Possible values: `WhenScrolling`, `Automatic` and `Always`
 
 # Disable the over-the-top focus ring animation
@@ -69,7 +69,7 @@ defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
 # Disable the beep sound
-defaults write com.apple.sound.beep.sound -string /System/Library/Sounds/Sosumi.aiff	
+defaults write com.apple.sound.beep.sound -string /System/Library/Sounds/Sosumi.aiff
 
 # Disable UI and feedback audio
 defaults write com.apple.sound.uiaudio.enabled -int 0
@@ -128,23 +128,6 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 #sudo ln -s /path/to/your/image /System/Library/CoreServices/DefaultDesktop.jpg
 
 ###############################################################################
-# SSD-specific tweaks                                                         #
-###############################################################################
-
-# Disable hibernation (speeds up entering sleep mode)
-sudo pmset -a hibernatemode 0
-
-# Sleepimage is now under SIP control
-# Disable SIP by running `. csrutil disable` in recovery mode
-
-# Remove the sleep image file to save disk space
-#sudo rm /private/var/vm/sleepimage
-# Create a zero-byte file instead…
-#sudo touch /private/var/vm/sleepimage
-# …and make sure it can’t be rewritten
-#sudo chflags uchg /private/var/vm/sleepimage
-
-###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
 ###############################################################################
 
@@ -176,14 +159,14 @@ sudo defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262
 sudo defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
 
 # Disable press-and-hold for keys in favor of key repeat
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+#defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # Disable Sonoma keyboard layout popup in input fields
 defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0
 
 # Set a blazingly fast keyboard repeat rate
-# defaults write NSGlobalDomain KeyRepeat -int 3
-# defaults write NSGlobalDomain InitialKeyRepeat -int 20
+defaults write NSGlobalDomain KeyRepeat -int 3
+defaults write NSGlobalDomain InitialKeyRepeat -int 20
 
 # Set language and text formats
 # Note: if you’re in the US, replace `EUR` with `USD`, `Centimeters` with
@@ -215,17 +198,28 @@ sudo pmset -a autorestart 1
 # Restart automatically if the computer freezes
 sudo systemsetup -setrestartfreeze on
 
-# Sleep the display after 15 minutes
-sudo pmset -a displaysleep 15
+# Sleep the display after 10 minutes on battery and 20 while charging
+sudo pmset -b displaysleep 10
+sudo pmset -c displaysleep 20
 
-# Disable machine disksleep
-sudo pmset -a disksleep 0
+# Disable machine disksleep while charging and sleep the disk after 15 min on battery
+sudo pmset -b disksleep 15
+sudo pmset -c disksleep 0
 
-# Disable machine sleep while charging
+# Disable machine sleep while charging and sleep after 30 on battery
+sudo pmset -b sleep 30
 sudo pmset -c sleep 0
 
-# Set machine sleep to 30 minutes on battery
-sudo pmset -b sleep 30
+# Disable powernap on battery
+sudo pmset -b powernap 0
+sudo pmset -c powernap 1
+
+# Wake on ethernetpackets always
+sudo pmset -a womp 1
+
+# UPS settings :D
+sudo pmset -u lessbright 1
+sudo pmset -u displaysleep 2
 
 # Set standby delay to 4 hours (default is 1 hour)
 sudo pmset -a standbydelay 14400
@@ -238,6 +232,10 @@ sudo systemsetup -setcomputersleep Off > /dev/null
 # 3: Copy RAM to disk so the system state can still be restored in case of a
 #    power failure.
 sudo pmset -a hibernatemode 0
+
+
+# Sleepimage is now under SIP control
+# Disable SIP by running `. csrutil disable` in recovery mode
 
 # Remove the sleep image file to save disk space
 sudo rm /private/var/vm/sleepimage
@@ -252,10 +250,11 @@ sudo chflags uchg /private/var/vm/sleepimage
 
 # Require password immediately after sleep or screen saver begins
 defaults write com.apple.screensaver askForPassword -int 1
-defaults write com.apple.screensaver askForPasswordDelay -int 5
+defaults write com.apple.screensaver askForPasswordDelay -int 15
 
-# Save screenshots to the desktop
-defaults write com.apple.screencapture location -string "${HOME}/Desktop"
+# Save screenshots to the Screenshots directory
+mkdir -p "${HOME}/Screenshots"
+defaults write com.apple.screencapture location -string "${HOME}/Screenshots"
 
 # Save screenshots in PNG format (other options: BMP, GIF, JPG, PDF, TIFF)
 defaults write com.apple.screencapture type -string "png"
@@ -374,10 +373,6 @@ chflags nohidden ~/Library
 # Show the /Volumes folder
 sudo chflags nohidden /Volumes
 
-# Remove Dropbox’s green checkmark icons in Finder
-file=/Applications/Dropbox.app/Contents/Resources/emblem-dropbox-uptodate.icns
-[ -e "${file}" ] && mv -f "${file}" "${file}.bak"
-
 # Expand the following File Info panes:
 # “General”, “Open with”, and “Sharing & Permissions”
 defaults write com.apple.finder FXInfoPanesExpanded -dict \
@@ -398,8 +393,8 @@ defaults write com.apple.dock tilesize -int 36
 # Change minimize/maximize window effect
 defaults write com.apple.dock mineffect -string "scale"
 
-# Minimize windows into their application’s icon
-defaults write com.apple.dock minimize-to-application -bool true
+# Don't minimize windows into their application’s icon
+defaults write com.apple.dock minimize-to-application -bool false
 
 # Enable spring loading for all Dock items
 defaults write com.apple.dock enable-spring-load-actions-on-all-items -bool true
