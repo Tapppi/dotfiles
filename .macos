@@ -204,11 +204,11 @@ sudo pmset -c displaysleep 20
 
 # Disable machine disksleep while charging and sleep the disk after 15 min on battery
 sudo pmset -b disksleep 15
-sudo pmset -c disksleep 0
+sudo pmset -c disksleep 45
 
 # Disable machine sleep while charging and sleep after 30 on battery
 sudo pmset -b sleep 30
-sudo pmset -c sleep 0
+sudo pmset -c sleep 90
 
 # Disable powernap on battery
 sudo pmset -b powernap 0
