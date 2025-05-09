@@ -88,7 +88,7 @@ if which kubectl &> /dev/null; then
 	  source <(kubectl completion bash)
 	fi
 	# Add aliases
-	complete -o default -o nospace -F __start_kubectl kc ks kp kl kd
+	complete -o default -o nospace -F __start_kubectl k kc ks kp kl kd
 fi;
 
 # Add tab completion for node version manager
