@@ -106,7 +106,7 @@ if type _psql &> /dev/null; then
 fi;
 
 # Tab completion for rustup
-if which rustup &> /dev/null && [ -d "$(brew --prefix)/etc/bash_completion.d"]; then
+if which rustup &> /dev/null && [ -d "$(brew --prefix)/etc/bash_completion.d" ]; then
 	rustup completions bash > $(brew --prefix)/etc/bash_completion.d/rustup.bash-completion
 fi;
 
