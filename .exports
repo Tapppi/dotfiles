@@ -56,3 +56,7 @@ if [ -d ~/.kube/configs ]; then
 		export KUBECONFIG=$KUBECONFIG:"$i";
 	done
 fi
+
+# Ripgrep config file
+export RIPGREP_CONFIG_PATH=~/.ripgreprc
+
