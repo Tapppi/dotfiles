@@ -21,6 +21,9 @@ fi
 # Increase max open file descriptors
 ulimit -S -n 10000
 
+# Disable history expansion
+set +H
+
 # Extended glob pattern matching
 shopt -s extglob
 
