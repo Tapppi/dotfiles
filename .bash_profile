@@ -1,18 +1,44 @@
 #!/usr/bin/env bash
 
+# Log and time all loads
+DEBUG=0
+
 TIMEFORMAT="Done: real %2R (user %2U | system %2S)"
+
+# Debug function that only logs and times if DEBUG is set, or if first arg is 1
+debug_exec() {
+	local force_debug_or_func_name="$1"
+
+	if [ "$force_debug_or_func_name" = "1" ] || [ "$force_debug_or_func_name" = "0" ]; then
+		local func_name="$2"
+		shift 2
+		if [ "$force_debug_or_func_name" = "1" ]; then
+			echo "==> $func_name | $@"
+			time "$func_name" "$@"
+		else
+			"$func_name" "$@"
+		fi
+	elif [ -n "$DEBUG" ]; then
+		shift
+		echo "==> $force_debug_or_func_name | $@"
+		time "$force_debug_or_func_name" "$@"
+	else
+		shift
+		"$force_debug_or_func_name" "$@"
+	fi
+}
 
 # Load the shell dotfiles, and then some:
 # * ~/.extra can be used for other settings you don’t want to commit.
 # * ~/.path can be used to extend `$PATH`. Loaded last in order to have .exports & co. available
 for file in ~/.{credentials,exports,functions,aliases,bash_prompt,extra,path}; do
-	[ -r "$file" ] && [ -f "$file" ] && echo "Load $file..." && time source "$file";
+	[ -r "$file" ] && [ -f "$file" ] && debug_exec source "$file";
 done;
 unset file;
 
-# Set alias 'fuck' for 'thefuck'
+# Set alias 'fck' for 'thefuck'
 if which thefuck &> /dev/null 2>&1; then
-	eval "$(thefuck --alias fuck)"
+	eval "$(thefuck --alias fck)"
 fi
 
 # Increase max open file descriptors
@@ -55,14 +81,15 @@ activate_zoxide () {
 }
 
 # Add tab completion for many Bash commands
-if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-	# Ensure existing Homebrew v1 completions continue to work
-	export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
-	echo "Load compat completions..."
-	time source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
-elif [ -f /etc/bash_completion ]; then
-	source /etc/bash_completion;
-fi;
+load_compat_completions () {
+	if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+		# Ensure existing Homebrew v1 completions continue to work
+		export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
+		source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+	elif [ -f /etc/bash_completion ]; then
+		source /etc/bash_completion;
+	fi;
+}
 
 load_alias_completions () {
 	# Enable tab completion for `g` by marking it as an alias for `git`
@@ -105,14 +132,8 @@ load_brew_completions () {
 	fi;
 }
 
-echo "Activate mise..."
-time activate_mise
-
-echo "Activate zoxide..."
-time activate_zoxide
-
-echo "Load alias completions..."
-time load_alias_completions
-
-echo "Load brew and manual completions..."
-time load_brew_completions
+debug_exec 1 activate_mise
+debug_exec 0 activate_zoxide
+debug_exec 1 load_compat_completions
+debug_exec 0 load_alias_completions
+debug_exec 1 load_brew_completions
