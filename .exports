@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 export XDG_DATA_HOME=~
+# Needs to migrate stuff from "~/Library/Application Support/" and "~" per-program
+#export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_BIN_HOME="${HOME}/.local/bin"
 
 # Make micro the default editor.
 export EDITOR='micro';
