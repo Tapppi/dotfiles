@@ -13,8 +13,8 @@ export NODE_REPL_HISTORY_SIZE='32768';
 export NODE_REPL_MODE='sloppy';
 
 # Set node-rdkafka openssl build flags
-export CPPFLAGS=-I/usr/local/opt/openssl@1.1/include
-export LDFLAGS=-L/usr/local/opt/openssl@1.1/lib
+export CPPFLAGS=-I/usr/local/opt/openssl@3/include
+export LDFLAGS=-L/usr/local/opt/openssl@3/lib
 
 # Go
 export GOPATH="${HOME}/go";
@@ -59,4 +59,3 @@ fi
 
 # Ripgrep config file
 export RIPGREP_CONFIG_PATH=~/.ripgreprc
-
