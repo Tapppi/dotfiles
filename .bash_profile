@@ -43,13 +43,9 @@ for option in autocd globstar; do
 	shopt -s "$option" 2> /dev/null;
 done;
 
-# Load node version manager
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-
-# Enable pyenv shell integration
-if which pyenv &> /dev/null 2>&1; then
-	eval "$(pyenv init -)"
+# Activate mise for all the runtimes
+if which brew &> /dev/null 2>&1; then
+	eval "$($(brew --prefix mise)/bin/mise activate bash)"
 fi
 
 # Add tab completion for many Bash commands
@@ -100,20 +96,6 @@ load_brew_completions () {
 		fi
 		# Add aliases
 		complete -o default -o nospace -F __start_kubectl k kc ks kp kl kd
-	fi;
-
-	# Add tab completion for node version manager
-	if [ -s "$NVM_DIR/bash_completion" ]; then
-		if which brew &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
-			cp -f "$NVM_DIR/bash_completion" "$(brew --prefix)/share/bash-completion/completions/nvm"
-		else
-			\. "$NVM_DIR/bash_completion"
-		fi;
-	fi;
-
-	# Tab completion for rustup
-	if which rustup &> /dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
-		rustup completions bash > $(brew --prefix)/share/bash-completion/completions/rustup
 	fi;
 }
 
