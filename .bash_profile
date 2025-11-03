@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
-# Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH";
-
 TIMEFORMAT="Done: real %2R (user %2U | system %2S)"
 
 # Load the shell dotfiles, and then some:
-# * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don’t want to commit.
-for file in ~/.{path,credentials,bash_prompt,exports,aliases,functions,extra}; do
+# * ~/.path can be used to extend `$PATH`. Loaded last in order to have .exports & co. available
+for file in ~/.{credentials,exports,functions,aliases,bash_prompt,extra,path}; do
 	[ -r "$file" ] && [ -f "$file" ] && echo "Load $file..." && time source "$file";
 done;
 unset file;
