@@ -44,9 +44,15 @@ for option in autocd globstar; do
 done;
 
 # Activate mise for all the runtimes
-if which brew &> /dev/null 2>&1; then
-	eval "$($(brew --prefix mise)/bin/mise activate bash)"
-fi
+activate_mise () {
+	if which brew &> /dev/null 2>&1; then
+		eval "$($(brew --prefix mise)/bin/mise activate bash)"
+	fi
+}
+
+activate_zoxide () {
+	eval "$(zoxide init bash)"
+}
 
 # Add tab completion for many Bash commands
 if which brew &> /dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
@@ -98,6 +104,12 @@ load_brew_completions () {
 		complete -o default -o nospace -F __start_kubectl k kc ks kp kl kd
 	fi;
 }
+
+echo "Activate mise..."
+time activate_mise
+
+echo "Activate zoxide..."
+time activate_zoxide
 
 echo "Load alias completions..."
 time load_alias_completions
