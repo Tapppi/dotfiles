@@ -30,4 +30,5 @@ else
 fi;
 unset doIt;
 
-cd -;
+cd - >/dev/null 2>&1;
+
