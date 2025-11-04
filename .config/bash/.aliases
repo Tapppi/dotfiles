@@ -13,8 +13,10 @@ alias doc="cd ~/Documents"
 alias dl="cd ~/Downloads"
 alias dt="cd ~/Desktop"
 alias g="git"
+alias gl="lazygit"
 alias k="kubectl"
 alias gc="gcloud"
+alias oc="opencode"
 
 # Safe-rm
 alias rm="safe-rm"
