@@ -170,7 +170,10 @@ function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
 
-# nnn file manager - cd on quit
+# =================
+# nnn file manager
+# =================
+# cd shell to nnn dir on quit
 # See: https://github.com/jarun/nnn/wiki/Basic-use-cases#configure-cd-on-quit
 n ()
 {
@@ -202,3 +205,13 @@ n ()
 		rm -f -- "$NNN_TMPFILE" > /dev/null
 	}
 }
+
+cd nnn to subshells pwd on quit
+nnn_cd()
+{
+    if ! [ -z "$NNN_PIPE" ]; then
+        printf "%s\0" "0c${PWD}" > "${NNN_PIPE}" !&
+    fi
+}
+
+trap nnn_cd EXIT
