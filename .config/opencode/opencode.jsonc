@@ -1,7 +1,10 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "tui": {
-    "scroll_speed": 4
-  }
+	"$schema": "https://opencode.ai/config.json",
+	"tui": {
+		"scroll_speed": 4,
+		"keybinds": {
+			"input_submit": "ctrl+l",
+			"input_newline": "enter",
+		},
+	},
 }
-
