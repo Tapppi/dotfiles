@@ -26,6 +26,25 @@ export NNN_TRASH='trash'
 # Downloads and Documents sorted by time
 export NNN_ORDER="t:$HOME/Downloads;t:$HOME/Documents"
 
+# NNN_FIFO: Enable FIFO for live previews
+export NNN_FIFO=/tmp/nnn.fifo
+
+# NNN_ICONLOOKUP: Enable icons in directory previews
+export NNN_ICONLOOKUP=1
+
+# NNN_PLUG: Configure plugins
+# f:finder - macOS Finder integration
+# o:fzopen - fuzzy file opener with fzf
+# p:preview-tui - requires tmux session (toggle preview)
+# d:diffs - file diff tool
+# n:nmount - mount/unmount tool
+# v:imgview - image viewer
+# q:qfind - quick find first match and open in nuke
+# s:qfd - quick find files using fd (load to selection)
+# g:qrg - quick grep using rg (load to selection)
+# c:!cd - change directory inline command
+export NNN_PLUG='f:finder;o:fzopen;p:preview-tui;d:diffs;n:nmount;v:imgview;q:qfind;s:qfd;g:qrg;c:!read -r to && [ -n "$to" ] && printf "0c%s" "${to}" > "$NNN_PIPE"*'
+
 # cd shell to nnn dir on quit
 # See: https://github.com/jarun/nnn/wiki/Basic-use-cases#configure-cd-on-quit
 n() {
