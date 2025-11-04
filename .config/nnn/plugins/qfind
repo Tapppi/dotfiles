@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+NUKE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins/nuke"
+
+printf "file name: "
+read -r pattern
+
+entry=$(fd -HI --type f "$pattern" -1 2>/dev/null)
+
+if [ -n "$entry" ]; then
+    "$NUKE" "$entry"
+fi
