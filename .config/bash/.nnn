@@ -5,8 +5,7 @@
 # =================
 # cd shell to nnn dir on quit
 # See: https://github.com/jarun/nnn/wiki/Basic-use-cases#configure-cd-on-quit
-n ()
-{
+n() {
 	# Block nesting of nnn in subshells
 	[ "${NNNLVL:-0}" -eq 0 ] || {
 		echo "nnn is already running"
@@ -32,16 +31,15 @@ n ()
 
 	[ ! -f "$NNN_TMPFILE" ] || {
 		. "$NNN_TMPFILE"
-		rm -f -- "$NNN_TMPFILE" > /dev/null
+		rm -f -- "$NNN_TMPFILE" >/dev/null
 	}
 }
 
 # cd nnn to subshells pwd on quit
-nnn_cd()
-{
-    if ! [ -z "$NNN_PIPE" ]; then
-        printf "%s\0" "0c${PWD}" > "${NNN_PIPE}" !&
-    fi
+nnn_cd() {
+	if ! [ -z "$NNN_PIPE" ]; then
+		printf "%s\0" "0c${PWD}" ! >"${NNN_PIPE}" &
+	fi
 }
 
 trap nnn_cd EXIT
