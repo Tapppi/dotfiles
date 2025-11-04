@@ -58,6 +58,25 @@ function fs() {
 	fi
 }
 
+# ripgrep->fzf->nvim [QUERY]
+rfv() (
+	RELOAD='reload:rg --column --color=always --smart-case {q} || :'
+	OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
+            nvim {1} +{2}     # No selection. Open the current line in Vim.
+          else
+            nvim +cw -q {+f}  # Build quickfix list for the selected items.
+          fi'
+	fzf --disabled --ansi --multi \
+		--bind "start:$RELOAD" --bind "change:$RELOAD" \
+		--bind "enter:become:$OPENER" \
+		--bind "ctrl-o:execute:$OPENER" \
+		--bind 'alt-a:select-all,alt-d:deselect-all,ctrl-/:toggle-preview' \
+		--delimiter : \
+		--preview 'bat --style=full --color=always --highlight-line {2} {1}' \
+		--preview-window '~4,+{2}+4/3,<80(up)' \
+		--query "$*"
+)
+
 # Use Git’s colored diff when available
 hash git &>/dev/null
 if [ $? -eq 0 ]; then
@@ -122,7 +141,7 @@ function getcertnames() {
 	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" |
 		openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1)
 
-	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
+	if [[ "${tmp}" =~ "-----BEGIN CERTIFICATE-----" ]]; then
 		local certText=$(echo "${tmp}" |
 			openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
 			no_serial, no_sigdump, no_signame, no_validity, no_version")
