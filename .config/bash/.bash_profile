@@ -29,9 +29,9 @@ debug_exec() {
 }
 
 # Load the shell dotfiles, and then some:
-# * ~/.extra can be used for other settings you don’t want to commit.
+# * ~/.extra can be used for other settings you don't want to commit.
 # * ~/.path can be used to extend `$PATH`. Loaded last in order to have .exports & co. available
-for file in ~/.config/bash/.{credentials,exports,functions,aliases,bash_prompt,extra,path}; do
+for file in ~/.config/bash/.{credentials,exports,functions,nnn,aliases,bash_prompt,extra,path}; do
 	[ -r "$file" ] && [ -f "$file" ] && debug_exec source "$file";
 done;
 unset file;
