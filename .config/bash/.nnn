@@ -7,13 +7,17 @@
 # NNN_BMS: Bookmarks for quick navigation
 export NNN_BMS="n:$HOME/project/github/tapppi/nix-config/flakes/nvim;m:$HOME/macos-setup;p:$HOME/project;g:$HOME/project/github/tapppi"
 
-# NNN_COLORS: Context colors using Catppuccin-inspired scheme
-# Using xterm 256 colors: Catppuccin Mocha palette
-export NNN_COLORS='#89b4fa89dceb94e2d8f5c2e7'
+# # Export Context Colors
+# NNN_COLORS: Context colors (xterm 256 colors followed by 8-color fallback)
+# This is for if we have cattpuccin theme in shell
+BLK="03" CHR="03" DIR="04" EXE="02" REG="07" HARDLINK="05" SYMLINK="05" MISSING="08" ORPHAN="01" FIFO="06" SOCK="03" UNKNOWN="01"
+export NNN_COLORS="#9997E5D3;4231"
+# This is for without catppuccin theme, but still use those colors
+#BLK="E5" CHR="E5" DIR="99" EXE="97" REG="07" HARDLINK="E1" SYMLINK="E1" MISSING="08" ORPHAN="D3" FIFO="9F" SOCK="E5" UNKNOWN="D3"
+#export NNN_COLORS="#04020301;4231"
 
-# NNN_FCOLORS: File-specific colors using Catppuccin Mocha palette
-# Order: block, char, dir, exec, regular, hard link, symlink, missing, orphan, fifo, socket, unknown
-export NNN_FCOLORS='89dceb94e2d8cdd6f4a6e3a100b4befab387cdd6f4f38ba8eba0acf5c2e7'
+# NNN_FCOLORS: File-specific colors
+export NNN_FCOLORS="$BLK$CHR$DIR$EXE$REG$HARDLINK$SYMLINK$MISSING$ORPHAN$FIFO$SOCK$UNKNOWN"
 
 # NNN_TRASH: Use macOS native trash command
 export NNN_TRASH='trash'
