@@ -53,6 +53,9 @@ shopt -s extglob
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob
 
+# Make bash check its window size after a process completes
+shopt -s checkwinsize
+
 # Append to the Bash history file, rather than overwriting it
 shopt -s histappend
 
