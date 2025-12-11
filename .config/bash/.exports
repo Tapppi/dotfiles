@@ -6,7 +6,7 @@ export XDG_DATA_HOME="${HOME}/.local/share"
 export XDG_BIN_HOME="${HOME}/.local/bin"
 
 # Make micro the default editor.
-export EDITOR='micro'
+export EDITOR='nvim'
 
 # Enable persistent REPL history for `node`.
 export NODE_REPL_HISTORY=~/.node_history
