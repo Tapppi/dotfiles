@@ -16,6 +16,9 @@ function doIt() {
 		--exclude "brew.sh" \
 		--exclude "LICENSE-MIT.txt" \
 		-avh --no-perms . ~
+	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
+	mkdir -p "~/Library/Application Support/lazygit/"
+	cp -f ~/.config/lazygit/config.yml ~/Library/Application\ Support/lazygit/config.yml
 	source ~/.bash_profile
 }
 
