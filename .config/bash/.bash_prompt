@@ -3,7 +3,10 @@
 # Shell prompt based on the Solarized Dark theme.
 # Heavily inspired by @necolas’s prompt: https://github.com/necolas/dotfiles
 
-if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
+if [ -n "$TMUX" ]; then
+	# Let tmux handle TERM
+	echo "In tmux, term: ${TERM}"
+elif [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
 	export TERM='gnome-256color'
 elif infocmp xterm-256color >/dev/null 2>&1; then
 	export TERM='xterm-256color'
