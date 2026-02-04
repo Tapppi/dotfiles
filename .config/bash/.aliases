@@ -28,7 +28,7 @@ alias t="tmux"
 alias tx="tmuxinator"
 
 # Tieto (Personal Knowledge Base) shortcuts
-alias tv='nvim $HOME/tieto/dashboard.md'
+alias tv='$EDITOR $HOME/tieto/dashboard.md'
 alias to='open "obsidian://open?vault=tieto&file=+dashboard"'
 alias tc='cd ~/tieto'
 alias ta='opencode ~/tieto'
