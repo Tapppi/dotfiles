@@ -25,6 +25,7 @@ alias a="opencode"
 alias v="nvim"
 alias s="ssh"
 alias t="tmux"
+alias tx="tmuxinator"
 
 # Tieto (Personal Knowledge Base) shortcuts
 alias tv='nvim $HOME/tieto/dashboard.md'
