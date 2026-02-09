@@ -15,6 +15,7 @@ function doIt() {
 		--exclude "README.md" \
 		--exclude "brew.sh" \
 		--exclude "LICENSE-MIT.txt" \
+		--exclude ".config/opencode/" \
 		-avh --no-perms . ~
 	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
 	mkdir -p "~/Library/Application Support/lazygit/"
