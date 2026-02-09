@@ -38,6 +38,10 @@
       "model": "opencode/kimi-k2.5-free"
     }
   },
+  "tmux": {
+    "enabled": true,
+    "layout": "main-vertical"
+  },
   "categories": {
     "visual-engineering": {
       "model": "google/gemini-3-pro"
@@ -66,5 +70,10 @@
     "writing": {
       "model": "google/gemini-3-flash"
     }
+  },
+  "experimental": {
+    "preemptive_compaction_threshold": 0.85,
+    "dcp_for_compaction": true,
+    "auto_resume": true
   }
 }
