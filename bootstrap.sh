@@ -25,7 +25,7 @@ function doIt() {
 	dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE}")" && pwd)"
 	mkdir -p ~/.config/opencode
 	ln -sf "${dotfiles_dir}/.config/opencode/opencode.jsonc" ~/.config/opencode/opencode.jsonc
-	ln -sf "${dotfiles_dir}/.config/opencode/oh-my-opencode.json" ~/.config/opencode/oh-my-opencode.json
+	ln -sf "${dotfiles_dir}/.config/opencode/oh-my-opencode.jsonc" ~/.config/opencode/oh-my-opencode.jsonc
 
 	source ~/.bash_profile
 }
