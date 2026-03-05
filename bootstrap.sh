@@ -15,18 +15,10 @@ function doIt() {
 		--exclude "README.md" \
 		--exclude "brew.sh" \
 		--exclude "LICENSE-MIT.txt" \
-		--exclude ".config/opencode/" \
 		-avh --no-perms . ~
 	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
-	mkdir -p "~/Library/Application Support/lazygit/"
+	mkdir -p ~/Library/Application\ Support/lazygit
 	cp -f ~/.config/lazygit/config.yml ~/Library/Application\ Support/lazygit/config.yml
-
-	# Symlink opencode config (the directory has tool-managed files alongside it)
-	local dotfiles_dir
-	dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE}")" && pwd)"
-	mkdir -p ~/.config/opencode
-	ln -sf "${dotfiles_dir}/.config/opencode/opencode.jsonc" ~/.config/opencode/opencode.jsonc
-	ln -sf "${dotfiles_dir}/.config/opencode/oh-my-opencode.jsonc" ~/.config/opencode/oh-my-opencode.jsonc
 
 	source ~/.bash_profile
 }
