@@ -157,9 +157,17 @@ alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && k
 # URL-encode strings
 alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
 
-# Merge PDF files, preserving hyperlinks
+# Merge or split PDF files, preserving hyperlinks
 # Usage: `mergepdf input{1,2,3}.pdf`
 alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
+# Usage: `splitpdf input.pdf output.pdf 0 5`
+splitpdf() {
+	local in=$1
+	local out=$2
+	local first_page=$3
+	local last_page=$4
+	gs -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dFirstPage=${first_page} -dLastPage=${last_page} -sOutputFile=${out} ${in}
+}
 
 # Disable Spotlight
 alias spotoff="sudo mdutil -a -i off"
