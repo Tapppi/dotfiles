@@ -2,9 +2,9 @@
 
 # ~/.macos — https://mths.be/macos
 
-# Close any open System Preferences panes, to prevent them from overriding
+# Close any open System Settings panes, to prevent them from overriding
 # settings we’re about to change
-osascript -e 'tell application "System Preferences" to quit'
+osascript -e 'tell application "System Settings" to quit'
 
 # Ask for the administrator password upfront
 sudo -v
@@ -23,7 +23,11 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 #sudo defaults write /Library/Preferences/SystemConfiguration/com.appl.smb.server NetBIOSName -string "0x6D746873"
 
 # Disable the sound effects on boot
-sudo nvram SystemAudioVolume=" "
+# NOTE: NVRAM control of boot chime is Intel-only. Apple Silicon uses a
+# different boot sound mechanism and may ignore this setting.
+if [[ "$(uname -m)" == "x86_64" ]]; then
+	sudo nvram SystemAudioVolume=" "
+fi
 
 # Disable transparency in the menu bar and elsewhere on Yosemite
 sudo defaults write com.apple.universalaccess reduceTransparency -bool true
@@ -145,9 +149,6 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # Disable “natural” (Lion-style) scrolling
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
-# Increase sound quality for Bluetooth headphones/headsets
-defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
-
 # Enable full keyboard access for all controls
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
@@ -180,10 +181,8 @@ defaults write NSGlobalDomain AppleMetricUnits -bool true
 sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
 
 # Set the timezone; see `sudo systemsetup -listtimezones` for other values
+# NOTE: systemsetup is deprecated but timezone setting has no pmset equivalent
 sudo systemsetup -settimezone "Europe/Helsinki" > /dev/null
-
-# Stop iTunes from responding to the keyboard media keys
-launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null
 
 ###############################################################################
 # Energy saving                                                               #
@@ -221,17 +220,15 @@ sudo pmset -a womp 1
 sudo pmset -u lessbright 1
 sudo pmset -u displaysleep 2
 
-# Set standby delay to 4 hours (default is 1 hour)
-sudo pmset -a standbydelay 14400
+# Set standby delay (high = above 50% battery, low = below 50%)
+sudo pmset -a standbydelayhigh 14400
+sudo pmset -a standbydelaylow 7200
 
-# Never go into computer sleep mode
-sudo systemsetup -setcomputersleep Off > /dev/null
-
-# Hibernation mode
-# 0: Disable hibernation (speeds up entering sleep mode)
-# 3: Copy RAM to disk so the system state can still be restored in case of a
-#    power failure.
-sudo pmset -a hibernatemode 0
+# Disable hibernation on Intel (speeds up entering sleep mode)
+# Apple Silicon manages sleep/hibernate internally
+if [[ "$(uname -m)" == "x86_64" ]]; then
+	sudo pmset -a hibernatemode 0
+fi
 
 ###############################################################################
 # Screen                                                                      #
@@ -251,12 +248,26 @@ defaults write com.apple.screencapture type -string "png"
 # Disable shadow in screenshots
 defaults write com.apple.screencapture disable-shadow -bool true
 
-# Enable subpixel font rendering on non-Apple LCDs
-# Reference: https://github.com/kevinSuttle/macOS-Defaults/issues/17#issuecomment-266633501
-defaults write NSGlobalDomain AppleFontSmoothing -int 1
+###############################################################################
+# Notifications                                                               #
+###############################################################################
 
-# Enable HiDPI display modes (requires restart)
-sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
+# Suppress notifications when mirroring or sharing the display
+# Replaces Muzzle app — native macOS feature since Ventura/Sonoma
+# System Settings → Notifications → "Allow notifications when mirroring or sharing the display" = OFF
+# dndMirrored=true means DND activates automatically when display is being shared/mirrored
+python3 - <<'PYEOF'
+import plistlib, os
+plist_path = os.path.expanduser('~/Library/Preferences/com.apple.ncprefs.plist')
+with open(plist_path, 'rb') as f:
+    outer = plistlib.load(f)
+dnd_blob = outer.get('dnd_prefs')
+inner = plistlib.loads(dnd_blob) if dnd_blob else {}
+inner['dndMirrored'] = True
+outer['dnd_prefs'] = plistlib.dumps(inner, fmt=plistlib.FMT_BINARY)
+with open(plist_path, 'wb') as f:
+    plistlib.dump(outer, f, fmt=plistlib.FMT_BINARY)
+PYEOF
 
 ###############################################################################
 # Finder                                                                      #
@@ -370,7 +381,7 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
 	Privileges -bool true
 
 ###############################################################################
-# Dock, Dashboard, and hot corners                                            #
+# Dock and hot corners                                                        #
 ###############################################################################
 
 # Enable highlight hover effect for the grid view of a stack (Dock)
@@ -409,12 +420,6 @@ defaults write com.apple.dock expose-animation-duration -float 0.1
 # (i.e. use the old Exposé behavior instead)
 defaults write com.apple.dock expose-group-by-app -bool false
 
-# Disable Dashboard
-defaults write com.apple.dashboard mcx-disabled -bool true
-
-# Don’t show Dashboard as a Space
-defaults write com.apple.dock dashboard-in-overlay -bool true
-
 # Don’t automatically rearrange Spaces based on most recent use
 defaults write com.apple.dock mru-spaces -bool false
 
@@ -438,10 +443,6 @@ defaults write com.apple.dock show-recents -bool false
 # Reset Launchpad, but keep the desktop wallpaper intact
 find "${HOME}/Library/Application Support/Dock" -name "*-*.db" -maxdepth 1 -delete
 
-# Add iOS & Watch Simulator to Launchpad
-sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app" "/Applications/Simulator.app"
-sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator (Watch).app" "/Applications/Simulator (Watch).app"
-
 # Add a spacer to the left side of the Dock (where the applications are)
 #defaults write com.apple.dock persistent-apps -array-add '{tile-data={}; tile-type="spacer-tile";}'
 # Add a spacer to the right side of the Dock (where the Trash is)
@@ -455,7 +456,6 @@ sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/Simulator (
 #  4: Desktop
 #  5: Start screen saver
 #  6: Disable screen saver
-#  7: Dashboard
 # 10: Put display to sleep
 # 11: Launchpad
 # 12: Notification Center
@@ -488,9 +488,6 @@ defaults write com.apple.Safari ShowFullURLInSmartSearchField -bool true
 # Set Safari’s home page to `about:blank` for faster loading
 defaults write com.apple.Safari HomePage -string "about:blank"
 
-# Prevent Safari from opening ‘safe’ files automatically after downloading
-defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
-
 # Allow hitting the Backspace key to go to the previous page in history
 defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2BackspaceKeyNavigationEnabled -bool true
 
@@ -515,7 +512,7 @@ defaults write com.apple.Safari ProxiesInBookmarksBar "()"
 # Enable the Develop menu and the Web Inspector in Safari
 defaults write com.apple.Safari IncludeDevelopMenu -bool true
 defaults write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2DeveloperExtrasEnabled -bool true
+defaults write com.apple.Safari WebKitPreferences.developerExtrasEnabled -bool true
 
 # Add a context menu item for showing the Web Inspector in web views
 defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
@@ -533,15 +530,6 @@ defaults write com.apple.Safari AutoFillMiscellaneousForms -bool false
 
 # Warn about fraudulent websites
 defaults write com.apple.Safari WarnAboutFraudulentWebsites -bool true
-
-# Disable plug-ins
-defaults write com.apple.Safari WebKitPluginsEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2PluginsEnabled -bool false
-
-# Disable Java
-defaults write com.apple.Safari WebKitJavaEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabled -bool false
-defaults write com.apple.Safari com.apple.Safari.ContentPageGroupIdentifier.WebKit2JavaEnabledForLocalFiles -bool false
 
 # Block pop-up windows
 defaults write com.apple.Safari WebKitJavaScriptCanOpenWindowsAutomatically -bool false
@@ -734,7 +722,7 @@ defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0
 
 ###############################################################################
-# Address Book, Dashboard, iCal, TextEdit, and Disk Utility                   #
+# TextEdit, Disk Utility, and QuickTime                                       #
 ###############################################################################
 
 # Use plain text mode for new TextEdit documents
@@ -872,11 +860,12 @@ for app in "Activity Monitor" \
 	"Google Chrome" \
 	"Mail" \
 	"Messages" \
+	"NotificationCenter" \
 	"Photos" \
+	"usernoted" \
 	"Safari" \
 	"SystemUIServer" \
 	"Transmission"; do
 	killall "${app}" &> /dev/null
 done
 echo "Done configuring macOS. Note that some of these changes require a logout/restart to take effect."
-echo "Quit and reopen Terminal to finish it's installation."
