@@ -9,11 +9,10 @@ doIt() {
 		--exclude ".git" \
 		--exclude ".gitattributes" \
 		--exclude ".DS_Store" \
-		--exclude ".osx" \
+		--exclude ".macos" \
 		--exclude ".editorconfig" \
 		--exclude "bootstrap.sh" \
 		--exclude "README.md" \
-		--exclude "brew.sh" \
 		--exclude "LICENSE-MIT.txt" \
 		--exclude "keyboard-layouts/" \
 		-avh --no-perms . ~

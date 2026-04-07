@@ -44,7 +44,7 @@ done
 unset file
 
 # Set alias 'fck' for 'thefuck'
-if which thefuck &>/dev/null 2>&1; then
+if command -v thefuck >/dev/null 2>&1; then
 	eval "$(thefuck --alias fck)"
 fi
 
@@ -81,7 +81,7 @@ done
 
 # Activate mise for all the runtimes
 activate_mise() {
-	if which brew &>/dev/null 2>&1; then
+	if command -v brew >/dev/null 2>&1; then
 		eval "$($(brew --prefix mise)/bin/mise activate bash)"
 	fi
 }
@@ -92,11 +92,11 @@ activate_zoxide() {
 
 # Add tab completion for many Bash commands
 load_compat_completions() {
-	if which brew &>/dev/null && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+	if command -v brew >/dev/null 2>&1 && [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 		# Ensure existing Homebrew v1 completions continue to work
 		export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
 		source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
-	elif [ -f /etc/bash_completion ]; then
+	elif [[ -f /etc/bash_completion ]]; then
 		source /etc/bash_completion
 	fi
 }
@@ -120,7 +120,7 @@ load_alias_completions() {
 	fi
 
 	# Add `killall` tab completion for common apps
-	complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter node" killall
+	complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari Music SystemUIServer Terminal node" killall
 }
 
 load_brew_completions() {
@@ -131,8 +131,8 @@ load_brew_completions() {
 	fi
 
 	# Turn on kubectl autocomplete.
-	if which kubectl &>/dev/null; then
-		if which brew &>/dev/null && [ -d "$(brew --prefix)/share/bash-completion/completions" ]; then
+	if command -v kubectl >/dev/null 2>&1; then
+		if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix)/share/bash-completion/completions" ]]; then
 			kubectl completion bash >"$(brew --prefix)/share/bash-completion/completions/kubectl"
 		else
 			source <(kubectl completion bash)
