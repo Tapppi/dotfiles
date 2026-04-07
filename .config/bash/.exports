@@ -15,9 +15,13 @@ export NODE_REPL_HISTORY_SIZE='32768'
 # Use sloppy mode by default, matching web browsers.
 export NODE_REPL_MODE='sloppy'
 
-# Set node-rdkafka openssl build flags
-export CPPFLAGS=-I/usr/local/opt/openssl@3/include
-export LDFLAGS=-L/usr/local/opt/openssl@3/lib
+# Set node-rdkafka openssl build flags (architecture-aware via brew prefix)
+if command -v brew >/dev/null 2>&1; then
+	_openssl_prefix="$(brew --prefix openssl@3)"
+	export CPPFLAGS="-I${_openssl_prefix}/include"
+	export LDFLAGS="-L${_openssl_prefix}/lib"
+	unset _openssl_prefix
+fi
 
 # Go
 export GOPATH="${HOME}/go"
