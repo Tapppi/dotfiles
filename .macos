@@ -180,6 +180,53 @@ defaults write NSGlobalDomain AppleMetricUnits -bool true
 # Show language menu in the top right corner of the boot screen
 sudo defaults write /Library/Preferences/com.apple.loginwindow showInputMenu -bool true
 
+# Enable keyboard input sources: Finnish, Finnish Programmer (custom), and U.S.
+# Finnish-prog bundle is installed by bootstrap.sh → ~/Library/Keyboard Layouts/
+# Uses python3+plistlib (same approach as notification prefs below) because
+# defaults(1) cannot write arrays of dicts.
+python3 - <<'PYEOF'
+import plistlib, os
+
+plist_path = os.path.expanduser(
+    "~/Library/Preferences/com.apple.HIToolbox.plist"
+)
+
+try:
+    with open(plist_path, "rb") as f:
+        prefs = plistlib.load(f)
+except FileNotFoundError:
+    prefs = {}
+
+keyboard_layouts = [
+    {
+        "InputSourceKind": "Keyboard Layout",
+        "KeyboardLayout ID": 17,
+        "KeyboardLayout Name": "Finnish",
+    },
+    {
+        "InputSourceKind": "Keyboard Layout",
+        "KeyboardLayout ID": -14667,
+        "KeyboardLayout Name": "Finnish-prog",
+    },
+    {
+        "InputSourceKind": "Keyboard Layout",
+        "KeyboardLayout ID": 0,
+        "KeyboardLayout Name": "U.S.",
+    },
+]
+
+non_keyboard = [
+    s
+    for s in prefs.get("AppleEnabledInputSources", [])
+    if s.get("InputSourceKind") != "Keyboard Layout"
+]
+
+prefs["AppleEnabledInputSources"] = keyboard_layouts + non_keyboard
+
+with open(plist_path, "wb") as f:
+    plistlib.dump(prefs, f, fmt=plistlib.FMT_BINARY)
+PYEOF
+
 # Set the timezone; see `sudo systemsetup -listtimezones` for other values
 # NOTE: systemsetup is deprecated but timezone setting has no pmset equivalent
 sudo systemsetup -settimezone "Europe/Helsinki" > /dev/null
@@ -693,6 +740,11 @@ defaults write com.apple.Terminal ShowLineMarks -int 0
 
 # Don't display the annoying prompt when quitting iTerm
 defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+# Force US keyboard layout when iTerm2 is focused
+# (useful when using a non-US layout like Finnish as the system default)
+defaults write com.googlecode.iterm2 ForceKeyboard -bool true
+defaults write com.googlecode.iterm2 KeyboardLocale -string "com.apple.keylayout.US"
 
 ###############################################################################
 # Time Machine                                                                #

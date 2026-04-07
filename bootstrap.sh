@@ -15,10 +15,15 @@ function doIt() {
 		--exclude "README.md" \
 		--exclude "brew.sh" \
 		--exclude "LICENSE-MIT.txt" \
+		--exclude "keyboard-layouts/" \
 		-avh --no-perms . ~
 	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
 	mkdir -p ~/Library/Application\ Support/lazygit
 	cp -f ~/.config/lazygit/config.yml ~/Library/Application\ Support/lazygit/config.yml
+
+	# Install custom keyboard layout bundles
+	mkdir -p ~/Library/Keyboard\ Layouts
+	cp -R keyboard-layouts/*.bundle ~/Library/Keyboard\ Layouts/
 
 	source ~/.bash_profile
 }
