@@ -28,6 +28,13 @@ debug_exec() {
 	fi
 }
 
+# Activate Homebrew (must be before sourcing dotfiles that use brew --prefix)
+if [ -x "/opt/homebrew/bin/brew" ]; then
+	eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x "/usr/local/bin/brew" ]; then
+	eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 # Load the shell dotfiles, and then some:
 # * ~/.extra can be used for other settings you don't want to commit.
 # * ~/.path can be used to extend `$PATH`. Loaded last in order to have .exports & co. available
