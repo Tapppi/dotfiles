@@ -149,6 +149,37 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # Disable “natural” (Lion-style) scrolling
 defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 
+# Mouse: pointer tracking speed (0–3)
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 1
+
+# Mouse: scroll wheel speed
+defaults write NSGlobalDomain com.apple.scrollwheel.scaling -float 1
+
+# Mouse: disable acceleration (linear tracking)
+defaults write NSGlobalDomain com.apple.mouse.linear -int 1
+
+# Magic Mouse: button mode and gestures
+# MouseButtonMode "OneButton" = whole surface acts as one button (no left/right split)
+# MouseTwoFingerDoubleTapGesture 3 = Smart Zoom
+# MouseTwoFingerHorizSwipeGesture 2 = swipe between pages
+defaults write com.apple.AppleMultitouchMouse MouseButtonDivision -int 55
+defaults write com.apple.AppleMultitouchMouse MouseButtonMode -string "OneButton"
+defaults write com.apple.AppleMultitouchMouse MouseHorizontalScroll -int 1
+defaults write com.apple.AppleMultitouchMouse MouseMomentumScroll -int 1
+defaults write com.apple.AppleMultitouchMouse MouseOneFingerDoubleTapGesture -int 0
+defaults write com.apple.AppleMultitouchMouse MouseTwoFingerDoubleTapGesture -int 3
+defaults write com.apple.AppleMultitouchMouse MouseTwoFingerHorizSwipeGesture -int 2
+defaults write com.apple.AppleMultitouchMouse MouseVerticalScroll -int 1
+
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonDivision -int 55
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseButtonMode -string "OneButton"
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseHorizontalScroll -int 1
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseMomentumScroll -int 1
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseOneFingerDoubleTapGesture -int 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseTwoFingerDoubleTapGesture -int 3
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseTwoFingerHorizSwipeGesture -int 2
+defaults write com.apple.driver.AppleBluetoothMultitouch.mouse MouseVerticalScroll -int 1
+
 # Enable full keyboard access for all controls
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
