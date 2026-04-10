@@ -16,6 +16,7 @@ doIt() {
 		--exclude "LICENSE-MIT.txt" \
 		--exclude "keyboard-layouts/" \
 		--exclude "home-agents.md" \
+		--exclude "AGENTS.md" \
 		-avh --no-perms . ~
 	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
 	mkdir -p ~/Library/Application\ Support/lazygit
