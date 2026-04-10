@@ -259,8 +259,14 @@ with open(plist_path, "wb") as f:
 PYEOF
 
 # Set the timezone; see `sudo systemsetup -listtimezones` for other values
-# NOTE: systemsetup is deprecated but timezone setting has no pmset equivalent
-sudo systemsetup -settimezone "Europe/Helsinki" > /dev/null
+# NOTE: systemsetup logs a cosmetic Error:-99 from InternetServices.m on
+# Sequoia/Tahoe but still sets the timezone. No non-deprecated replacement
+# exists — Apple still documents this command for Tahoe 26.
+sudo systemsetup -settimezone "Europe/Helsinki" > /dev/null 2>&1
+# Verify timezone was applied
+if ! sudo systemsetup -gettimezone 2>/dev/null | grep -q "Europe/Helsinki"; then
+	echo "Warning: timezone may not have been set correctly" >&2
+fi
 
 ###############################################################################
 # Energy saving                                                               #
@@ -273,7 +279,8 @@ sudo pmset -a lidwake 1
 sudo pmset -a autorestart 1
 
 # Restart automatically if the computer freezes
-sudo systemsetup -setrestartfreeze on
+# NOTE: no pmset equivalent exists; pmset autorestart covers power loss only
+sudo systemsetup -setrestartfreeze on > /dev/null 2>&1
 
 # Sleep the display after 10 minutes on battery and 20 while charging
 sudo pmset -b displaysleep 10
