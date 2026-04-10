@@ -133,9 +133,13 @@ load_brew_completions() {
 	# Turn on kubectl autocomplete.
 	if command -v kubectl >/dev/null 2>&1; then
 		if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix)/share/bash-completion/completions" ]]; then
-			kubectl completion bash >"$(brew --prefix)/share/bash-completion/completions/kubectl"
+			local kubectl_comp="$(brew --prefix)/share/bash-completion/completions/kubectl"
+			# Only regenerate when missing; install.sh cleans this after brew bundle
+			if [[ ! -f "${kubectl_comp}" ]]; then
+				kubectl completion bash >"${kubectl_comp}" 2>/dev/null
+			fi
 		else
-			source <(kubectl completion bash)
+			source <(kubectl completion bash 2>/dev/null)
 		fi
 		# Add aliases
 		complete -o default -o nospace -F __start_kubectl k kc ks kp kl kd
