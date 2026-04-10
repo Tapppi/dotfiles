@@ -81,6 +81,12 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
   2. Note that these commits need `git rebase` / `git commit --amend` to
      restore the correct author before pushing to a shared remote.
 
+### Do Not Run Setup Scripts
+
+- **NEVER** run `bootstrap.sh` or `.macos` automatically. These scripts
+  modify system configuration and sync files to `~`. The user must always
+  run them manually.
+
 ### Files to Never Commit
 
 - `.credentials`, API keys, tokens, passwords
