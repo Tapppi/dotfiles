@@ -4,13 +4,41 @@
 font-family = "MesloLGS Nerd Font Mono"
 font-size = 14
 
-# Theme
-theme = Catppuccin Mocha
+# Colors (from iTerm2 Default profile)
+background = #000000
+foreground = #BBBBBB
+cursor-color = #BBBBBB
+cursor-text = #FFFFFF
+selection-background = #B5D5FF
+selection-foreground = #000000
+
+# ANSI palette (0-7 normal, 8-15 bright)
+palette = 0=#000000
+palette = 1=#BB0000
+palette = 2=#00BB00
+palette = 3=#BBBB00
+palette = 4=#0000BB
+palette = 5=#BB00BB
+palette = 6=#00BBBB
+palette = 7=#BBBBBB
+palette = 8=#555555
+palette = 9=#FF5555
+palette = 10=#55FF55
+palette = 11=#FFFF55
+palette = 12=#5555FF
+palette = 13=#FF55FF
+palette = 14=#55FFFF
+palette = 15=#FFFFFF
 
 # Window
 background-opacity = 0.89
-window-padding-x = 4
-window-padding-y = 2
+window-padding-x = 0
+window-padding-y = 0
+# Position and size are managed by Hammerspoon; don't persist window state
+window-save-state = never
+# Hide title bar and traffic lights, keep native rounded corners and borders
+macos-titlebar-style = hidden
+macos-window-buttons = hidden
 
 # Cursor
 cursor-style = block
@@ -19,5 +47,5 @@ cursor-style-blink = false
 # Terminal
 scrollback-limit = 25000
 
-# macOS
+# macOS input
 macos-option-as-alt = left
