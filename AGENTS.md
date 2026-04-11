@@ -19,7 +19,7 @@ dotfiles/
     karabiner/            # Karabiner-Elements keyboard remapping
     lazygit/              # Lazygit TUI config
     mise/                 # Mise runtime version manager config
-    opencode/             # OpenCode AI agent config
+    opencode/             # OpenCode AI agent config + AGENTS.md (user-level context)
     ripgrep/              # Ripgrep defaults
   .hammerspoon/init.lua   # Per-app keyboard layout forcing
   .gitconfig              # Git aliases, diff-so-fancy, 1Password SSH signing
@@ -27,7 +27,6 @@ dotfiles/
   .macos                  # macOS system preferences script
   bootstrap.sh            # Rsyncs dotfiles to ~, copies lazygit config
   keyboard-layouts/       # Custom Finnish Programmer keyboard layout
-  home-agents.md          # User-level ~/AGENTS.md (installed by bootstrap.sh)
 ```
 
 ## Build / Lint
@@ -42,9 +41,10 @@ shellcheck bootstrap.sh .config/bash/.functions
 
 `bootstrap.sh` rsyncs this repo to `~`, excluding `.git`, `.macos`,
 `bootstrap.sh`, `README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`,
-`home-agents.md`, and `AGENTS.md`.
+and the root `AGENTS.md` (repo-level meta file, not meant for `~`).
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
-`home-agents.md` is copied to `~/AGENTS.md`.
+`.config/opencode/AGENTS.md` is rsynced to `~/.config/opencode/AGENTS.md`
+where OpenCode reads it as user-level agent context.
 
 ## Code Style
 

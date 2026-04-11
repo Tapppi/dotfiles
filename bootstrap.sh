@@ -15,15 +15,11 @@ doIt() {
 		--exclude "README.md" \
 		--exclude "LICENSE-MIT.txt" \
 		--exclude "keyboard-layouts/" \
-		--exclude "home-agents.md" \
-		--exclude "AGENTS.md" \
+		--exclude "/AGENTS.md" \
 		-avh --no-perms . ~
 	# Lazygit is looking in Application Support because we do not yet use XDG_CONFIG_HOME
 	mkdir -p ~/Library/Application\ Support/lazygit
 	cp -f ~/.config/lazygit/config.yml ~/Library/Application\ Support/lazygit/config.yml
-
-	# Install user-level AGENTS.md for AI agent context
-	cp -f home-agents.md ~/AGENTS.md
 
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts
