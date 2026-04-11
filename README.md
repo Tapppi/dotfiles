@@ -18,11 +18,14 @@ that repo for the full setup automation.
 - `.config/bash/` — aliases, exports, functions, prompt, nnn config
 - `.config/ghostty/` — Ghostty terminal config
 - `.config/karabiner/` — Karabiner-Elements keyboard remapping
+  - Caps Lock → Esc (alone) / Ctrl (held)
+  - Right Cmd + hjkl → arrow keys
+  - Tab → Hyper (Cmd+Ctrl+Opt+Shift) when held, Tab when tapped
 - `.config/lazygit/` — Lazygit TUI config
 - `.config/mise/` — Mise runtime version manager config
 - `.config/opencode/` — OpenCode AI agent config
 - `.config/ripgrep/` — Ripgrep defaults
-- `.hammerspoon/` — Per-app keyboard layout forcing
+- `.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
 - `.gitconfig` — Git aliases, diff-so-fancy, 1Password SSH signing
 - `.tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
