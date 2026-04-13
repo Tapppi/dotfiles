@@ -127,15 +127,6 @@ function server() {
 	python3 -m http.server "$port"
 }
 
-# Start a PHP server from a directory, optionally specifying the port
-function phpserver() {
-	local port="${1:-4000}"
-	local ip
-	ip=$(ipconfig getifaddr "$(route -n get default | awk '/interface:/{print $2}')")
-	sleep 1 && open "http://${ip}:${port}/" &
-	php -S "${ip}:${port}"
-}
-
 # Compare original and gzipped file size
 function gz() {
 	local origsize=$(wc -c <"$1")
