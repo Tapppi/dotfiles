@@ -30,6 +30,25 @@ that repo for the full setup automation.
 - `.tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
+## OpenCode / OpenAgent notes
+
+- `.config/opencode/opencode.json` is the synced OpenCode entrypoint and loads
+  `oh-my-openagent@latest` plus `opencode-claude-auth`.
+- `.config/opencode/oh-my-openagent.json` is the tracked companion config for
+  agent/category model choices and plugin-managed behavior.
+- `.config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
+  the user-level instruction file.
+- This repo intentionally keeps the OpenCode-side customisation focused on the
+  plugin entrypoint, companion config, and user-level instructions. MCP server
+  inventory and bundled skills come from `oh-my-openagent` itself rather than a
+  second hand-copied local mirror here.
+- Claude-specific auth remains explicit through the separate
+  `opencode-claude-auth` plugin entry in `opencode.json`.
+- No extra tmux/git-specific OpenCode wrapper config is tracked here. The repo
+  relies on the platform's built-in git/browser/tooling capabilities plus the
+  shared OpenAgent config instead of copying parallel custom wrappers into this
+  dotfiles repo.
+
 ## Attribution
 
 Forked from [Mathias Bynens' dotfiles](https://github.com/mathiasbynens/dotfiles),
