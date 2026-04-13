@@ -24,7 +24,6 @@ dotfiles/
   .hammerspoon/init.lua   # Per-app keyboard layout forcing
   .gitconfig              # Git aliases, diff-so-fancy, 1Password SSH signing
   .tmux.conf              # tmux with Ctrl+A prefix, vim keys, pbcopy
-  .macos                  # macOS system preferences script
   bootstrap.sh            # Rsyncs dotfiles to ~, copies lazygit config
   keyboard-layouts/       # Custom Finnish Programmer keyboard layout
 ```
@@ -39,8 +38,8 @@ shellcheck bootstrap.sh .config/bash/.functions
 
 ## Syncing to Home Directory
 
-`bootstrap.sh` rsyncs this repo to `~`, excluding `.git`, `.macos`,
-`bootstrap.sh`, `README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`,
+`bootstrap.sh` rsyncs this repo to `~`, excluding `.git`, `bootstrap.sh`,
+`README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`,
 and the root `AGENTS.md` (repo-level meta file, not meant for `~`).
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 `.config/opencode/AGENTS.md` is rsynced to `~/.config/opencode/AGENTS.md`
@@ -60,7 +59,7 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 
 - This repo uses `master` branch
 - GPG signing via 1Password SSH agent (`gpg.format = ssh`)
-- Commit messages: imperative mood, concise (e.g. "Add mouse settings to .macos")
+- Commit messages: imperative mood, concise (e.g. "Update Ghostty config")
 - After committing here, update the parent repo submodule pointer:
   ```sh
   cd .. && git add dotfiles && git commit -m "Update dotfiles"
@@ -83,8 +82,8 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 
 ### Do Not Run Setup Scripts
 
-- **NEVER** run `bootstrap.sh` or `.macos` automatically. These scripts
-  modify system configuration and sync files to `~`. The user must always
+- **NEVER** run `bootstrap.sh` automatically. This script
+  syncs files to `~`. The user must always
   run them manually.
 
 ### Files to Never Commit

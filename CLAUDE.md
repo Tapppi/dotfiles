@@ -17,7 +17,7 @@ shellcheck bootstrap.sh .config/bash/.functions
 
 ## Architecture
 
-- **`bootstrap.sh`** — Rsyncs this repo to `~`, excluding `.git`, `.macos`, `bootstrap.sh`,
+- **`bootstrap.sh`** — Rsyncs this repo to `~`, excluding `.git`, `bootstrap.sh`,
   `README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`, and the root `AGENTS.md`. Keyboard layouts
   are copied separately to `~/Library/Keyboard Layouts/`. Lazygit config is copied to
   `~/.config/lazygit/`.
@@ -29,14 +29,12 @@ shellcheck bootstrap.sh .config/bash/.functions
 - **`.hammerspoon/init.lua`** — Per-app keyboard layout forcing.
 - **`.gitconfig`** — Git aliases, `diff-so-fancy` pager, 1Password SSH signing (`gpg.format = ssh`).
 - **`.tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
-- **`.macos`** — macOS system preferences script (installs keyboard layouts, enables input sources).
 - **`keyboard-layouts/`** — Custom Finnish Programmer keyboard layout bundle.
 
 ## Rules
 
 ### Do Not Run Setup Scripts
-**NEVER** run `bootstrap.sh` or `.macos` automatically. These modify system configuration and sync
-files to `~`.
+**NEVER** run `bootstrap.sh` automatically. It syncs files to `~`.
 
 ### Git Identity and Attribution
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no agent signatures).
