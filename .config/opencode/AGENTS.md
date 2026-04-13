@@ -1,5 +1,17 @@
 # AGENTS.md
 
+## OpenCode config ownership
+
+- `opencode.json` is the synced entrypoint that loads `oh-my-openagent` and
+  `opencode-claude-auth`.
+- `oh-my-openagent.json` is the tracked companion config for agent/category
+  model selection.
+- This repo does not keep a separate hand-maintained mirror of every bundled
+  MCP server or skill shipped by `oh-my-openagent`; those stay plugin-managed.
+- Claude auth stays explicit via the dedicated `opencode-claude-auth` plugin.
+- No extra tmux/git-specific wrapper config is tracked here; the setup relies
+  on built-in platform capabilities and the shared OpenAgent config.
+
 ## Git Identity and Attribution
 
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no
