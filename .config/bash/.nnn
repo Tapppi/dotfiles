@@ -5,7 +5,7 @@
 # =================
 
 # NNN_BMS: Bookmarks for quick navigation
-export NNN_BMS="n:$HOME/project/github/tapppi/nix-config/flakes/nvim;m:$HOME/macos-setup;p:$HOME/project;g:$HOME/project/github/tapppi"
+export NNN_BMS="n:$HOME/project/github/tapppi/systems/flakes/nvim;g:$HOME/project/github/tapppi/gaul;s:$HOME/project/github/tapppi/systems:m;$HOME/project/github/tapppi/macos-setup;p:$HOME/project;h:$HOME/project/github/tapppi"
 
 # # Export Context Colors
 # NNN_COLORS: Context colors (xterm 256 colors followed by 8-color fallback)
