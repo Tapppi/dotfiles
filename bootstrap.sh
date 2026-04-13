@@ -9,7 +9,6 @@ doIt() {
 		--exclude ".git" \
 		--exclude ".gitattributes" \
 		--exclude ".DS_Store" \
-		--exclude ".macos" \
 		--exclude ".editorconfig" \
 		--exclude "bootstrap.sh" \
 		--exclude "README.md" \
