@@ -196,6 +196,9 @@ sudo defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool tr
 # Disable Sonoma keyboard layout popup in input fields
 defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0
 
+# Use F1-F12 as standard function keys; hold fn for media and brightness
+defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true
+
 # Set a blazingly fast keyboard repeat rate
 defaults write NSGlobalDomain KeyRepeat -int 3
 defaults write NSGlobalDomain InitialKeyRepeat -int 20
