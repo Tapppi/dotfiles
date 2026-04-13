@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # TEMP nvim reload until I get the home-manager integration going..
-alias nrl="z flakes/nvim && nix develop"
-alias trl="z flakes/nvim && nix develop #.test"
+alias nrl="z systems/flakes/nvim && nix develop"
+alias trl="z systems/flakes/nvim && nix develop #.test"
 
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."
