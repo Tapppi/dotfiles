@@ -23,7 +23,7 @@ that repo for the full setup automation.
   - Tab → Hyper (Cmd+Ctrl+Opt+Shift) when held, Tab when tapped
 - `.config/lazygit/` — Lazygit TUI config
 - `.config/mise/` — Mise runtime version manager config
-- `.config/opencode/` — OpenCode AI agent config
+- `.config/opencode/` — OpenCode AI agent config, including the `oh-my-openagent` plugin entrypoint
 - `.config/ripgrep/` — Ripgrep defaults
 - `.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
 - `.gitconfig` — Git aliases, diff-so-fancy, 1Password SSH signing
