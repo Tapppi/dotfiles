@@ -4,7 +4,11 @@ go = "latest"
 node = "lts"
 python = "latest"
 ruby = "latest"
-ruby.compile = "false"
 rust = "latest"
 uv = "latest"
 zig = "latest"
+
+[settings]
+
+[settings.ruby]
+compile = false
