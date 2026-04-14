@@ -12,29 +12,23 @@ automation context.
 
 ```sh
 # Lint (the only validation available)
-shellcheck bootstrap.sh .config/bash/.functions
+shellcheck bootstrap.sh config/bash/.functions
 ```
 
 ## Architecture
 
-- **`bootstrap.sh`** — Rsyncs this repo to `~`, excluding `.git`, `bootstrap.sh`,
-  `README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`, and the root `AGENTS.md`. Keyboard layouts
-  are copied separately to `~/Library/Keyboard Layouts/`. Lazygit config is copied to
-  `~/.config/lazygit/`.
-- **`.config/bash/`** — Shell configuration sourced by `.bash_profile`:
+- **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Keyboard layouts
+  are copied separately to `~/Library/Keyboard Layouts/`.
+- **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
+  `.claude/` (Claude Code config), `.hammerspoon/`, `.hushlogin`, `.parallel/`.
+- **`config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
   The parent repo's `.extra` and `.path` are also copied to `~/.config/bash/` during install.
-- **`.claude/`** — Claude Code user-level config. `CLAUDE.md` here is synced to
-  `~/.claude/CLAUDE.md` as user-level agent context (auto-loaded by Claude Code
-  across all projects). `settings.json` has effort level and status line config.
-  `keybindings.json` has custom key bindings. `statusline-command.sh` shows model,
-  directory, and context usage with Solarized Dark colors. User-level MCP servers
-  are configured via `tasks/config.sh` (not tracked as files).
-- **`.config/opencode/`** — OpenCode AI agent config. `AGENTS.md` here is rsynced to
+- **`config/git/`** — Git config and global ignore. `config` has aliases, diff-so-fancy, 1Password
+  SSH signing. `ignore` is the global gitignore (read automatically by git from XDG).
+- **`config/tmux/tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
+- **`config/opencode/`** — OpenCode AI agent config. `AGENTS.md` here is rsynced to
   `~/.config/opencode/AGENTS.md` as user-level agent context.
-- **`.hammerspoon/init.lua`** — Per-app keyboard layout forcing.
-- **`.gitconfig`** — Git aliases, `diff-so-fancy` pager, 1Password SSH signing (`gpg.format = ssh`).
-- **`.tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
 - **`keyboard-layouts/`** — Custom Finnish Programmer keyboard layout bundle.
 
 ## Rules
