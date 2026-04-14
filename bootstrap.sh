@@ -7,15 +7,11 @@ git pull origin
 doIt() {
 	# Sync home-level dotfiles to ~/
 	rsync \
-		--exclude ".git/" \
-		--exclude ".git" \
 		--exclude ".DS_Store" \
 		-avh --no-perms home/ ~
 
 	# Sync config to ~/.config/
 	rsync \
-		--exclude ".git/" \
-		--exclude ".git" \
 		--exclude ".DS_Store" \
 		-avh --no-perms config/ ~/.config/
 
