@@ -21,3 +21,5 @@ Thumbs.db
 !.claude/settings.json
 !.claude/keybindings.json
 !.claude/statusline-command.sh
+!.claude/skills/
+!.claude/skills/**
