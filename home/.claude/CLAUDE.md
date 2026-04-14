@@ -6,7 +6,8 @@
   (effort level, status line).
 - `keybindings.json` is the customized keyboard binding configuration.
 - `statusline-command.sh` is the status line script showing model, directory,
-  and context window usage with Solarized Dark colors.
+  session start time, context tokens (with token-count-based color thresholds),
+  rate limit percentages, and countdown to reset, in Solarized Dark colors.
 - User-level MCP servers (e.g. context7) are managed via `claude mcp add
   --scope user` and stored in `~/.claude.json`; that file is not tracked because
   it contains auto-generated state. The `macos-setup` repo configures these
