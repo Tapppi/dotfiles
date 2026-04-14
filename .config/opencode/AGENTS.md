@@ -12,6 +12,16 @@
 - No extra tmux/git-specific wrapper config is tracked here; the setup relies
   on built-in platform capabilities and the shared OpenAgent config.
 
+## Long-running Processes and tmux
+
+- For multi-step workflows, persistent processes, dev servers, database sessions,
+  or long-lived scripts: **create a new tmux window** in the user's existing
+  project session instead of running them in the background or spawning new
+  sessions. Name the window descriptively (e.g. `tmux new-window -n devserver`).
+- For containerised workloads: attach to the container, stream logs, or exec
+  into it as appropriate for the task — don't just fire-and-forget.
+- Prefer keeping long-running output visible and accessible over hiding it.
+
 ## Git Identity and Attribution
 
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no
