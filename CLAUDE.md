@@ -36,6 +36,12 @@ shellcheck bootstrap.sh config/bash/.functions
 ### Do Not Run Setup Scripts
 **NEVER** run `bootstrap.sh` automatically. It syncs files to `~`.
 
+### Edit Source Files Here, Not in `~/`
+**NEVER** edit deployed files directly in `~/`, `~/.claude/`, or `~/.config/`. Always edit the
+source in this repo (`home/` or `config/` directories) and then copy the changed file to its
+destination (e.g., `cp home/.claude/foo ~/.claude/foo`). The home directory copies are deployment
+targets — this repo is the source of truth.
+
 ### Git Identity and Attribution
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no agent signatures).
   Commits must look like normal developer commits.

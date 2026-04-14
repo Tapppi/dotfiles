@@ -31,9 +31,15 @@ fi
 
 # Session start time (derived from wall-clock duration)
 if [[ -n "${duration_ms}" ]] && [[ "${duration_ms}" != "0" ]]; then
-	start_epoch=$(( $(date +%s) - duration_ms / 1000 ))
-	start_time=$(date -r "${start_epoch}" +"%H:%M")
-	printf ' %b|%b %b%s%b' "${white}" "${reset}" "${violet}" "${start_time}" "${reset}"
+	duration_int=${duration_ms%%.*}
+	if [[ "${duration_int}" =~ ^[0-9]+$ ]] && [[ "${duration_int}" -gt 0 ]]; then
+		start_epoch=$(( $(date +%s) - duration_int / 1000 ))
+		# GNU date uses -d @EPOCH, BSD/macOS date uses -r EPOCH
+		start_time=$(date -d "@${start_epoch}" +"%H:%M" 2>/dev/null || /bin/date -r "${start_epoch}" +"%H:%M" 2>/dev/null)
+		if [[ -n "${start_time}" ]]; then
+			printf ' %b|%b %b%s%b' "${white}" "${reset}" "${violet}" "${start_time}" "${reset}"
+		fi
+	fi
 fi
 
 # Context window: tokens in thousands and percentage
