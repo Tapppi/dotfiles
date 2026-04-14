@@ -22,6 +22,50 @@
   into it as appropriate for the task — don't just fire-and-forget.
 - Prefer keeping long-running output visible and accessible over hiding it.
 
+## Git Workflow
+
+- If the project has no `AGENTS.md` or docs with commit/branch conventions,
+  check `git log --oneline -20` for commit message style before committing
+  and `git branch -a` for branch naming patterns before creating branches.
+- **Only commit changes from the current agent session.** Do not stage
+  unrelated edits or pre-existing unstaged changes unless explicitly told to.
+- When work is complete and no further user input is needed, commit it
+  (but do not push) so the user can review with git-based tools.
+- Prefer atomic commits: one logical change per commit. Split large changes
+  into meaningful pieces.
+
+## Available CLI Tooling
+
+The following tools are available in this environment via Homebrew and mise:
+
+- **Containers**: `podman` with Docker compatibility socket (`$DOCKER_HOST`)
+  and compose support, `kubectl`/`helm` for Kubernetes, `kail` for streaming
+  pod logs.
+- **Cloud**: `gcloud`, `az`/`azcopy`, `terraform`.
+- **Data**: `jq`/`yq` for JSON/YAML, `duckdb` for analytical SQL — **use DuckDB
+  for ad-hoc data analysis, test result aggregation, CSV/Parquet exploration,
+  etc.** unless the project specifies another tool.
+- **HTTP**: `curl`, `httpie` (`http`/`https` commands).
+- **Databases**: `psql` (via `libpq`), `redis-cli`, `sqlite3`, `kcat` (kafkacat)
+  for Kafka topic peeking.
+- **Search/files**: `ripgrep` (`rg`), `fd`, `fzf`, `bat`, `tree`.
+- **Git/GitHub**: `git`, `gh` CLI — use `gh` for GitHub code search, pull
+  requests, issues, checks, and releases. Prefer `gh` over web fetching or
+  scraping for GitHub operations.
+- **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
+  python, etc.). Use `uv` for Python dependency management and `uvx` to run
+  Python CLI packages — prefer these over `pip install`.
+- **Shell**: `bash` 5, `tmux`/`tmuxinator`, `shellcheck`, `parallel`, `pv`
+  (pipeviewer for debugging pipe throughput).
+- **Documents**: `marp-cli` for Markdown presentations, `ghostscript` for
+  PDF manipulation scripting.
+- **Media**: `ffmpeg`, `imagemagick`, `exiftool`, `tesseract`.
+- **Network**: `nmap`, `mtr`.
+
+If a tool is not available and requires system-level installation, consult
+the user or use a containerised environment — do not pollute the user's
+system with ad-hoc installs.
+
 ## Git Identity and Attribution
 
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no
