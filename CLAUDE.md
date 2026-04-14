@@ -24,6 +24,12 @@ shellcheck bootstrap.sh .config/bash/.functions
 - **`.config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
   The parent repo's `.extra` and `.path` are also copied to `~/.config/bash/` during install.
+- **`.claude/`** — Claude Code user-level config. `CLAUDE.md` here is synced to
+  `~/.claude/CLAUDE.md` as user-level agent context (auto-loaded by Claude Code
+  across all projects). `settings.json` has effort level and status line config.
+  `keybindings.json` has custom key bindings. `statusline-command.sh` shows model,
+  directory, and context usage with Solarized Dark colors. User-level MCP servers
+  are configured via `tasks/config.sh` (not tracked as files).
 - **`.config/opencode/`** — OpenCode AI agent config. `AGENTS.md` here is rsynced to
   `~/.config/opencode/AGENTS.md` as user-level agent context.
 - **`.hammerspoon/init.lua`** — Per-app keyboard layout forcing.
