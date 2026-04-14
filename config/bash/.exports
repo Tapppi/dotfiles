@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-# Needs to migrate stuff from "~/Library/Application Support/" and "~" per-program
-#export XDG_CONFIG_HOME="${HOME}/.config"
+# XDG Base Directory Specification
+export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_STATE_HOME="${HOME}/.local/state"
+export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_BIN_HOME="${HOME}/.local/bin"
 
 # Make micro the default editor.
 export EDITOR='nvim'
 
 # Enable persistent REPL history for `node`.
-export NODE_REPL_HISTORY=~/.node_history
+export NODE_REPL_HISTORY="${XDG_STATE_HOME}/node_history"
 # Allow 32³ entries; the default is 1000.
 export NODE_REPL_HISTORY_SIZE='32768'
 # Use sloppy mode by default, matching web browsers.
@@ -49,15 +51,31 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 export HOMEBREW_AUTO_UPDATE_SECS=21600
 
 # Kube config files
-export KUBECONFIG=~/.kube/config
-if [ -d ~/.kube/configs ]; then
-	for i in $(ls ~/.kube/configs/); do
-		export KUBECONFIG=$KUBECONFIG:"$i"
+export KUBECONFIG="${XDG_CONFIG_HOME}/kube/config"
+if [ -d "${XDG_CONFIG_HOME}/kube/configs" ]; then
+	for i in "${XDG_CONFIG_HOME}/kube/configs/"*; do
+		[ -f "${i}" ] && export KUBECONFIG="${KUBECONFIG}:${i}"
 	done
 fi
 
 # Ripgrep config file
-export RIPGREP_CONFIG_PATH="${XDG_CONFIG_HOME:-$HOME/.config}/ripgrep/ripgreprc"
+export RIPGREP_CONFIG_PATH="${XDG_CONFIG_HOME}/ripgrep/ripgreprc"
 
-# nnn file manager
-export NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
+# nnn file manager (last-dir tmp file is ephemeral state, not config)
+export NNN_TMPFILE="${XDG_STATE_HOME}/nnn/.lastd"
+
+# Readline
+export INPUTRC="${XDG_CONFIG_HOME}/readline/inputrc"
+
+# Wget
+export WGETRC="${XDG_CONFIG_HOME}/wgetrc"
+
+# PostgreSQL
+export PGPASSFILE="${XDG_CONFIG_HOME}/pg/pgpass"
+export PSQL_HISTORY="${XDG_STATE_HOME}/psql_history"
+
+# Python history
+export PYTHON_HISTORY="${XDG_STATE_HOME}/python_history"
+
+# DuckDB history
+export DUCKDB_HISTORY="${XDG_STATE_HOME}/duckdb_history"

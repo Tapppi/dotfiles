@@ -93,8 +93,7 @@
 
 [core]
 
-	# Use custom `.gitignore` and `.gitattributes`.
-	excludesfile = ~/.gitignore
+	# Global ignore is at $XDG_CONFIG_HOME/git/ignore (git reads it automatically)
 	#attributesfile = ~/.gitattributes
 
 	# Treat spaces before tabs and all kinds of trailing whitespace as an error.

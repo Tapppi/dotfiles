@@ -13,30 +13,43 @@ that repo for the full setup automation.
 ./bootstrap.sh -f
 ```
 
+## Structure
+
+Two sync directories plus standalone files at the repo root:
+
+- `home/` — rsynced to `~/` (files that don't support XDG):
+  `.bash_profile`, `.bashrc`, `.claude/`, `.hammerspoon/`, `.hushlogin`, `.parallel/`
+- `config/` — rsynced to `~/.config/` (XDG-compliant config):
+  `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
+  `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
+- `bootstrap.sh` — two rsyncs: `home/` → `~/` and `config/` → `~/.config/`
+- `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
+
 ## What's inside
 
-- `.config/bash/` — aliases, exports, functions, prompt, nnn config
-- `.config/ghostty/` — Ghostty terminal config
-- `.config/karabiner/` — Karabiner-Elements keyboard remapping
+- `config/bash/` — aliases, exports, functions, prompt, nnn config
+- `config/ghostty/` — Ghostty terminal config
+- `config/git/` — Git aliases, diff-so-fancy, 1Password SSH signing, global gitignore
+- `config/karabiner/` — Karabiner-Elements keyboard remapping
   - Caps Lock → Esc (alone) / Ctrl (held)
   - Right Cmd + hjkl → arrow keys
   - Tab → Hyper (Cmd+Ctrl+Opt+Shift) when held, Tab when tapped
-- `.config/lazygit/` — Lazygit TUI config
-- `.config/mise/` — Mise runtime version manager config
-- `.config/opencode/` — OpenCode AI agent config, including the `oh-my-openagent` plugin entrypoint
-- `.config/ripgrep/` — Ripgrep defaults
-- `.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
-- `.gitconfig` — Git aliases, diff-so-fancy, 1Password SSH signing
-- `.tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
+- `config/lazygit/` — Lazygit TUI config
+- `config/mise/` — Mise runtime version manager config
+- `config/opencode/` — OpenCode AI agent config, including the `oh-my-openagent` plugin entrypoint
+- `config/ripgrep/` — Ripgrep defaults
+- `config/tmux/tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
+- `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline)
+- `home/.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
 ## OpenCode / OpenAgent notes
 
-- `.config/opencode/opencode.json` is the synced OpenCode entrypoint and loads
+- `config/opencode/opencode.json` is the synced OpenCode entrypoint and loads
   `oh-my-openagent@latest` plus `opencode-claude-auth`.
-- `.config/opencode/oh-my-openagent.json` is the tracked companion config for
+- `config/opencode/oh-my-openagent.json` is the tracked companion config for
   agent/category model choices and plugin-managed behavior.
-- `.config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
+- `config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
   the user-level instruction file.
 - This repo intentionally keeps the OpenCode-side customisation focused on the
   plugin entrypoint, companion config, and user-level instructions. MCP server

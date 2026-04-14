@@ -1,25 +1,6 @@
-# Compiled Python files
-*.pyc
-
 # Folder view configuration files
 .DS_Store
-Desktop.ini
-
-# Thumbnail cache files
-._*
-Thumbs.db
-
-# Files that might appear on external disks
-.Spotlight-V100
-.Trashes
 
 # Local AI files
 .sisyphus
 .copilot
-.claude/*
-!.claude/CLAUDE.md
-!.claude/settings.json
-!.claude/keybindings.json
-!.claude/statusline-command.sh
-!.claude/skills/
-!.claude/skills/**

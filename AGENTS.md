@@ -9,23 +9,37 @@ AGENTS.md for the full setup automation context.
 
 ```
 dotfiles/
-  .config/
-    bash/.aliases         # Shell aliases (g=git)
-    bash/.exports         # Environment variables (EDITOR=nvim)
-    bash/.functions       # Shell utility functions
-    bash/.bash_profile    # Main profile (sources all the above + activates mise, zoxide)
-    bash/.bash_prompt     # Solarized Dark prompt with git status
-    ghostty/              # Ghostty terminal config
-    karabiner/            # Karabiner-Elements keyboard remapping
-    lazygit/              # Lazygit TUI config
-    mise/                 # Mise runtime version manager config
-    opencode/             # OpenCode AI agent config + AGENTS.md (user-level context)
-    ripgrep/              # Ripgrep defaults
-  .hammerspoon/init.lua   # Per-app keyboard layout forcing
-  .gitconfig              # Git aliases, diff-so-fancy, 1Password SSH signing
-  .tmux.conf              # tmux with Ctrl+A prefix, vim keys, pbcopy
-  bootstrap.sh            # Rsyncs dotfiles to ~, copies lazygit config
-  keyboard-layouts/       # Custom Finnish Programmer keyboard layout
+  home/                       # rsync → ~/
+    .bash_profile             # Sources ~/.config/bash/.bash_profile
+    .bashrc                   # Delegates to .bash_profile for interactive shells
+    .claude/                  # Claude Code config (no XDG support)
+    .hammerspoon/init.lua     # Per-app keyboard layout forcing
+    .hushlogin                # Suppress login banner
+    .parallel/will-cite       # Silence GNU parallel citation warning
+  config/                     # rsync → ~/.config/
+    bash/.aliases             # Shell aliases (g=git)
+    bash/.exports             # Environment variables, XDG dirs (EDITOR=nvim)
+    bash/.functions           # Shell utility functions
+    bash/.bash_profile        # Main profile (sources all the above + activates mise, zoxide)
+    bash/.bash_prompt         # Solarized Dark prompt with git status
+    curlrc                    # curl config
+    fd/                       # fd ignore patterns
+    ghostty/                  # Ghostty terminal config
+    git/config                # Git aliases, diff-so-fancy, 1Password SSH signing
+    git/ignore                # Global gitignore
+    karabiner/                # Karabiner-Elements keyboard remapping
+    lazygit/                  # Lazygit TUI config
+    micro/                    # Micro editor settings
+    mise/                     # Mise runtime version manager config
+    nnn/                      # nnn file manager plugins
+    opencode/                 # OpenCode AI agent config + AGENTS.md (user-level context)
+    readline/inputrc          # Readline key bindings and completion settings
+    ripgrep/                  # Ripgrep defaults
+    terminal/                 # Terminal.app Solarized themes
+    tmux/tmux.conf            # tmux with Ctrl+A prefix, vim keys, pbcopy
+    wgetrc                    # wget config
+  bootstrap.sh                # Two rsyncs: home/→~/ and config/→~/.config/
+  keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
 
 ## Build / Lint
@@ -33,17 +47,16 @@ dotfiles/
 No build system or test suite. Validate shell scripts with:
 
 ```sh
-shellcheck bootstrap.sh .config/bash/.functions
+shellcheck bootstrap.sh config/bash/.functions
 ```
 
 ## Syncing to Home Directory
 
-`bootstrap.sh` rsyncs this repo to `~`, excluding `.git`, `bootstrap.sh`,
-`README.md`, `LICENSE-MIT.txt`, `keyboard-layouts/`,
-and the root `AGENTS.md` (repo-level meta file, not meant for `~`).
+`bootstrap.sh` runs two rsyncs:
+1. `home/` → `~/` (home-level dotfiles that don't support XDG)
+2. `config/` → `~/.config/` (XDG-compliant config)
+
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
-`.config/opencode/AGENTS.md` is rsynced to `~/.config/opencode/AGENTS.md`
-where OpenCode reads it as user-level agent context.
 
 ## Code Style
 
@@ -83,8 +96,7 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 ### Do Not Run Setup Scripts
 
 - **NEVER** run `bootstrap.sh` automatically. This script
-  syncs files to `~`. The user must always
-  run them manually.
+  syncs files to `~`. The user must always run it manually.
 
 ### Files to Never Commit
 
