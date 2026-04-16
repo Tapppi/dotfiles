@@ -103,14 +103,6 @@ function rfv() {
 	fzf_browser_lines 'reload:rg --column --color=always --smart-case {q} || :'
 }
 
-# Use Git’s colored diff when available
-hash git &>/dev/null
-if [ $? -eq 0 ]; then
-	function gitdiff() {
-		git diff --no-index --color-words "$@"
-	}
-fi
-
 # Create a data URL from a file
 function dataurl() {
 	local mimeType=$(file -b --mime-type "$1")
