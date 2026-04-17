@@ -12,6 +12,15 @@
 - No extra tmux/git-specific wrapper config is tracked here; the setup relies
   on built-in platform capabilities and the shared OpenAgent config.
 
+## Agent Context Files (CLAUDE.md / AGENTS.md)
+
+- Projects may have both `CLAUDE.md` (for Claude Code) and `AGENTS.md` (for
+  OpenCode and other agents), plus `.local.md` variants (`CLAUDE.local.md`,
+  `AGENTS.local.md`) for machine-specific overrides that are gitignored.
+- When editing agent context files, always check whether the counterpart
+  file also exists in the same directory and update both to keep them in
+  sync. This applies to the base files and to `.local.md` variants.
+
 ## Long-running Processes and tmux
 
 - For multi-step workflows, persistent processes, dev servers, database sessions,
