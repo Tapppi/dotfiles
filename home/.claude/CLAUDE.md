@@ -26,6 +26,15 @@
   into it as appropriate for the task — don't just fire-and-forget.
 - Prefer keeping long-running output visible and accessible over hiding it.
 
+## Agent Context Files (CLAUDE.md / AGENTS.md)
+
+- Projects may have both `CLAUDE.md` (for Claude Code) and `AGENTS.md` (for
+  OpenCode and other agents), plus `.local.md` variants (`CLAUDE.local.md`,
+  `AGENTS.local.md`) for machine-specific overrides that are gitignored.
+- When editing agent context files, always check whether the counterpart
+  file also exists in the same directory and update both to keep them in
+  sync. This applies to the base files and to `.local.md` variants.
+
 ## Git Workflow
 
 - If the project has no `CLAUDE.md` with commit/branch conventions, check
