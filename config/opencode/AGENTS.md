@@ -51,7 +51,8 @@ The following tools are available in this environment via Homebrew and mise:
 - **Search/files**: `ripgrep` (`rg`), `fd`, `fzf`, `bat`, `tree`.
 - **Git/GitHub**: `git`, `gh` CLI — use `gh` for GitHub code search, pull
   requests, issues, checks, and releases. Prefer `gh` over web fetching or
-  scraping for GitHub operations.
+  scraping for GitHub operations. Always pass explicit flags (`--repo`,
+  `--json`, `--jq`, `--limit`, etc.) to avoid interactive prompts.
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
   Python CLI packages — prefer these over `pip install`.

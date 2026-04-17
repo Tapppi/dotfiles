@@ -24,6 +24,7 @@ dotfiles/
     bash/.bash_prompt         # Solarized Dark prompt with git status
     curlrc                    # curl config
     fd/                       # fd ignore patterns
+    gh/config.yml             # GitHub CLI config (ssh protocol, no prompts)
     ghostty/                  # Ghostty terminal config
     git/config                # Git aliases, diff-so-fancy, 1Password SSH signing
     git/ignore                # Global gitignore
