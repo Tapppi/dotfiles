@@ -61,7 +61,7 @@ The following tools are available in this environment via Homebrew and mise:
 - **HTTP**: `curl`, `httpie` (`http`/`https` commands).
 - **Databases**: `psql` (via `libpq`), `redis-cli`, `sqlite3`, `kcat` (kafkacat)
   for Kafka topic peeking.
-- **Search/files**: `ripgrep` (`rg`), `fd`, `fzf`, `bat`, `tree`.
+- **Search/files**: `ripgrep` (`rg`), `fd`, `fzf`, `tree`.
 - **Git/GitHub**: `git`, `gh` CLI — use `gh` for GitHub code search, pull
   requests, issues, checks, and releases. Prefer `gh` over WebFetch or
   web scraping for GitHub operations. Always pass explicit flags (`--repo`,
