@@ -19,8 +19,15 @@ doIt() {
 	mkdir -p ~/Library/Keyboard\ Layouts
 	cp -R keyboard-layouts/*.bundle ~/Library/Keyboard\ Layouts/
 
+	# Apply git identity and signing key from .extra.
+	# This runs git config --global, so it persists beyond this shell.
+	# Cannot rely on ~/.bash_profile because it guards on PS1 (interactive only).
 	# shellcheck source=/dev/null
-	source ~/.bash_profile
+	[ -f ~/.config/bash/.extra ] && source ~/.config/bash/.extra
+
+	# Source full profile if running interactively
+	# shellcheck source=/dev/null
+	[ -n "$PS1" ] && source ~/.bash_profile
 }
 
 if [[ "$1" == "--force" ]] || [[ "$1" == "-f" ]]; then
