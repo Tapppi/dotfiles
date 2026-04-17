@@ -24,6 +24,8 @@ shellcheck bootstrap.sh config/bash/.functions
 - **`config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
   The parent repo's `.extra` and `.path` are also copied to `~/.config/bash/` during install.
+- **`config/gh/`** — GitHub CLI config. `config.yml` sets ssh protocol, disables interactive
+  prompts. Auth state (`hosts.yml`) is not tracked — managed by `gh auth login`.
 - **`config/git/`** — Git config and global ignore. `config` has aliases, diff-so-fancy, 1Password
   SSH signing. `ignore` is the global gitignore (read automatically by git from XDG).
 - **`config/tmux/tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
