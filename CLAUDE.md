@@ -20,7 +20,8 @@ shellcheck bootstrap.sh config/bash/.functions
 - **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Keyboard layouts
   are copied separately to `~/Library/Keyboard Layouts/`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
-  `.claude/` (Claude Code config), `.hammerspoon/`, `.hushlogin`, `.parallel/`.
+  `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI config), `.hammerspoon/`,
+  `.hushlogin`, `.parallel/`.
 - **`config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
   The parent repo's `.extra` and `.path` are also copied to `~/.config/bash/` during install.
@@ -29,9 +30,18 @@ shellcheck bootstrap.sh config/bash/.functions
 - **`config/git/`** — Git config and global ignore. `config` has aliases, diff-so-fancy, 1Password
   SSH signing. `ignore` is the global gitignore (read automatically by git from XDG).
 - **`config/tmux/tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
+- **`config/btop/`** — btop system monitor config and catppuccin mocha theme.
 - **`config/opencode/`** — OpenCode AI agent config. `AGENTS.md` here is rsynced to
   `~/.config/opencode/AGENTS.md` as user-level agent context.
 - **`keyboard-layouts/`** — Custom Finnish Programmer keyboard layout bundle.
+
+### Agent CLI config locations
+
+| Agent       | User-level config dir | Settings file       | User-level rules          | MCP config           |
+|-------------|----------------------|---------------------|--------------------------|---------------------|
+| Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md`              | `~/.claude.json` (untracked) |
+| Cursor CLI  | `home/.cursor/`      | `cli-config.json`   | N/A (project-level only) | `home/.cursor/mcp.json` |
+| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md`              | via oh-my-openagent plugin |
 
 ## Rules
 
@@ -39,7 +49,7 @@ shellcheck bootstrap.sh config/bash/.functions
 **NEVER** run `bootstrap.sh` automatically. It syncs files to `~`.
 
 ### Edit Source Files Here, Not in `~/`
-**NEVER** edit deployed files directly in `~/`, `~/.claude/`, or `~/.config/`. Always edit the
+**NEVER** edit deployed files directly in `~/`, `~/.claude/`, `~/.cursor/`, or `~/.config/`. Always edit the
 source in this repo (`home/` or `config/` directories) and then copy the changed file to its
 destination (e.g., `cp home/.claude/foo ~/.claude/foo`). The home directory copies are deployment
 targets — this repo is the source of truth.

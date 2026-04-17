@@ -1,0 +1,70 @@
+{
+	"version": 1,
+	"editor": {
+		"vimMode": false
+	},
+	"attribution": {
+		"attributeCommitsToAgent": false,
+		"attributePRsToAgent": false
+	},
+	"permissions": {
+		"deny": [
+			"Shell(git:push)",
+			"Shell(git:push *)"
+		],
+		"allow": [
+			"Read(**)",
+			"Write(**)",
+			"Shell(git)",
+			"Shell(mkdir)",
+			"Shell(touch)",
+			"Shell(mv)",
+			"Shell(cp)",
+			"Shell(npm:install)",
+			"Shell(npm:run test)",
+			"Shell(npm:run build)",
+			"Shell(brew:info *)",
+			"Shell(brew:search *)",
+			"Shell(brew:bundle cleanup)",
+			"Shell(brew:bundle cleanup *)",
+			"Shell(brew:uninstall *)",
+			"Shell(rg)",
+			"Shell(shellcheck)",
+			"Shell(gh:status)",
+			"Shell(gh:repo view *)",
+			"Shell(gh:repo list *)",
+			"Shell(gh:pr list *)",
+			"Shell(gh:pr view *)",
+			"Shell(gh:pr diff *)",
+			"Shell(gh:pr checks *)",
+			"Shell(gh:pr status)",
+			"Shell(gh:pr status *)",
+			"Shell(gh:issue list *)",
+			"Shell(gh:issue view *)",
+			"Shell(gh:issue status)",
+			"Shell(gh:issue status *)",
+			"Shell(gh:run list *)",
+			"Shell(gh:run view *)",
+			"Shell(gh:run watch *)",
+			"Shell(gh:release list *)",
+			"Shell(gh:release view *)",
+			"Shell(gh:search *)",
+			"Shell(gh:api repos/*/pulls/*/comments)",
+			"Shell(gh:api repos/*/pulls/*/reviews)",
+			"Shell(gh:api repos/*/issues/*/comments)",
+			"Shell(gh:label list *)",
+			"Shell(gh:project list *)",
+			"Shell(gh:project view *)",
+			"Shell(gh:gist list *)",
+			"Shell(gh:gist view *)",
+			"Shell(gh:workflow list *)",
+			"Shell(gh:workflow view *)",
+			"Shell(gh:cache list *)",
+			"Shell(gh:variable list *)",
+			"Shell(gh:secret list *)",
+			"Shell(gh:extension list *)",
+			"WebFetch(github.com)",
+			"WebFetch(raw.githubusercontent.com)"
+		]
+	}
+}
