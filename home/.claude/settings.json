@@ -121,7 +121,10 @@
 			"Bash(gh secret list *)",
 			"Bash(gh extension list *)",
 			"WebFetch(domain:github.com)",
-			"WebFetch(domain:raw.githubusercontent.com)"
+			"WebFetch(domain:raw.githubusercontent.com)",
+			"mcp__context7__*",
+			"mcp__chrome-devtools__*",
+			"mcp__plugin_playwright_playwright__*"
 		]
 	}
 }

@@ -73,7 +73,10 @@
 			"Shell(gh:secret list *)",
 			"Shell(gh:extension list *)",
 			"WebFetch(github.com)",
-			"WebFetch(raw.githubusercontent.com)"
+			"WebFetch(raw.githubusercontent.com)",
+			"Mcp(context7:*)",
+			"Mcp(chrome-devtools:*)",
+			"Mcp(playwright:*)"
 		]
 	}
 }
