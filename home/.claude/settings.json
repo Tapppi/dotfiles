@@ -86,6 +86,8 @@
 			"Bash(brew list *)",
 			"Bash(brew deps *)",
 			"Bash(brew outdated)",
+			"Bash(* --help)",
+			"Bash(* --version)",
 			"Bash(shellcheck *)",
 			"Bash(gh status)",
 			"Bash(gh repo view *)",
@@ -122,6 +124,8 @@
 			"Bash(gh extension list *)",
 			"WebFetch(domain:github.com)",
 			"WebFetch(domain:raw.githubusercontent.com)",
+			"Read(~/.claude/**)",
+			"Read(~/.cursor/**)",
 			"mcp__context7__*",
 			"mcp__chrome-devtools__*",
 			"mcp__plugin_playwright_playwright__*"
