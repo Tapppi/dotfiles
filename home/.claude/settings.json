@@ -9,7 +9,7 @@
 		"playwright@claude-plugins-official": true
 	},
 	"permissions": {
-		"deny": [
+		"ask": [
 			"Bash(git push)",
 			"Bash(git push *)"
 		],
