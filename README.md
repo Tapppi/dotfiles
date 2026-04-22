@@ -43,6 +43,23 @@ Two sync directories plus standalone files at the repo root:
 - `home/.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
+## Application hotkeys
+
+Managed via [Hammerspoon](home/.hammerspoon/init.lua) with
+[Karabiner Tab→Hyper](config/karabiner/) (Cmd+Ctrl+Opt+Shift).
+
+| Hotkey | Application |
+|--------|-------------|
+| Hyper+S | Ghostty |
+| Hyper+B | Brave |
+| Hyper+V | Safari |
+| Hyper+K | Slack |
+| Hyper+I | Microsoft Teams |
+| Hyper+F | Finder |
+| Hyper+C | Calendar |
+| Hyper+J | Obsidian |
+| Hyper+M | Spotify |
+
 ## OpenCode / OpenAgent notes
 
 - `config/opencode/opencode.json` is the synced OpenCode entrypoint and loads

@@ -1,46 +1,33 @@
--- Force US keyboard layout when these apps gain focus.
--- Uses hs.window.filter for reliable focus tracking, including programmatic
--- focus changes from the Ghostty toggle hotkey below. The old
--- hs.application.watcher approach missed activations from app:unhide() +
--- win:focus() because those fire NSWorkspaceDidUnhideApplicationNotification,
--- not NSWorkspaceDidActivateApplicationNotification.
+local utils = require("hotkey-utils")
 
-local usLayout = "com.apple.keylayout.US"
+-- ─── Per-app US keyboard layout forcing ────────────────────────────
+-- Forces US layout when these apps gain focus, restores on blur.
+-- Uses hs.window.filter for reliable focus tracking, including
+-- programmatic focus changes from hotkey toggles.
 
 local forceUSApps = {
 	["Ghostty"] = true,
 	["Neovide"] = true,
 	["iTerm2"] = true,
 	["Cursor"] = true,
+	["Obsidian"] = true,
 }
 
--- Last non-US layout before forcing kicked in. Never set to usLayout so
+-- Last non-US layout before forcing kicked in. Never set to US so
 -- restore always has a valid target (or nil if the user was already in US).
 local previousSourceID = nil
 
--- Retry-aware input source setter.
--- TISSelectInputSource can silently fail to switch the actual layout while
--- reporting success (macOS bug, Hammerspoon #1429). Verify and retry once.
-local function forceInputSource(sourceID)
-	hs.keycodes.currentSourceID(sourceID)
-	hs.timer.doAfter(0.05, function()
-		if hs.keycodes.currentSourceID() ~= sourceID then
-			hs.keycodes.currentSourceID(sourceID)
-		end
-	end)
-end
-
 local function activateUSLayout()
 	local current = hs.keycodes.currentSourceID()
-	if current ~= usLayout then
+	if current ~= utils.us then
 		previousSourceID = current
 	end
-	forceInputSource(usLayout)
+	utils.setInputSource(utils.us)
 end
 
 local function restorePreviousLayout()
 	if previousSourceID then
-		forceInputSource(previousSourceID)
+		utils.setInputSource(previousSourceID)
 		previousSourceID = nil
 	end
 end
@@ -79,43 +66,77 @@ forceUSFilter:subscribe(hs.window.filter.windowNotVisible, function()
 	restorePreviousLayout()
 end)
 
--- Toggle Ghostty window with hyper+s.
+-- ─── Layout functions ──────────────────────────────────────────────
 
-local ghosttyBundleID = "com.mitchellh.ghostty"
-
-local targetFrame = function()
-	local screen = hs.mouse.getCurrentScreen() or hs.screen.primaryScreen()
-	local f = screen:frame()
-	local width = (f.w / f.h > 2.2) and math.floor(f.w / 2) or f.w
-
-	return hs.geometry.rect(f.x, f.y, width, f.h)
+-- Ghostty: left 65% on widescreen, fullscreen on regular.
+local function ghosttyLayout(screen)
+	if utils.isWidescreen(screen) then
+		return utils.leftFrame(screen, 0.65)
+	end
+	return utils.fullFrame(screen)
 end
 
-local ghosttyWindowFilter = hs.window.filter.new("Ghostty")
-
-ghosttyWindowFilter:subscribe(hs.window.filter.windowCreated, function(win)
-	win:setFrame(targetFrame())
-	win:focus()
-end)
-
-hs.hotkey.bind({"cmd", "ctrl", "alt", "shift"}, "s", function()
-	local app = hs.application.get(ghosttyBundleID)
-
-	if not app or #app:allWindows() == 0 then
-		hs.application.launchOrFocusByBundleID(ghosttyBundleID)
-		return
+-- Browser: fullscreen on regular, right 35% on widescreen.
+local function browserLayout(screen)
+	if utils.isWidescreen(screen) then
+		return utils.rightFrame(screen, 0.35)
 	end
+	return utils.fullFrame(screen)
+end
 
-	local win = app:mainWindow()
-
-	if win and win:isVisible() then
-		app:hide()
-		return
+-- Chat: laptop fullscreen when lid open, else right side of active
+-- screen (35% on widescreen, 50% on regular).
+local function chatLayout(screen)
+	local builtIn = utils.builtInScreen()
+	if builtIn then
+		return utils.fullFrame(builtIn)
 	end
-
-	if win then
-		win:setFrame(targetFrame())
-		app:unhide()
-		win:focus()
+	if utils.isWidescreen(screen) then
+		return utils.rightFrame(screen, 0.35)
 	end
-end)
+	return utils.rightFrame(screen, 0.5)
+end
+
+-- Sidebar: left half, full height, active screen.
+local function sidebarLayout(screen)
+	return utils.leftFrame(screen, 0.5)
+end
+
+-- Center: no resize, center on active screen.
+local function centerLayout(screen, win)
+	return utils.centerFrame(screen, win)
+end
+
+-- ─── App hotkeys ───────────────────────────────────────────────────
+
+-- Ghostty (hyper+s) — US layout via forceUSApps, auto-position new windows
+utils.bindToggle("s", "com.mitchellh.ghostty", ghosttyLayout, {
+	inputSource = utils.us,
+	watchCreate = true,
+})
+
+-- Brave (hyper+b)
+utils.bindToggle("b", "com.brave.Browser", browserLayout)
+
+-- Safari (hyper+v)
+utils.bindToggle("v", "com.apple.Safari", browserLayout)
+
+-- Slack (hyper+k)
+utils.bindToggle("k", "com.tinyspeck.slackmacgap", chatLayout)
+
+-- Teams (hyper+i)
+utils.bindToggle("i", "com.microsoft.teams2", chatLayout)
+
+-- Finder (hyper+f)
+utils.bindToggle("f", "com.apple.finder", sidebarLayout)
+
+-- Calendar (hyper+c) — no resize, just center on active screen
+utils.bindToggle("c", "com.apple.iCal", centerLayout)
+
+-- Obsidian (hyper+j) — US layout with reset via forceUSApps
+utils.bindToggle("j", "md.obsidian", browserLayout, {
+	inputSource = utils.us,
+})
+
+-- Spotify (hyper+m)
+utils.bindToggle("m", "com.spotify.client", sidebarLayout)
