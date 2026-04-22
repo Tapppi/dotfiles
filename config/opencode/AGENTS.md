@@ -43,6 +43,14 @@
 - Prefer atomic commits: one logical change per commit. Split large changes
   into meaningful pieces.
 
+## Platform Gotchas
+
+- **`sed -i` portability**: GNU sed is first in `$PATH` on this machine.
+  GNU sed treats `sed -i ''` as an error (interprets the empty string as a
+  missing filename). Always use `sed -i.bak` and clean up the `.bak` file
+  afterwards — this syntax works identically on both GNU and BSD sed. Never
+  use `sed -i ''`.
+
 ## Available CLI Tooling
 
 The following tools are available in this environment via Homebrew and mise:
