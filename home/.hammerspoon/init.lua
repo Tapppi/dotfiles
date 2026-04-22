@@ -1,4 +1,4 @@
-local utils = require("hotkey-utils")
+local whu = require("window-hotkey-utils")
 
 -- ─── Per-app US keyboard layout forcing ────────────────────────────
 -- Forces US layout when these apps gain focus, restores on blur.
@@ -19,15 +19,15 @@ local previousSourceID = nil
 
 local function activateUSLayout()
 	local current = hs.keycodes.currentSourceID()
-	if current ~= utils.us then
+	if current ~= whu.us then
 		previousSourceID = current
 	end
-	utils.setInputSource(utils.us)
+	whu.setInputSource(whu.us)
 end
 
 local function restorePreviousLayout()
 	if previousSourceID then
-		utils.setInputSource(previousSourceID)
+		whu.setInputSource(previousSourceID)
 		previousSourceID = nil
 	end
 end
@@ -66,77 +66,51 @@ forceUSFilter:subscribe(hs.window.filter.windowNotVisible, function()
 	restorePreviousLayout()
 end)
 
--- ─── Layout functions ──────────────────────────────────────────────
-
--- Ghostty: left 65% on widescreen, fullscreen on regular.
-local function ghosttyLayout(screen)
-	if utils.isWidescreen(screen) then
-		return utils.leftFrame(screen, 0.65)
-	end
-	return utils.fullFrame(screen)
-end
-
--- Browser: fullscreen on regular, right 35% on widescreen.
-local function browserLayout(screen)
-	if utils.isWidescreen(screen) then
-		return utils.rightFrame(screen, 0.35)
-	end
-	return utils.fullFrame(screen)
-end
+-- ─── Custom layouts ────────────────────────────────────────────────
 
 -- Chat: laptop fullscreen when lid open, else right side of active
 -- screen (35% on widescreen, 50% on regular).
 local function chatLayout(screen)
-	local builtIn = utils.builtInScreen()
+	local builtIn = whu.builtInScreen()
 	if builtIn then
-		return utils.fullFrame(builtIn)
+		return whu.fullFrame(builtIn)
 	end
-	if utils.isWidescreen(screen) then
-		return utils.rightFrame(screen, 0.35)
+	if whu.isWidescreen(screen) then
+		return whu.rightFrame(screen, 0.35, 3)
 	end
-	return utils.rightFrame(screen, 0.5)
-end
-
--- Sidebar: left half, full height, active screen.
-local function sidebarLayout(screen)
-	return utils.leftFrame(screen, 0.5)
-end
-
--- Center: no resize, center on active screen.
-local function centerLayout(screen, win)
-	return utils.centerFrame(screen, win)
+	return whu.rightFrame(screen, 0.5, 3)
 end
 
 -- ─── App hotkeys ───────────────────────────────────────────────────
 
 -- Ghostty (hyper+s) — US layout via forceUSApps, auto-position new windows
-utils.bindToggle("s", "com.mitchellh.ghostty", ghosttyLayout, {
-	inputSource = utils.us,
+whu.bindToggle("s", "com.mitchellh.ghostty", whu.sidebar("left", 0.6), {
+	inputSource = whu.us,
 	watchCreate = true,
 })
 
 -- Brave (hyper+b)
-utils.bindToggle("b", "com.brave.Browser", browserLayout)
+whu.bindToggle("b", "com.brave.Browser", whu.sidebar("right", 0.4))
 
 -- Safari (hyper+v)
-utils.bindToggle("v", "com.apple.Safari", browserLayout)
+whu.bindToggle("v", "com.apple.Safari", whu.sidebar("right", 0.4))
 
 -- Slack (hyper+k)
-utils.bindToggle("k", "com.tinyspeck.slackmacgap", chatLayout)
+whu.bindToggle("k", "com.tinyspeck.slackmacgap", chatLayout)
 
 -- Teams (hyper+i)
-utils.bindToggle("i", "com.microsoft.teams2", chatLayout)
+whu.bindToggle("i", "com.microsoft.teams2", chatLayout)
 
 -- Finder (hyper+f)
-utils.bindToggle("f", "com.apple.finder", sidebarLayout)
+whu.bindToggle("f", "com.apple.finder", whu.corner("topleft", 800, 600, 10))
 
 -- Calendar (hyper+c) — no resize, just center on active screen
-utils.bindToggle("c", "com.apple.iCal", centerLayout)
+whu.bindToggle("c", "com.apple.iCal", whu.center())
 
--- Obsidian (hyper+j) — US layout with reset via forceUSApps
-utils.bindToggle("j", "md.obsidian", browserLayout, {
-	inputSource = utils.us,
+-- Obsidian (hyper+j) — US layout via forceUSApps
+whu.bindToggle("j", "md.obsidian", whu.sidebar("right", 0.4), {
+	inputSource = whu.us,
 })
 
 -- Spotify (hyper+m)
-utils.bindToggle("m", "com.spotify.client", sidebarLayout)
+whu.bindToggle("m", "com.spotify.client", whu.corner("topleft", 800, 600, 10))
