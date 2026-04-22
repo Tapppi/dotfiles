@@ -175,7 +175,7 @@ function M.bindToggle(key, bundleID, layoutFn, opts)
 
 		local win = app:mainWindow()
 
-		if win and win:isVisible() then
+		if win and app:isFrontmost() then
 			app:hide()
 			return
 		end
