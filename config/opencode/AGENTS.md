@@ -12,15 +12,6 @@
 - No extra tmux/git-specific wrapper config is tracked here; the setup relies
   on built-in platform capabilities and the shared OpenAgent config.
 
-## Agent Context Files (CLAUDE.md / AGENTS.md)
-
-- Projects may have both `CLAUDE.md` (for Claude Code) and `AGENTS.md` (for
-  OpenCode and other agents), plus `.local.md` variants (`CLAUDE.local.md`,
-  `AGENTS.local.md`) for machine-specific overrides that are gitignored.
-- When editing agent context files, always check whether the counterpart
-  file also exists in the same directory and update both to keep them in
-  sync. This applies to the base files and to `.local.md` variants.
-
 ## Long-running Processes and tmux
 
 - For multi-step workflows, persistent processes, dev servers, database sessions,
@@ -30,6 +21,28 @@
 - For containerised workloads: attach to the container, stream logs, or exec
   into it as appropriate for the task — don't just fire-and-forget.
 - Prefer keeping long-running output visible and accessible over hiding it.
+
+## Working Directory
+
+- **The shell CWD must be the session's original working directory whenever
+  the user regains control** (presenting results, asking questions, finishing
+  a task) — never leave it somewhere else.
+- Prefer `git -C <path>` and tool-specific workdir flags (e.g.
+  `--directory`, `--cwd`, `-C`) over changing directories when possible.
+- Chaining `cd subdir && command` for one-off operations is fine — just
+  ensure the CWD is restored before the user's next turn.
+- For persistent work in a subdirectory (multiple commands, iterative
+  debugging), create a **tmux window** as described in the Long-running
+  Processes section above instead of repeatedly changing directories.
+
+## Agent Context Files (CLAUDE.md / AGENTS.md)
+
+- Projects may have both `CLAUDE.md` (for Claude Code) and `AGENTS.md` (for
+  OpenCode and other agents), plus `.local.md` variants (`CLAUDE.local.md`,
+  `AGENTS.local.md`) for machine-specific overrides that are gitignored.
+- When editing agent context files, always check whether the counterpart
+  file also exists in the same directory and update both to keep them in
+  sync. This applies to the base files and to `.local.md` variants.
 
 ## Git Workflow
 
@@ -75,13 +88,14 @@ The following tools are available in this environment via Homebrew and mise:
 - **Data**: `jq`/`yq` for JSON/YAML, `duckdb` for analytical SQL — **use DuckDB
   for ad-hoc data analysis, test result aggregation, CSV/Parquet exploration,
   etc.** unless the project specifies another tool.
-- **HTTP**: `curl`, `httpie` (`http`/`https` commands).
+- **HTTP**: `curl`, `httpie` (`http`/`https` commands, prefer `httpie` when
+  instructing the user to do HTTP requests).
 - **Databases**: `psql` (via `libpq`), `redis-cli`, `sqlite3`, `kcat` (kafkacat)
-  for Kafka topic peeking.
-- **Search/files**: `ripgrep` (`rg`), `fd`, `fzf`, `tree`.
+  for Kafka topic peeking
+- **Search/files**: `ripgrep` (`rg`), `find`, `fd`, `fzf`, `tree`
 - **Git/GitHub**: `git`, `gh` CLI — use `gh` for GitHub code search, pull
-  requests, issues, checks, and releases. Prefer `gh` over web fetching or
-  scraping for GitHub operations. Always pass explicit flags (`--repo`,
+  requests, issues, checks, and releases. Prefer `gh` over WebFetch or
+  web scraping for GitHub operations. Always pass explicit flags (`--repo`,
   `--json`, `--jq`, `--limit`, etc.) to avoid interactive prompts.
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
@@ -92,6 +106,10 @@ The following tools are available in this environment via Homebrew and mise:
   PDF manipulation scripting.
 - **Media**: `ffmpeg`, `imagemagick`, `exiftool`, `tesseract`.
 - **Network**: `nmap`, `mtr`.
+
+Prefer using these existing tools over installing new ones. You should only
+install new tools when they are clearly needed or superior for the task, not
+just because they are more common.
 
 If a tool is not available and requires system-level installation, consult
 the user or use a containerised environment — do not pollute the user's
