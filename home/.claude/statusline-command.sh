@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code status line command
 # Receives JSON via stdin; outputs a single status line string.
-# Format: Model in dir | HH:MM | 21.4K (2%) | 5h 23% 7d 41% ~2h13m
+# Format: Model in dir | HH:MM | 21K/2% | 5h/23%/2h 7d/41%/3d
 
 input=$(cat)
 
@@ -44,7 +44,7 @@ fi
 
 # Context window: tokens in thousands and percentage
 if [[ -n "${used_pct}" ]] && [[ -n "${ctx_size}" ]]; then
-	tokens_k=$(awk "BEGIN { printf \"%.1f\", ${ctx_size} * ${used_pct} / 100 / 1000 }")
+	tokens_k=$(awk "BEGIN { printf \"%.0f\", ${ctx_size} * ${used_pct} / 100 / 1000 }")
 	used_int=$(printf '%.0f' "${used_pct}")
 	tokens=$(awk "BEGIN { printf \"%.0f\", ${ctx_size} * ${used_pct} / 100 }")
 
@@ -57,32 +57,58 @@ if [[ -n "${used_pct}" ]] && [[ -n "${ctx_size}" ]]; then
 		ctx_color="${green}"
 	fi
 
-	printf ' %b|%b %b%sK (%d%%)%b' "${white}" "${reset}" "${ctx_color}" "${tokens_k}" "${used_int}" "${reset}"
+	printf ' %b|%b %b%sK/%d%%%b' "${white}" "${reset}" "${ctx_color}" "${tokens_k}" "${used_int}" "${reset}"
 fi
 
-# Rate limits with countdown to reset
+# Format remaining seconds: >1d → "2d", 1h–1d → "3h", <1h → "42m"
+format_remaining() {
+	local secs=$1
+	local days=$((secs / 86400))
+	local hours=$(( (secs % 86400) / 3600 ))
+	local mins=$(( (secs % 3600) / 60 ))
+	if [[ "${days}" -gt 0 ]]; then
+		printf '%dd' "${days}"
+	elif [[ "${hours}" -gt 0 ]]; then
+		printf '%dh' "${hours}"
+	else
+		printf '%dm' "${mins}"
+	fi
+}
+
+# Color a percentage: <66 green, 66–85 yellow, >85 red
+pct_color() {
+	local pct
+	pct=$(printf '%.0f' "$1")
+	if [[ "${pct}" -gt 85 ]]; then
+		printf '%s' "${red}"
+	elif [[ "${pct}" -ge 66 ]]; then
+		printf '%s' "${yellow}"
+	else
+		printf '%s' "${green}"
+	fi
+}
+
+# Rate limits: 5h/x%/countdown 7d/x%/countdown
 five_pct=$(echo "${input}" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 week_pct=$(echo "${input}" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 five_reset=$(echo "${input}" | jq -r '.rate_limits.five_hour.resets_at // empty')
+week_reset=$(echo "${input}" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
 if [[ -n "${five_pct}" ]] || [[ -n "${week_pct}" ]]; then
+	now=$(date +%s)
 	printf ' %b|%b' "${white}" "${reset}"
-	[[ -n "${five_pct}" ]] && printf ' %b5h%b %b%d%%%b' "${white}" "${reset}" "${yellow}" "$(printf '%.0f' "${five_pct}")" "${reset}"
-	[[ -n "${week_pct}" ]] && printf ' %b7d%b %b%d%%%b' "${white}" "${reset}" "${yellow}" "$(printf '%.0f' "${week_pct}")" "${reset}"
 
-	# Countdown to 5-hour window reset
-	if [[ -n "${five_reset}" ]]; then
-		now=$(date +%s)
-		if [[ "${five_reset}" -gt "${now}" ]]; then
-			remaining=$((five_reset - now))
-			hours=$((remaining / 3600))
-			mins=$(( (remaining % 3600) / 60 ))
-			if [[ "${hours}" -gt 0 ]]; then
-				countdown="${hours}h${mins}m"
-			else
-				countdown="${mins}m"
-			fi
-			printf ' %b~%b%s%b' "${white}" "${violet}" "${countdown}" "${reset}"
+	if [[ -n "${five_pct}" ]]; then
+		printf ' %b5h%b/%b%d%%%b' "${white}" "${reset}" "$(pct_color "${five_pct}")" "$(printf '%.0f' "${five_pct}")" "${reset}"
+		if [[ -n "${five_reset}" ]] && [[ "${five_reset}" -gt "${now}" ]]; then
+			printf '/%b%s%b' "${violet}" "$(format_remaining $((five_reset - now)))" "${reset}"
+		fi
+	fi
+
+	if [[ -n "${week_pct}" ]]; then
+		printf ' %b7d%b/%b%d%%%b' "${white}" "${reset}" "$(pct_color "${week_pct}")" "$(printf '%.0f' "${week_pct}")" "${reset}"
+		if [[ -n "${week_reset}" ]] && [[ "${week_reset}" -gt "${now}" ]]; then
+			printf '/%b%s%b' "${violet}" "$(format_remaining $((week_reset - now)))" "${reset}"
 		fi
 	fi
 fi
