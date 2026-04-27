@@ -74,9 +74,11 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 - This repo uses `master` branch
 - GPG signing via 1Password SSH agent (`gpg.format = ssh`)
 - Commit messages: imperative mood, concise (e.g. "Update Ghostty config")
-- After committing here, update the parent repo submodule pointer:
+- After committing here, update the parent repo submodule pointer. Use
+  `git -C ..` so the shell CWD stays in the submodule:
   ```sh
-  cd .. && git add dotfiles && git commit -m "Update dotfiles"
+  git -C .. add dotfiles
+  git -C .. commit -m "Update dotfiles"
   ```
 
 ### Git Identity and Attribution
