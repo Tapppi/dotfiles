@@ -62,7 +62,7 @@ targets — this repo is the source of truth.
   may be used temporarily — inform the user and note that commits need rebase/amend before pushing.
 
 ### Files to Never Commit
-`.credentials`, `.DS_Store`, `Thumbs.db`, `._*`, API keys/tokens/passwords.
+`.credentials`, `.DS_Store`, `Thumbs.db`, `._*`, API keys/tokens/passwords, backup tarballs.
 
 ## Code Style
 
@@ -79,7 +79,9 @@ Tabs (width 2), UTF-8, LF line endings, trim trailing whitespace, insert final n
 - This repo uses `master` branch
 - GPG signing via 1Password SSH agent (`gpg.format = ssh`)
 - Commit messages: imperative mood, concise
-- After committing here, update the parent repo submodule pointer:
+- After committing here, update the parent repo submodule pointer. Use
+  `git -C ..` so the shell CWD stays in the submodule:
   ```sh
-  cd .. && git add dotfiles && git commit -m "Update dotfiles"
+  git -C .. add dotfiles
+  git -C .. commit -m "Update dotfiles"
   ```
