@@ -19,7 +19,11 @@ Symlinks live in `dotfiles/home/.claude/skills/<name>` and
 
 ## Local patches
 
-None yet.
+- `skills/skill-creator/references/agent-skills-spec.md` (added) +
+  `skills/skill-creator/SKILL.md` (references-section bullet added) —
+  Surface <https://agentskills.io/specification> from inside the skill
+  so authors don't have to discover the URL via the repo-root
+  `spec/agent-skills-spec.md` pointer. Could be upstreamed.
 
 When adding a local patch, append a bullet here noting:
 - File(s) touched

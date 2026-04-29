@@ -466,6 +466,9 @@ The agents/ directory contains instructions for specialized subagents. Read them
 
 The references/ directory has additional documentation:
 - `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
+- `references/agent-skills-spec.md` — Pointer to the canonical Agent
+  Skills specification at <https://agentskills.io/specification>.
+  Fetch the URL when you need the authoritative spec.
 
 ---
 
