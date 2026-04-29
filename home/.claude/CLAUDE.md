@@ -103,7 +103,17 @@ The following tools are available in this environment via Homebrew and mise:
   `--json`, `--jq`, `--limit`, etc.) to avoid interactive prompts.
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
-  Python CLI packages — prefer these over `pip install`.
+  Python CLI packages — prefer these over `pip install`. A shared agent
+  skill venv lives at `~/.local/share/agent-skills/venv/` for skills that
+  need long-lived Python deps (e.g. anthropics `pdf`/`pptx`/`docx`/`xlsx`);
+  install into it with `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.
+- **Agent skills**: Source-of-truth tree at `~/.config/agent-skills/`
+  (synced from `dotfiles/config/agent-skills/`). Both
+  `~/.claude/skills/<skill>` and `~/.config/opencode/skills/<skill>` are
+  symlinks into it. Vendor subdirs `anthropics/` and `google/` are
+  `git subtree`s of upstream skill repos; pull updates with
+  `bash ~/.config/agent-skills/sync-upstream.sh`. See the
+  `agent-skills/README.md` for the full adoption + sync workflow.
 - **Shell**: `bash` 5, `tmux`/`tmuxinator`, `shellcheck`, `parallel`, `pv`
   (pipeviewer for debugging pipe throughput).
 - **Documents**: `marp-cli` for Markdown presentations, `ghostscript` for
