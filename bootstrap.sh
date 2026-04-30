@@ -5,15 +5,20 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 git pull origin
 
 doIt() {
+	# --force lets rsync replace a destination directory with a symlink (or
+	# vice versa) when the source/destination types diverge — needed when
+	# tracked entries flip between a regular dir and a symlink (e.g. skill
+	# entries moving into config/agent-skills/). Without --force, rsync
+	# errors with "cannot delete non-empty directory" and skips the entry.
 	# Sync home-level dotfiles to ~/
 	rsync \
 		--exclude ".DS_Store" \
-		-avh --no-perms home/ ~
+		-avh --no-perms --force home/ ~
 
 	# Sync config to ~/.config/
 	rsync \
 		--exclude ".DS_Store" \
-		-avh --no-perms config/ ~/.config/
+		-avh --no-perms --force config/ ~/.config/
 
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts
