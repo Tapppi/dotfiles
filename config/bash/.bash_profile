@@ -102,9 +102,15 @@ load_compat_completions() {
 }
 
 load_alias_completions() {
-	# Enable tab completion for `g` by marking it as an alias for `git`
-	if type _git &>/dev/null; then
-		complete -o default -o nospace -F _git g
+	# Enable tab completion for `g` by marking it as an alias for `git`.
+	# bash-completion v2 lazy-loads git's completion, and modern
+	# git-completion.bash defines `__git_main` (not `_git`), so trigger the
+	# loader and use the documented `__git_complete` helper.
+	if type _completion_loader &>/dev/null; then
+		_completion_loader git
+	fi
+	if type __git_complete &>/dev/null; then
+		__git_complete g git
 	fi
 
 	# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
