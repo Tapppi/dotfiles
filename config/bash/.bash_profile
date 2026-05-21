@@ -13,14 +13,14 @@ debug_exec() {
 		local func_name="$2"
 		shift 2
 		if [ "$force_debug_or_func_name" = "1" ]; then
-			echo "==> $func_name | $@"
+			echo "==> $func_name | $*"
 			time "$func_name" "$@"
 		else
 			"$func_name" "$@"
 		fi
 	elif [ -n "$DEBUG" ]; then
 		shift
-		echo "==> $force_debug_or_func_name | $@"
+		echo "==> $force_debug_or_func_name | $*"
 		time "$force_debug_or_func_name" "$@"
 	else
 		shift
@@ -82,7 +82,9 @@ done
 # Activate mise for all the runtimes
 activate_mise() {
 	if command -v brew >/dev/null 2>&1; then
-		eval "$($(brew --prefix mise)/bin/mise activate bash)"
+		local mise_prefix
+		mise_prefix="$(brew --prefix mise)"
+		eval "$("${mise_prefix}/bin/mise" activate bash)"
 	fi
 }
 
@@ -94,9 +96,13 @@ activate_zoxide() {
 load_compat_completions() {
 	if command -v brew >/dev/null 2>&1 && [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
 		# Ensure existing Homebrew v1 completions continue to work
-		export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
-		source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+		local brew_prefix
+		brew_prefix="$(brew --prefix)"
+		export BASH_COMPLETION_COMPAT_DIR="${brew_prefix}/etc/bash_completion.d"
+		# shellcheck disable=SC1091
+		source "${brew_prefix}/etc/profile.d/bash_completion.sh"
 	elif [[ -f /etc/bash_completion ]]; then
+		# shellcheck disable=SC1091
 		source /etc/bash_completion
 	fi
 }
@@ -130,21 +136,27 @@ load_alias_completions() {
 }
 
 load_brew_completions() {
+	local brew_prefix
+	brew_prefix="$(brew --prefix)"
+
 	# Enable google-cloud-sdk and completion
-	if [ -d "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
-		source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
-		source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc"
+	if [ -d "${brew_prefix}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
+		# shellcheck disable=SC1091
+		source "${brew_prefix}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
+		# shellcheck disable=SC1091
+		source "${brew_prefix}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc"
 	fi
 
 	# Turn on kubectl autocomplete.
 	if command -v kubectl >/dev/null 2>&1; then
-		if command -v brew >/dev/null 2>&1 && [[ -d "$(brew --prefix)/share/bash-completion/completions" ]]; then
-			local kubectl_comp="$(brew --prefix)/share/bash-completion/completions/kubectl"
+		if command -v brew >/dev/null 2>&1 && [[ -d "${brew_prefix}/share/bash-completion/completions" ]]; then
+			local kubectl_comp="${brew_prefix}/share/bash-completion/completions/kubectl"
 			# Only regenerate when missing; install.sh cleans this after brew bundle
 			if [[ ! -f "${kubectl_comp}" ]]; then
 				kubectl completion bash >"${kubectl_comp}" 2>/dev/null
 			fi
 		else
+			# shellcheck disable=SC1090
 			source <(kubectl completion bash 2>/dev/null)
 		fi
 		# Add aliases
