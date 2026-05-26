@@ -86,7 +86,7 @@
 The following tools are available in this environment via Homebrew and mise:
 
 - **Containers**: `podman` with Docker compatibility socket (`$DOCKER_HOST`)
-  and compose support, `kubectl`/`helm` for Kubernetes, `kail` for streaming
+  and compose support, `kubectl`/`helm` for Kubernetes, `stern` for streaming
   pod logs.
 - **Cloud**: `gcloud`, `az`/`azcopy`, `terraform`.
 - **Data**: `jq`/`yq` for JSON/YAML, `duckdb` for analytical SQL — **use DuckDB
