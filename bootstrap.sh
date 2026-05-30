@@ -20,6 +20,18 @@ doIt() {
 		--exclude ".DS_Store" \
 		-avh --no-perms --force config/ ~/.config/
 
+	# Mirror the agent-skill trees exactly with --delete so that *dropped*
+	# skills and symlinks are pruned from ~ (a plain rsync only ever adds, so
+	# de-adopted skills would linger and stay globally active). Scoped to dirs
+	# fully owned by dotfiles — a global --delete on home/ or config/ would
+	# wipe every untracked file in ~ and ~/.config.
+	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
+		home/.claude/skills/ ~/.claude/skills/
+	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
+		config/opencode/skills/ ~/.config/opencode/skills/
+	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
+		config/agent-skills/ ~/.config/agent-skills/
+
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts
 	cp -R keyboard-layouts/*.bundle ~/Library/Keyboard\ Layouts/

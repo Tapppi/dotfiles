@@ -17,3 +17,14 @@ Thumbs.db
 **/.claude/settings.local.json
 CLAUDE.local.md
 AGENTS.local.md
+
+# Repo-level agent-skill manifests (macos-setup tasks/skills.sh) — machine-local,
+# never committed to the project repo. The skill symlinks and generated
+# mise.local.toml are excluded per-repo via .git/info/exclude by the task.
+.local-skills.json
+.local-skills.yml
+.local-skills.yaml
+
+# Repo-local jira-cli config (server URL / login metadata, no token) written by
+# `jira init -c .jira-config.yml` and pointed at via JIRA_CONFIG_FILE.
+.jira-config.yml

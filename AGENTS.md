@@ -39,7 +39,7 @@ dotfiles/
     terminal/                 # Terminal.app Solarized themes
     tmux/tmux.conf            # tmux with Ctrl+A prefix, vim keys, pbcopy
     wgetrc                    # wget config
-  bootstrap.sh                # Two rsyncs: home/→~/ and config/→~/.config/
+  bootstrap.sh                # rsync home/→~/ and config/→~/.config/, then --delete-mirror skill dirs
   keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
 

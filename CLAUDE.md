@@ -17,8 +17,11 @@ shellcheck bootstrap.sh config/bash/.functions
 
 ## Architecture
 
-- **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Keyboard layouts
-  are copied separately to `~/Library/Keyboard Layouts/`.
+- **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Then three
+  **scoped `--delete` mirror** rsyncs for the agent-skill dirs (`~/.claude/skills/`,
+  `~/.config/opencode/skills/`, `~/.config/agent-skills/`) so de-adopted skills are pruned, not
+  just added. `--delete` is **never** applied to the whole `home/`/`config/` sync (it would wipe
+  untracked files in `~`). Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
   `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI config), `.hammerspoon/`,
   `.hushlogin`, `.parallel/`.

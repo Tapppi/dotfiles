@@ -107,7 +107,17 @@ The following tools are available in this environment via Homebrew and mise:
 - **Agent skills**: User-level skills are synced from
   `~/.config/agent-skills/<vendor>/`. To add, modify, or update skills,
   edit them in the `macos-setup` repo (`dotfiles/config/agent-skills/`) —
-  never in `~/.config/agent-skills/` directly.
+  never in `~/.config/agent-skills/` directly. Globally-active skills are
+  symlinked from `home/.claude/skills/`; skills that should be active only
+  in specific repos (e.g. `jira`, the Google Cloud skills) are **not**
+  symlinked globally — they are linked per-repo via a gitignored
+  `.local-skills.json` manifest and the `macos-setup` `./setup.sh skills`
+  task. That task renders only **non-secret** per-repo env into a generated
+  `mise.local.toml` (never a secret — mise evaluates env synchronously on
+  every `cd`, so a blocking `op read` there would hang the shell). The Jira
+  API token instead lives in the macOS Keychain (loaded once from 1Password
+  with `security add-generic-password … "$(op read …)"`), which is where
+  `jira-cli` reads it at runtime.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.

@@ -37,6 +37,14 @@ vendors=(
 	"config/agent-skills/google|https://github.com/google/skills|main|skills/cloud/cloud-run-basics skills/cloud/cloud-sql-basics skills/cloud/gke-basics skills/cloud/google-cloud-waf-cost-optimization skills/cloud/google-cloud-waf-reliability skills/cloud/google-cloud-waf-security skills/cloud/bigquery-basics skills/cloud/google-cloud-networking-observability skills/cloud/google-cloud-recipe-auth"
 )
 
+# Sparse vendors: single-skill copies (not full subtrees) for upstream repos
+# where we want just one skill out of a large collection. Refreshed by a
+# shallow sparse checkout + rsync rather than `git subtree pull`.
+#   <dest-prefix>|<upstream-url>|<branch>|<upstream-subpath>
+sparse_vendors=(
+	"config/agent-skills/softaworks/jira|https://github.com/softaworks/agent-toolkit|main|skills/jira"
+)
+
 # Refuse to run on a dirty tree — subtree pulls require clean state
 if ! git diff --quiet || ! git diff --cached --quiet; then
 	warn "Working tree is dirty. Commit or stash before running sync-upstream.sh."
@@ -94,6 +102,40 @@ for entry in "${vendors[@]}"; do
 		if [[ "${patches:-0}" -gt 0 ]]; then
 			warn "${vendor} has ${patches} listed local patch(es) in CUSTOMISATION.md — verify they survived the pull."
 		fi
+	fi
+done
+
+for entry in "${sparse_vendors[@]}"; do
+	IFS="|" read -r dest upstream branch subpath <<< "${entry}"
+	name="$(basename "${dest}")"
+
+	p1 "Syncing ${name} (sparse: ${upstream} ${branch}:${subpath})"
+
+	tmp="$(mktemp -d)"
+	if ! git clone --depth 1 --filter=blob:none --sparse "${upstream}" "${tmp}/repo" >/dev/null 2>&1; then
+		warn "Sparse clone failed for ${name}."
+		rm -rf "${tmp}"
+		exit 1
+	fi
+	git -C "${tmp}/repo" sparse-checkout set "${subpath}" >/dev/null 2>&1
+	up_sha="$(git -C "${tmp}/repo" rev-parse HEAD)"
+
+	if [[ ! -d "${tmp}/repo/${subpath}" ]]; then
+		warn "Upstream path '${subpath}' not found in ${upstream}."
+		rm -rf "${tmp}"
+		exit 1
+	fi
+
+	mkdir -p "${dest}"
+	rsync -a --delete --exclude '.git' "${tmp}/repo/${subpath}/" "${dest}/"
+	rm -rf "${tmp}"
+
+	if git diff --quiet -- "${dest}"; then
+		p2 "No changes (upstream ${up_sha:0:12})."
+	else
+		p2 "Updated from upstream ${up_sha:0:12} — review the diff and bump the"
+		p3 "'Last synced commit' in $(dirname "${dest}")/CUSTOMISATION.md:"
+		git --no-pager diff --stat -- "${dest}" | sed 's/^/     /'
 	fi
 done
 

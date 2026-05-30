@@ -22,7 +22,8 @@ Two sync directories plus standalone files at the repo root:
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
   `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
   `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
-- `bootstrap.sh` — two rsyncs: `home/` → `~/` and `config/` → `~/.config/`
+- `bootstrap.sh` — two rsyncs (`home/` → `~/` and `config/` → `~/.config/`), then scoped
+  `rsync --delete` mirrors of the agent-skill dirs so de-adopted skills are pruned
 - `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
 
 ## What's inside
