@@ -50,12 +50,11 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 # Only update hombrew once every 6 hours
 export HOMEBREW_AUTO_UPDATE_SECS=21600
 
-# Keep allowing non-official taps (hashicorp/tap, slp/krun, etc.) by default.
-# A future Homebrew release will require explicit per-tap trust; setting this
-# silences the warning and preserves current behaviour. Switch to
-# HOMEBREW_REQUIRE_TAP_TRUST=1 (and `brew tap` each trusted tap) for stricter
-# opt-in trust.
-export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+# Require explicit trust for non-official taps (hashicorp/tap, slp/krun, etc.).
+# The taps declared in the Brewfile are trusted via `brew trust --tap` by
+# tasks/install.sh (trust_brew_taps), so they load while any unknown tap is
+# refused. Trust is stored in $(brew --prefix)/var/homebrew/trust.json.
+export HOMEBREW_REQUIRE_TAP_TRUST=1
 
 # Kube config files
 export KUBECONFIG="${XDG_CONFIG_HOME}/kube/config"
