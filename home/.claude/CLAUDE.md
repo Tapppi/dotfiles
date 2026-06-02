@@ -109,16 +109,18 @@ The following tools are available in this environment via Homebrew and mise:
   edit them in the `macos-setup` repo (`dotfiles/config/agent-skills/`) —
   never in `~/.config/agent-skills/` directly. Globally-active skills are
   symlinked from `home/.claude/skills/`; skills that should be active only
-  in specific repos (e.g. `jira`, the Google Cloud skills) are **not**
-  symlinked globally — they are linked per-repo via a gitignored
-  `.local-skills.json` manifest and the `macos-setup` `./setup.sh skills`
-  task. That task renders a generated `mise.local.toml`: non-secret config
-  plus `token_files` that load a secret into an env var by `cat`-ing a local
-  `0600` file. mise evaluates env synchronously on every `cd`, so the loader
-  must be instant — `cat` is, but a blocking `op read` there would hang the
-  shell, so the secret value never goes in mise. The Jira PAT is written once
-  from 1Password (`op read "op://…" > ~/.config/project/jira_pat.txt`) and
-  mise exposes it as `JIRA_API_TOKEN`, which is where `jira-cli` reads it.
+  in specific projects (e.g. `jira`, the Google Cloud skills) are **not**
+  symlinked globally — a workspace dir carries a gitignored
+  `.tapppi-project.json` manifest and the `macos-setup` `./setup.sh projects`
+  task links each repo's skills into that repo's `.claude/skills/` (per repo —
+  Claude Code only discovers skills up to a repo's git root). For env it renders
+  one `mise.local.toml` in the workspace dir that `_.file`-loads a local `0600`
+  dotenv file; mise walks up across git boundaries, so every repo under the
+  workspace inherits it. mise evaluates env on every `cd`, so the loader must be
+  instant — a file read is, but a blocking `op read` there would hang the shell,
+  so no secret is fetched in mise. The Jira PAT is written once from 1Password
+  into that dotenv file (which also holds `JIRA_CONFIG_FILE`/`JIRA_AUTH_TYPE`),
+  and mise exposes `JIRA_API_TOKEN`, which is where `jira-cli` reads it.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.

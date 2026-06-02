@@ -15,10 +15,11 @@ are symlinks into here.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills and local patches.
 
 Skills can be **global** (symlinked from `home/.claude/skills/` +
-`config/opencode/skills/`) or **repo-level** (linked into a specific
-repo's `.claude/skills/` via a gitignored `.local-skills.json` manifest
-and the parent repo's `./setup.sh skills` task). `jira` and the Google
-Cloud skills are repo-level only. See [README.md](README.md).
+`config/opencode/skills/`) or **per-project** (linked into a specific
+repo's `.claude/skills/` by the parent `macos-setup` repo's
+`./setup.sh projects` task, driven by a gitignored `.tapppi-project.json`
+workspace manifest). `jira` and the Google Cloud skills are project-scoped,
+not global. See [README.md](README.md).
 
 See [README.md](README.md) for the full layout, adoption workflow,
 upstream-sync process, and customisation guidance.

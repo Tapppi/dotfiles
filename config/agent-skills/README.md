@@ -7,11 +7,12 @@ agents in one of two ways:
 - **Globally** (active in every project) — `~/.claude/skills/<skill>` and
   `~/.config/opencode/skills/<skill>` are symlinks pointing here, so a single
   edit (or upstream pull) updates both agents everywhere.
-- **Per-repo** (active only in opted-in projects) — a repo carries a gitignored
-  `.local-skills.json` manifest and the parent `macos-setup` repo's
-  `./setup.sh skills` task symlinks the named skills into that repo's
-  `.claude/skills/`. Used for skills that should not be globally active (e.g.
-  `jira`, the Google Cloud skills). See "Repo-level adoption" below.
+- **Per-project** (active only in opted-in projects) — a *workspace* directory
+  carries a gitignored `.tapppi-project.json` manifest and the parent
+  `macos-setup` repo's `./setup.sh projects` task symlinks each repo's named
+  skills into that repo's `.claude/skills/` (and provisions shared per-workspace
+  env). Used for skills that should not be globally active (e.g. `jira`, the
+  Google Cloud skills). See "Per-project setup" below.
 
 ## Layout
 
@@ -29,11 +30,11 @@ agent-skills/
   google/                               # git subtree of google/skills (squashed)
     CUSTOMISATION.md
     skills/cloud/
-      cloud-run-basics/  cloud-sql-basics/  gke-basics/  ...   # repo-level only
+      cloud-run-basics/  cloud-sql-basics/  gke-basics/  ...   # project-scoped
     README.md  LICENSE  ...
   softaworks/                           # sparse vendor (single skill, not a subtree)
     CUSTOMISATION.md                    # provenance + sync commit
-    jira/  SKILL.md  references/         # repo-level only (drives ankitpokhrel/jira-cli)
+    jira/  SKILL.md  references/         # project-scoped (drives ankitpokhrel/jira-cli)
 ```
 
 The vendor directories preserve the upstream repo layout exactly so
@@ -56,82 +57,91 @@ and `~/.config/opencode/skills/` on the next sync (a plain rsync only adds).
 The upstream content stays in the subtree so the skill can be re-adopted later
 without re-fetching.
 
-## Repo-level adoption (`.local-skills`)
+## Per-project setup (`.tapppi-project`)
 
-Some skills should be active only in specific repos, not globally — e.g.
+Some skills should be active only in specific projects, not globally — e.g.
 `jira` (driven by `ankitpokhrel/jira-cli`) and the Google Cloud skills. These
 are vendored here but **not** symlinked into the global skill dirs. Instead, a
-target repo opts in with a gitignored manifest at its root:
+*workspace* directory (a folder containing one or more related repos, e.g.
+`~/project/acme/`) carries a gitignored manifest:
 
 ```json
 {
-  "skills": ["jira", "bigquery-basics", "gke-basics"],
-  "auth": {
-    "config": { "JIRA_CONFIG_FILE": "{{config_root}}/.jira-config.yml" }
+  "skills": {
+    "service-a": ["jira", "gke-basics"],
+    "service-b": ["jira"]
   },
   "jira": {
-    "installation": "cloud",
-    "server": "https://acme.atlassian.net",
-    "login": "me@acme.com",
-    "auth_type": "basic",
+    "installation": "local",
+    "server": "https://jira.example.com",
+    "login": "me@example.com",
+    "auth_type": "bearer",
     "project": "PROJ",
     "board": "",
-    "token_op_ref": "op://Private/Jira PROJ/credential"
+    "token_op_ref": "op://Vault/Item/field",
+    "env_file": "project.env"
   }
 }
 ```
 
-Running `./setup.sh skills` (in the parent `macos-setup` repo) scans
-`~/project` for these manifests and, per repo:
+Running `./setup.sh projects` (in the parent `macos-setup` repo) scans
+`~/project` for these manifests and, per workspace:
 
-1. Symlinks each named skill into the repo's `.claude/skills/<name>` (resolved
-   from anywhere under `~/.config/agent-skills/` by matching a dir with a
-   `SKILL.md`).
-2. If `auth.config` / `auth.token_files` are present, renders a gitignored
-   `mise.local.toml` `[env]` block: `config` verbatim (e.g. `JIRA_CONFIG_FILE`,
-   `JIRA_AUTH_TYPE`, with mise template vars like `{{config_root}}`), plus each
-   `token_files` entry as a `{{ exec(command='cat <file>') }}` that loads a
-   secret into an env var from a local `0600` file (instant; never blocks the
-   shell).
-3. Adds `/.claude/skills/` and `/mise.local.toml` to the repo's
-   `.git/info/exclude`.
-4. If a `jira` block is present, prints the one-time setup commands (it does
+1. **Skills (per repo).** For each `repo -> [skills]` entry, symlinks the named
+   skills into `<workspace>/<repo>/.claude/skills/<name>` (resolved from
+   anywhere under `~/.config/agent-skills/` by matching a dir with a `SKILL.md`)
+   and adds `/.claude/skills/` to that repo's `.git/info/exclude`. Skills are
+   **per repo** because Claude Code only discovers project skills up to a repo's
+   git root — a `.claude/skills/` in the workspace dir is invisible from inside
+   a child repo.
+2. **Shared env (per workspace).** If `jira.env_file` is set, renders
+   `<workspace>/mise.local.toml` with a single `[env]` `_.file = "<env_file>"`.
+   mise walks **up** the directory tree (ignoring git boundaries), so every repo
+   under the workspace inherits the env — set once, used everywhere.
+3. If a `jira` block is present, prints the one-time setup commands (it does
    not run them — they need 1Password and reach the Jira server).
 
 The execution context is plain shell env: mise's directory hook
-(`mise activate bash`) exports the repo's `[env]` when you're in the repo, so
+(`mise activate bash`) exports the workspace `[env]` in any repo beneath it, so
 any agent (Claude Code / Codex / OpenCode) launched there inherits
-`JIRA_CONFIG_FILE` etc. The manifest filename is in the global gitignore
-(`config/git/ignore`), so it is never committed to the target repo.
+`JIRA_API_TOKEN` / `JIRA_CONFIG_FILE` etc. The manifest filename is in the
+global gitignore (`config/git/ignore`); the workspace dir is typically not a
+git repo, so its generated files are never committed.
 
 ### How the token reaches mise without blocking
 
 mise evaluates `[env]` **synchronously on every `cd`/prompt**, so anything that
-runs there must be instant. A blocking `op read` (network/unlock) froze the
-shell in the original design, so the secret value is **never** written to
-`mise.local.toml`. Instead, the manifest's `auth.token_files` maps an env var
-to a local **`0600` file**, and mise loads it with a plain `cat` (instant; a
-missing file just yields an empty var). `jira-cli` reads the resulting
-`JIRA_API_TOKEN` from the env (its lookup order is env → config → `.netrc` →
-keychain, so env wins). `./setup.sh skills` prints two ready-to-run commands
-(skipped once each is done):
+runs there must be instant. A blocking `op read` (network/unlock) would freeze
+the shell. So the manifest points mise at a local **`0600` dotenv file**
+(`jira.env_file`, in the workspace dir) via `_.file`; mise just reads it
+(instant; a missing file is skipped, no error). That one file holds the
+non-secret config (`JIRA_CONFIG_FILE`, `JIRA_AUTH_TYPE`) and the secret
+`JIRA_API_TOKEN` together. `jira-cli` reads `JIRA_API_TOKEN` from the env (its
+lookup order is env → config → `.netrc` → keychain, so env wins).
+`./setup.sh projects` prints two ready-to-run commands (skipped once each is
+done):
 
-1. **Write the token to its file from 1Password** (one `op read`, run when you
-   can reach 1Password — `eval "$(op signin)"` first if it's locked, e.g. over
-   SSH):
+1. **Write the dotenv file from 1Password** (one `op read`, run when you can
+   reach 1Password — `eval "$(op signin)"` first if it's locked, e.g. over SSH):
 
    ```sh
-   mkdir -p ~/.config/project && chmod 700 ~/.config/project
-   ( umask 077; op read 'op://Private/Jira PROJ/credential' > ~/.config/project/jira_pat.txt )
+   ( umask 077; cat > ~/project/acme/project.env <<EOF
+   JIRA_CONFIG_FILE=/Users/me/project/acme/.jira-config.yml
+   JIRA_AUTH_TYPE=bearer
+   JIRA_API_TOKEN=$(op read "op://Vault/Item/field")
+   EOF
+   )
    ```
 
-   The file is long-lived (until the PAT rotates), so daily use never touches
-   op — only refreshing the token does. It lives outside any repo, so it is
-   never committed.
+   The token is long-lived (until the PAT rotates), so daily use never touches
+   op — only refreshing it does. The file lives in the workspace dir (keep that
+   dir out of any git repo), so it is never committed; `0600` means only your
+   user (and root) can read it, which also works over SSH.
 
-2. **`jira init`** to write the server/board/project config, with
+2. **`jira init`** to write the server/board/project config (at
+   `<workspace>/.jira-config.yml`), with
    `--installation/--server/--login/--auth-type/--project/--board` filled from
-   the `jira` block and pointed at `auth.config.JIRA_CONFIG_FILE`.
+   the `jira` block.
 
 ## Updating upstream subtrees
 
