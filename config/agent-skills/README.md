@@ -87,14 +87,16 @@ Running `./setup.sh skills` (in the parent `macos-setup` repo) scans
 1. Symlinks each named skill into the repo's `.claude/skills/<name>` (resolved
    from anywhere under `~/.config/agent-skills/` by matching a dir with a
    `SKILL.md`).
-2. If `auth.config` is present, renders a gitignored `mise.local.toml` `[env]`
-   block from it — **non-secret env only** (e.g. `JIRA_CONFIG_FILE`,
-   `JIRA_AUTH_TYPE`), values verbatim so mise template vars like
-   `{{config_root}}` work.
+2. If `auth.config` / `auth.token_files` are present, renders a gitignored
+   `mise.local.toml` `[env]` block: `config` verbatim (e.g. `JIRA_CONFIG_FILE`,
+   `JIRA_AUTH_TYPE`, with mise template vars like `{{config_root}}`), plus each
+   `token_files` entry as a `{{ exec(command='cat <file>') }}` that loads a
+   secret into an env var from a local `0600` file (instant; never blocks the
+   shell).
 3. Adds `/.claude/skills/` and `/mise.local.toml` to the repo's
    `.git/info/exclude`.
 4. If a `jira` block is present, prints the one-time setup commands (it does
-   not run them — they need an interactive 1Password unlock).
+   not run them — they need 1Password and reach the Jira server).
 
 The execution context is plain shell env: mise's directory hook
 (`mise activate bash`) exports the repo's `[env]` when you're in the repo, so
@@ -102,27 +104,34 @@ any agent (Claude Code / Codex / OpenCode) launched there inherits
 `JIRA_CONFIG_FILE` etc. The manifest filename is in the global gitignore
 (`config/git/ignore`), so it is never committed to the target repo.
 
-### Why the token is not in mise
+### How the token reaches mise without blocking
 
-mise evaluates `[env]` **synchronously on every `cd`/prompt**, so a blocking
-command there (e.g. `op read` when 1Password is not unlocked non-interactively)
-freezes the shell. So the API token is **never** put in `mise.local.toml`.
-Instead it lives in the **macOS Keychain**, which is exactly where `jira-cli`
-looks it up at runtime (`keyring` service `jira-cli`, account = your login;
-the lookup order is env → config → `.netrc` → Keychain). `./setup.sh skills`
-prints two ready-to-run commands (skipped once each is done):
+mise evaluates `[env]` **synchronously on every `cd`/prompt**, so anything that
+runs there must be instant. A blocking `op read` (network/unlock) froze the
+shell in the original design, so the secret value is **never** written to
+`mise.local.toml`. Instead, the manifest's `auth.token_files` maps an env var
+to a local **`0600` file**, and mise loads it with a plain `cat` (instant; a
+missing file just yields an empty var). `jira-cli` reads the resulting
+`JIRA_API_TOKEN` from the env (its lookup order is env → config → `.netrc` →
+keychain, so env wins). `./setup.sh skills` prints two ready-to-run commands
+(skipped once each is done):
 
-1. **Load the token into the Keychain from 1Password** (one `op read`, run
-   interactively when you can unlock 1Password — no eager/repeated calls):
+1. **Write the token to its file from 1Password** (one `op read`, run when you
+   can reach 1Password — `eval "$(op signin)"` first if it's locked, e.g. over
+   SSH):
 
    ```sh
-   security add-generic-password -U -s jira-cli -a "me@acme.com" \
-       -w "$(op read 'op://Private/Jira PROJ/credential')"
+   mkdir -p ~/.config/project && chmod 700 ~/.config/project
+   ( umask 077; op read 'op://Private/Jira PROJ/credential' > ~/.config/project/jira_pat.txt )
    ```
 
-2. **`jira init`** to write the server/board/project config (it reads the
-   token from the Keychain), with `--installation/--server/--login/--auth-type/--project/--board`
-   filled from the `jira` block, pointed at `auth.config.JIRA_CONFIG_FILE`.
+   The file is long-lived (until the PAT rotates), so daily use never touches
+   op — only refreshing the token does. It lives outside any repo, so it is
+   never committed.
+
+2. **`jira init`** to write the server/board/project config, with
+   `--installation/--server/--login/--auth-type/--project/--board` filled from
+   the `jira` block and pointed at `auth.config.JIRA_CONFIG_FILE`.
 
 ## Updating upstream subtrees
 

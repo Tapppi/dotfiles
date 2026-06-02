@@ -112,12 +112,13 @@ The following tools are available in this environment via Homebrew and mise:
   in specific repos (e.g. `jira`, the Google Cloud skills) are **not**
   symlinked globally — they are linked per-repo via a gitignored
   `.local-skills.json` manifest and the `macos-setup` `./setup.sh skills`
-  task. That task renders only **non-secret** per-repo env into a generated
-  `mise.local.toml` (never a secret — mise evaluates env synchronously on
-  every `cd`, so a blocking `op read` there would hang the shell). The Jira
-  API token instead lives in the macOS Keychain (loaded once from 1Password
-  with `security add-generic-password … "$(op read …)"`), which is where
-  `jira-cli` reads it at runtime.
+  task. That task renders a generated `mise.local.toml`: non-secret config
+  plus `token_files` that load a secret into an env var by `cat`-ing a local
+  `0600` file. mise evaluates env synchronously on every `cd`, so the loader
+  must be instant — `cat` is, but a blocking `op read` there would hang the
+  shell, so the secret value never goes in mise. The Jira PAT is written once
+  from 1Password (`op read "op://…" > ~/.config/project/jira_pat.txt`) and
+  mise exposes it as `JIRA_API_TOKEN`, which is where `jira-cli` reads it.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.
