@@ -129,6 +129,8 @@ The following tools are available in this environment via Homebrew and mise:
   venv with `source ~/.local/share/agent-skills/venv/bin/activate`).
 - **Shell**: `bash` 5, `tmux`/`tmuxinator`, `shellcheck`, `parallel`, `pv`
   (pipeviewer for debugging pipe throughput).
+- **PowerShell**: `pwsh` with the `PSScriptAnalyzer` module for linting
+  PowerShell scripts (`pwsh -c 'Invoke-ScriptAnalyzer -Path <path> -Recurse'`).
 - **Documents**: `marp-cli` for Markdown presentations, `ghostscript` for
   PDF manipulation scripting.
 - **Media**: `ffmpeg`, `imagemagick`, `exiftool`, `tesseract`.
