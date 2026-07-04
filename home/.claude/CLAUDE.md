@@ -38,6 +38,11 @@
 - For persistent work in a subdirectory (multiple commands, iterative
   debugging), create a **tmux window** as described in the Long-running
   Processes section above instead of repeatedly changing directories.
+- To move the *session's* working directory (not just a shell subprocess),
+  prefer the built-in `/cd <path>` command — it relocates the session
+  without breaking the prompt cache mid-session, and keeps
+  `/add-dir` directories intact. Use it instead of relaunching Claude Code
+  in another directory.
 
 ## Agent Context Files (CLAUDE.md / AGENTS.md)
 
@@ -61,6 +66,11 @@
   some leeway in interpreting intent is fine.
 - Prefer atomic commits: one logical change per commit. Split large changes
   into meaningful pieces.
+- **Review before committing.** After finishing a unit of work and before
+  committing, run `/code-review` on the diff to catch correctness bugs and
+  reuse/simplification/efficiency issues. Use a higher effort for risky or
+  broad changes (e.g. `/code-review high`); address or consciously dismiss
+  findings before the commit.
 - **Subrepo git operations**: When the working directory contains nested
   repos (e.g. git submodules), use `git -C <relative-path>` from the
   session's original working directory to run commands in the subrepo.

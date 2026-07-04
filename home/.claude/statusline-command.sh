@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code status line command
 # Receives JSON via stdin; outputs a single status line string.
-# Format: Model in dir | HH:MM | 21K/2% | 5h/23%/2h 7d/41%/3d
+# Format: Model in dir #PR | HH:MM | 21K/2% | 5h/23%/2h 7d/41%/3d
 
 input=$(cat)
 
@@ -10,6 +10,8 @@ cwd=$(echo "${input}" | jq -r '.workspace.current_dir // .cwd // ""')
 used_pct=$(echo "${input}" | jq -r '.context_window.used_percentage // empty')
 ctx_size=$(echo "${input}" | jq -r '.context_window.context_window_size // empty')
 duration_ms=$(echo "${input}" | jq -r '.cost.total_duration_ms // empty')
+pr_number=$(echo "${input}" | jq -r '.pr.number // empty')
+pr_state=$(echo "${input}" | jq -r '.pr.review_state // empty')
 
 # Solarized-inspired ANSI colors (render dimmed in the status bar)
 orange='\033[38;5;166m'
@@ -27,6 +29,17 @@ printf '%b%s%b' "${orange}" "${model}" "${reset}"
 if [[ -n "${cwd}" ]]; then
 	dir=$(basename "${cwd}")
 	printf '%b in %b%s%b' "${white}" "${green}" "${dir}" "${reset}"
+fi
+
+# Open pull request for the current branch (color by review state)
+if [[ -n "${pr_number}" ]]; then
+	case "${pr_state}" in
+		approved) pr_color="${green}" ;;
+		changes_requested) pr_color="${red}" ;;
+		pending) pr_color="${yellow}" ;;
+		*) pr_color="${violet}" ;;
+	esac
+	printf ' %b#%s%b' "${pr_color}" "${pr_number}" "${reset}"
 fi
 
 # Session start time (derived from wall-clock duration)
