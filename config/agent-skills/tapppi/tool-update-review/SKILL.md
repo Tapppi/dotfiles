@@ -104,7 +104,7 @@ python3 scripts/render.py /tmp/tool-update-review-{report_id}/report.json
 which injects it into `assets/report-template.html` and writes `index.html`
 plus a copy of `server.py` next to it.
 
-### 4. Serve and wait
+### 4. Serve
 
 Start the server loopback-only (extra `--bind` listeners only if the user
 asks):
@@ -116,50 +116,86 @@ python3 {session_dir}/server.py {session_dir} &
 Poll `GET /health` until 200 (≤5 s). Then pick URLs by session type — decide
 at runtime, never hardcode hostnames (there are multiple server hosts):
 
-- **Remote session** (`SSH_CONNECTION` or `SSH_TTY` set): the user's browser
-  is on another machine, so *by default* also start a **foreground**
-  `tailscale serve --set-path /updates {port}` as a background task (never
-  `--bg`; foreground config dies with the session). Print both URLs:
-  `https://$(tailscale status --json | jq -r '.Self.DNSName' | sed 's/\.$//')/updates`
-  and the loopback URL. Kill the serve task after feedback lands.
+- **Remote session** (`SSH_CONNECTION` or `SSH_TTY` set): also start a
+  **foreground** `tailscale serve --set-path /updates {port}` as a background
+  task (never `--bg`; foreground config dies with the session). Print both
+  URLs: `https://$(tailscale status --json | jq -r '.Self.DNSName' | sed
+  's/\.$//')/updates` and the loopback URL.
 - **Local session**: loopback URL only, and `open` it. Tailnet serving only
   on request.
 
-Block on the server process exiting — it shuts itself down after a
-successful `POST /feedback` writes `feedback.json`. Time out after 30 min:
-offer to re-open the page or abandon. Don't kill the server while the user
-might still be reviewing.
+### 5. Wait for feedback.json
 
-### 5. Apply feedback
+Poll `{session_dir}/feedback.json` existence every 5 s — do **not** block on
+server exit; the server stays up after feedback. Timeout after 30 min: offer
+to re-open the page or abandon.
 
-Read `{session_dir}/feedback.json` (validate `report_id`). Accepted items
-split into two kinds, both executed in-session:
+If `feedback.json` already exists when the server starts (e.g. session
+crashed and restarted): validate `report_id`. Match → skip the wait, print
+"Resuming from existing feedback." Mismatch → warn and ask: re-serve fresh
+(rename stale file) or use stale feedback.
 
-- **Repo/automation changes** (manifests, configs, tasks) → apply to the
-  macos-setup repo. Respect repo conventions: paths under `dotfiles/` are
-  edited in the submodule and copied to their deploy target; a `Brewfile`
-  edit needs a per-host decision about `intel.Brewfile`, not a blind mirror;
-  commit per the repos' CLAUDE.md rules (specific paths, imperative
-  messages, no AI attribution). The `systems` repo (nix) is out of scope
-  until the nix migration — surface nix-relevant findings as notes only.
-- **Machine-local upgrades** (mise runtimes — the collector covers every
-  mise-managed tool via `mise outdated` — and upstream pkg installs) →
-  run them now (`mise upgrade <tool>`, installer commands), then **append
-  an entry to `${XDG_STATE_HOME:-~/.local/state}/tool-update-review/changelog.md`**:
-  date section, tool, source, old → new version, why (CVEs/fixes), and the
-  session's report_id. This file is the audit trail for every non-repo
-  change the agent makes to the machine — never skip it. Upgrades that
-  belong to the user's setup tasks (`brew upgrade`, `./setup.sh install`)
-  are still never run by the agent.
+### 6. Write initial status.json
 
-- **discuss** (or any decision with a comment) → after the apply pass, raise
-  each item in conversation with the tool, suggestion title, and the user's
-  comment. Don't apply until the user confirms.
-- **reject** / undecided → skip, but list in the summary.
+Immediately after detecting `feedback.json`, write
+`{session_dir}/status.json` atomically (`.tmp` + `os.replace`):
+- `phase: "applying"`, `done: false`, `started_at`/`written_at`: now
+- `actions`: one entry per decision in suggestion order — accepted/discuss:
+  state `"pending"`; rejected/undecided: state `"skipped"`. Append synthetic
+  commit actions (`commit:dotfiles`, `commit:macos-setup`) at the end, state
+  `"pending"`.
+- `recap`, `changelog_entries`, `summary`: empty/zero.
 
-Finish with a summary: applied edits (with commits), executed upgrades
-(with changelog entries), rejected, discussion items, tool notes, and the
-overall comment if present.
+### 7. Apply accepted suggestions — per-action status updates
+
+For each accepted suggestion in order:
+1. Write status.json: action state → `"running"`, `started_at: now`.
+2. Apply the edit.
+3. Write status.json: action state → `"done"` or `"failed"`, `finished_at:
+   now`, `note: <one-line outcome>`, `detail: [<last ≤10 lines>]`.
+
+One state transition per write (never skip `"running"`). Commit actions
+follow the same pattern.
+
+Accepted edits split into two kinds, both executed in-session:
+- **Repo/automation changes** → apply to the macos-setup repo. Dotfiles
+  paths go in the submodule; Brewfile edits need per-host decisions; commit
+  per CLAUDE.md (specific paths, imperative messages, no AI attribution). The
+  `systems` repo (nix) is out of scope — surface nix findings as notes only.
+- **Machine-local upgrades** (mise runtimes, standalone CLIs) → run now
+  (`mise upgrade <tool>`, installer commands).
+
+### 8. Write terminal status.json
+
+After all actions complete, write the final status.json atomically:
+- `phase: "done"` (or `"discussing"` if discuss items remain — then
+  transition to `"done"` after the discuss pass), `done: true`
+- `recap`: applied edits with commit hashes, failed actions with remediation
+  hints, discuss items with user comments, rejected/undecided items
+- `changelog_entries`: one entry per machine-local upgrade applied (date
+  section, tool, source, old→new, why); also append each to
+  `${XDG_STATE_HOME:-~/.local/state}/tool-update-review/changelog.md`
+  (create dir+file if absent — never skip this, it is the audit trail)
+- `summary`: counts from action outcomes; `written_at`: now
+
+### 9. Surface discuss items in conversation
+
+After writing terminal status, raise each `discuss` item in the session:
+tool name, suggestion title, user's comment. Don't apply until the user
+confirms. No status.json update needed — recap already mentions these.
+
+### 10. Wait for Finish (POST /shutdown)
+
+Block until the server process exits (the page's Finish button posts to
+`/shutdown`, which triggers a 1 s-delayed `server.shutdown()`). Use
+`subprocess.wait(timeout=1800)` or poll process exit every 5 s. On timeout:
+print "Review session timed out — you can still click Finish in the browser,
+or close it." and proceed to teardown.
+
+### 11. Teardown
+
+Kill the tailscale serve proxy (if started). Clean up any temp files. Session
+complete.
 
 ## Notes
 

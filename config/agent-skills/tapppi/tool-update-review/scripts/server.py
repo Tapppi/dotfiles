@@ -6,8 +6,9 @@ Usage: server.py <session_dir> [port] [--bind ADDR]
 Always listens on 127.0.0.1; each --bind ADDR adds a listener on the
 same port (e.g. the tailscale IP from `tailscale ip -4` for remote
 review). The report holds config details, so only add interfaces the
-user trusts — a tailnet qualifies, a shared LAN may not. All listeners
-shut down after a successful POST /feedback on any of them.
+user trusts — a tailnet qualifies, a shared LAN may not. The server
+stays up after POST /feedback and shuts down only when POST /shutdown
+is received (or the 30-min session fallback triggers).
 
 Note: on macOS a browser/curl on this same machine may fail to reach
 the machine's own tailscale IP (utun hairpin) — locals use 127.0.0.1,
@@ -91,6 +92,22 @@ def main():
 					self.wfile.write(body)
 					return
 
+				if self._route().endswith("/status"):
+					status_path = os.path.join(sess_dir, "status.json")
+					try:
+						with open(status_path, "rb") as fh:
+							data = fh.read()
+					except FileNotFoundError:
+						self.send_error(404, "status.json not found")
+						return
+					self.send_response(200)
+					self.send_header("Content-Type", "application/json")
+					self.send_header("Cache-Control", "no-store")
+					self.send_header("Content-Length", str(len(data)))
+					self.end_headers()
+					self.wfile.write(data)
+					return
+
 				# Anything else (/, /updates, favicon probes) gets the page.
 				index_path = os.path.join(sess_dir, "index.html")
 				try:
@@ -107,8 +124,31 @@ def main():
 
 			# ── POST ──────────────────────────────────────────────────────
 			def do_POST(self):
+				if self._route().endswith("/shutdown"):
+					# Idempotent: if shutdown already scheduled, still return 200.
+					body = json.dumps({"status": "shutdown_scheduled"}).encode("utf-8")
+					self.send_response(200)
+					self.send_header("Content-Type", "application/json")
+					self.send_header("Content-Length", str(len(body)))
+					self.end_headers()
+					self.wfile.write(body)
+
+					def _shutdown():
+						time.sleep(1)
+						for httpd in server_holder:
+							httpd.shutdown()
+
+					threading.Thread(target=_shutdown, daemon=True).start()
+					return
+
 				if not self._route().endswith("/feedback"):
 					self.send_error(404, "Not found")
+					return
+
+				# Duplicate-submit guard: 409 if feedback.json already written
+				feedback_path = os.path.join(sess_dir, "feedback.json")
+				if os.path.exists(feedback_path):
+					self._error(409, "already_submitted")
 					return
 
 				length = int(self.headers.get("Content-Length", 0))
@@ -141,7 +181,6 @@ def main():
 					return
 
 				# Atomically write feedback.json
-				feedback_path = os.path.join(sess_dir, "feedback.json")
 				tmp_path = feedback_path + ".tmp"
 				with open(tmp_path, "w", encoding="utf-8") as fh:
 					json.dump(payload, fh, ensure_ascii=False, indent="\t")
@@ -156,14 +195,8 @@ def main():
 				self.send_header("Content-Length", str(len(body)))
 				self.end_headers()
 				self.wfile.write(body)
-
-				# Shut down from a separate thread (~1 s delay so response flushes)
-				def _shutdown():
-					time.sleep(1)
-					for httpd in server_holder:
-						httpd.shutdown()
-
-				threading.Thread(target=_shutdown, daemon=True).start()
+				# Server stays up — session polls feedback.json and calls
+				# POST /shutdown when apply pass is complete.
 
 			# ── Helper ───────────────────────────────────────────────────
 			def _error(self, code: int, message: str):

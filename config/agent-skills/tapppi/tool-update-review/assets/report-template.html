@@ -647,8 +647,8 @@
 			border-color: var(--blue);
 		}
 
-		/* ── Success overlay ────────────────────────────────────────────── */
-		#success-overlay {
+		/* ── Closing splash ─────────────────────────────────────────────── */
+		#closing-splash {
 			display: none;
 			position: fixed;
 			inset: 0;
@@ -658,7 +658,7 @@
 			align-items: center;
 		}
 
-		#success-overlay.visible { display: flex; }
+		#closing-splash.visible { display: flex; }
 
 		.overlay-box {
 			background: var(--base02);
@@ -744,6 +744,175 @@
 		}
 
 		#error-toast.visible { display: block; }
+
+		/* ── Tab strip (replaces progress-bar-container contents) ────────── */
+		#tab-strip {
+			flex: 1;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.tab-btn {
+			padding: 4px 12px;
+			border-radius: 3px;
+			border: 1px solid var(--base01);
+			background: transparent;
+			color: var(--base01);
+			font-size: 12px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: background 0.1s, color 0.1s;
+		}
+
+		.tab-btn.active {
+			background: var(--cyan);
+			border-color: var(--cyan);
+			color: #fff;
+		}
+
+		.tab-btn:not(.active):hover { background: rgba(255,255,255,0.04); }
+
+		#tab-status {
+			margin-left: auto;
+			font-size: 12px;
+			color: var(--base1);
+			white-space: nowrap;
+		}
+
+		#tab-status.stale { color: var(--yellow); }
+
+		/* ── Results panel ──────────────────────────────────────────────── */
+		#results-panel {
+			max-width: 960px;
+			margin: 0 auto;
+			padding: 24px;
+		}
+
+		#results-status-bar {
+			padding: 10px 14px;
+			background: var(--base02);
+			border: 1px solid var(--base01);
+			border-radius: 4px;
+			margin-bottom: 16px;
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--base2);
+		}
+
+		#results-status-bar.failed     { color: var(--red); }
+		#results-status-bar.discussing { color: var(--yellow); }
+
+		/* ── Action list ────────────────────────────────────────────────── */
+		#action-list { margin-bottom: 16px; }
+
+		.action-row { border-bottom: 1px solid rgba(88,110,117,0.2); }
+
+		.action-main-line {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 8px 10px;
+			cursor: pointer;
+			user-select: none;
+		}
+
+		.action-main-line:hover { background: rgba(255,255,255,0.02); }
+
+		.action-icon {
+			width: 18px;
+			text-align: center;
+			font-size: 13px;
+			flex-shrink: 0;
+		}
+
+		.action-icon.state-pending { color: var(--base01); }
+		.action-icon.state-running { color: var(--cyan); }
+		.action-icon.state-done    { color: var(--green); }
+		.action-icon.state-failed  { color: var(--red); }
+		.action-icon.state-skipped { color: var(--base01); }
+
+		.action-label {
+			flex: 1;
+			font-size: 13px;
+			color: var(--base1);
+		}
+
+		.action-note {
+			font-size: 12px;
+			color: var(--base00);
+		}
+
+		.action-detail-pre {
+			display: none;
+			margin: 0 10px 8px 38px;
+			font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+			font-size: 11px;
+			background: var(--base03);
+			color: var(--base00);
+			padding: 6px 8px;
+			border-radius: 3px;
+			overflow-x: auto;
+			white-space: pre;
+		}
+
+		.action-detail-pre.expanded { display: block; }
+
+		/* ── Recap / changelog sections ──────────────────────────────────── */
+		#results-recap,
+		#results-changelog {
+			margin-top: 16px;
+			padding: 14px;
+			background: var(--base02);
+			border: 1px solid var(--base01);
+			border-radius: 4px;
+		}
+
+		#results-recap pre,
+		#results-changelog pre {
+			font-family: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+			font-size: 12px;
+			color: var(--base1);
+			white-space: pre-wrap;
+			word-break: break-word;
+			margin-top: 8px;
+		}
+
+		.changelog-entry-sep {
+			border: none;
+			border-top: 1px solid var(--base01);
+			margin: 10px 0;
+		}
+
+		/* ── Finish button row ───────────────────────────────────────────── */
+		#finish-row {
+			display: flex;
+			justify-content: flex-end;
+			margin-top: 20px;
+		}
+
+		#finish-btn {
+			padding: 7px 20px;
+			border-radius: 3px;
+			border: 1px solid var(--base01);
+			background: var(--base01);
+			color: var(--base00);
+			font-size: 13px;
+			font-weight: 600;
+			cursor: not-allowed;
+		}
+
+		#finish-btn:not(:disabled) {
+			background: var(--cyan);
+			border-color: var(--cyan);
+			color: #fff;
+			cursor: pointer;
+		}
+
+		#finish-btn:not(:disabled):hover { background: #1d8a80; }
+
+		/* ── Frozen report (read-only after submit) ──────────────────────── */
+		.report-frozen { opacity: 0.5; pointer-events: none; }
 	</style>
 </head>
 <body>
@@ -804,12 +973,12 @@
 	<!-- ── Main content: tool sections injected by JS ──────────────────── -->
 	<main id="main"></main>
 
-	<!-- ── Success overlay ─────────────────────────────────────────────── -->
-	<div id="success-overlay" role="dialog" aria-modal="true" aria-label="Feedback submitted">
+	<!-- ── Closing splash (shown after Finish is clicked) ──────────────── -->
+	<div id="closing-splash" role="dialog" aria-modal="true" aria-label="Session complete">
 		<div class="overlay-box">
 			<div class="ov-icon">✓</div>
-			<h2>Feedback submitted</h2>
-			<p>Return to your terminal — the session will pick up from here.</p>
+			<h2>Session complete</h2>
+			<p>This window can be closed.</p>
 		</div>
 	</div>
 
@@ -837,6 +1006,7 @@
 
 	<script>
 		const REPORT = __REPORT_DATA__;
+		const base = location.pathname.replace(/\/+$/, '');
 
 		/* ── Severity ordering (lower = worse) ─────────────────────────── */
 		const SEV_ORDER = { incompatible: 0, warning: 1, notable: 2, info: 3 };
@@ -1139,15 +1309,18 @@
 			};
 
 			try {
-				// Base-aware: works at / and under a proxy mount like /updates,
-				// with or without a trailing slash on the page URL.
-				const resp = await fetch(location.pathname.replace(/\/+$/, '') + '/feedback', {
+				// base is set at top of script; works at / and under a proxy
+				// mount like /updates, with or without a trailing slash.
+				const resp = await fetch(base + '/feedback', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify(payload),
 				});
 				if (resp.ok) {
-					document.getElementById('success-overlay').classList.add('visible');
+					transitionToResults(null);
+					startPolling();
+				} else if (resp.status === 409) {
+					showError('Feedback already submitted.');
 				} else {
 					const body = await resp.text().catch(() => resp.status);
 					showError(`Server error ${resp.status}: ${body}`);
@@ -1271,6 +1444,7 @@
 			/* Suppress when typing */
 			if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
 			if (e.ctrlKey || e.metaKey || e.altKey) return;
+			if (resultsActive) return; /* results view handles its own keys */
 
 			switch (e.key) {
 				case 'j': {
@@ -1315,11 +1489,321 @@
 			document.getElementById('help-overlay').classList.remove('visible');
 		});
 
+		/* ── Results view state ──────────────────────────────────────────── */
+		let resultsActive = false;
+		let pollTimer = null;
+		let pollBackoff = 2000;
+		let sessionEnded = false;
+		let spinInterval = null;
+		let spinIdx = 0;
+		const SPIN_FRAMES = ['⠇','⠏','⠋','⠙','⠸','⠴','⠦','⠧'];
+
+		/* ── Initial-load status probe ───────────────────────────────────── */
+		async function probeStatus() {
+			try {
+				const r = await fetch(base + '/status', { cache: 'no-store' });
+				if (r.ok) {
+					const data = await r.json();
+					// Feedback already submitted (e.g. page refresh mid-apply)
+					transitionToResults(data);
+					startPolling();
+					return;
+				}
+			} catch (_) { /* server not yet written status, or network error */ }
+			// Normal path: render the report review view
+			renderHeader();
+			renderTools();
+			updateProgress();
+			applyFilters();
+		}
+
+		/* ── Transition to Results view ──────────────────────────────────── */
+		function transitionToResults(initialData) {
+			if (resultsActive) return;
+			resultsActive = true;
+
+			const mainEl = document.getElementById('main');
+
+			// Ensure report is rendered so the frozen Report tab has content
+			if (!mainEl.hasChildNodes()) {
+				renderHeader();
+				renderTools();
+				applyFilters();
+			}
+
+			// 1. Hide filter bar
+			document.getElementById('filter-bar').style.display = 'none';
+
+			// 2. Replace progress-bar-container contents with tab strip
+			const pbc = document.getElementById('progress-bar-container');
+			pbc.innerHTML =
+				'<div id="tab-strip">' +
+					'<button class="tab-btn active" id="tab-results">Results</button>' +
+					'<button class="tab-btn" id="tab-report">Report</button>' +
+					'<span id="tab-status">Applying…</span>' +
+				'</div>';
+
+			// 3. Freeze the report view
+			mainEl.classList.add('report-frozen');
+			mainEl.querySelectorAll('button, textarea, select, input').forEach(el => {
+				el.disabled = true;
+			});
+
+			// 4. Create and insert results panel
+			const panel = document.createElement('div');
+			panel.id = 'results-panel';
+			panel.innerHTML =
+				'<div id="results-status-bar">Applying changes…</div>' +
+				'<div id="action-list">' +
+					'<div class="section-label">ACTIONS</div>' +
+					'<div id="action-rows"></div>' +
+				'</div>' +
+				'<div id="results-recap" style="display:none">' +
+					'<div class="section-label">NOTES / RECAP</div>' +
+					'<pre id="recap-text"></pre>' +
+				'</div>' +
+				'<div id="results-changelog" style="display:none">' +
+					'<div class="section-label">CHANGELOG ENTRIES</div>' +
+					'<div id="changelog-entries"></div>' +
+				'</div>' +
+				'<div id="finish-row">' +
+					'<button id="finish-btn" disabled>Finish ↗</button>' +
+				'</div>';
+
+			// 5. Insert after progress-bar-container; show panel, hide report
+			pbc.insertAdjacentElement('afterend', panel);
+			mainEl.style.display = 'none';
+
+			// Tab switching
+			document.getElementById('tab-results').addEventListener('click', () => {
+				document.getElementById('tab-results').classList.add('active');
+				document.getElementById('tab-report').classList.remove('active');
+				panel.style.display = 'block';
+				mainEl.style.display = 'none';
+			});
+
+			document.getElementById('tab-report').addEventListener('click', () => {
+				document.getElementById('tab-report').classList.add('active');
+				document.getElementById('tab-results').classList.remove('active');
+				panel.style.display = 'none';
+				mainEl.style.display = 'block';
+			});
+
+			// Finish button
+			document.getElementById('finish-btn').addEventListener('click', async () => {
+				const lastData = window._lastStatusData;
+				const hasRunning = (lastData && lastData.actions || []).some(a => a.state === 'running');
+				if (hasRunning) {
+					if (!confirm('Session may still be running. Finish anyway?')) return;
+				}
+				try {
+					const r = await fetch(base + '/shutdown', { method: 'POST' });
+					if (r.ok) {
+						sessionEnded = true;
+						if (spinInterval) { clearInterval(spinInterval); spinInterval = null; }
+						document.getElementById('closing-splash').classList.add('visible');
+					} else {
+						showError('Shutdown failed — the session may have already ended. Safe to close this window.');
+					}
+				} catch (_) {
+					showError('Shutdown failed — the session may have already ended. Safe to close this window.');
+				}
+			});
+
+			if (initialData) renderResults(initialData);
+		}
+
+		/* ── Render results (idempotent) ─────────────────────────────────── */
+		function renderResults(data) {
+			window._lastStatusData = data;
+
+			// 1. Tab status text
+			updateTabStatus(data);
+
+			// 2. Results status bar
+			const statusBar = document.getElementById('results-status-bar');
+			if (data.done) {
+				const s = data.summary || {};
+				statusBar.textContent =
+					'Complete — ' + (s.applied ?? 0) + ' applied · ' +
+					(s.rejected ?? 0) + ' rejected · ' +
+					(s.discussed ?? 0) + ' discuss · ' +
+					(s.failed ?? 0) + ' failed';
+				statusBar.className = (s.failed > 0) ? 'failed' : '';
+			} else if (data.phase === 'discussing') {
+				statusBar.textContent = 'In discussion — apply pass complete';
+				statusBar.className = 'discussing';
+			} else {
+				const actions = data.actions || [];
+				const doneCount = actions.filter(
+					a => a.state === 'done' || a.state === 'failed' || a.state === 'skipped'
+				).length;
+				const failedCount = actions.filter(a => a.state === 'failed').length;
+				statusBar.textContent =
+					'Applying changes — ' + doneCount + ' of ' + actions.length +
+					' done · ' + failedCount + ' failed';
+				statusBar.className = failedCount > 0 ? 'failed' : '';
+			}
+
+			// 3. Action list (find-or-create rows by action id)
+			const rowsContainer = document.getElementById('action-rows');
+			(data.actions || []).forEach(action => {
+				let row = null;
+				for (const child of rowsContainer.children) {
+					if (child.dataset.actionId === action.id) { row = child; break; }
+				}
+				if (!row) {
+					row = document.createElement('div');
+					row.className = 'action-row';
+					row.dataset.actionId = action.id;
+					const mainLine = document.createElement('div');
+					mainLine.className = 'action-main-line';
+					mainLine.innerHTML =
+						'<span class="action-icon"></span>' +
+						'<span class="action-label"></span>' +
+						'<span class="action-note"></span>';
+					const detailPre = document.createElement('pre');
+					detailPre.className = 'action-detail-pre';
+					row.appendChild(mainLine);
+					row.appendChild(detailPre);
+					mainLine.addEventListener('click', () => {
+						if (detailPre.textContent) detailPre.classList.toggle('expanded');
+					});
+					rowsContainer.appendChild(row);
+				}
+
+				const icon    = row.querySelector('.action-icon');
+				const label   = row.querySelector('.action-label');
+				const note    = row.querySelector('.action-note');
+				const detail  = row.querySelector('.action-detail-pre');
+
+				const icons = { pending: '○', running: SPIN_FRAMES[spinIdx % SPIN_FRAMES.length],
+					done: '✓', failed: '✗', skipped: '—' };
+				icon.textContent = icons[action.state] ?? '○';
+				icon.className = 'action-icon state-' + action.state;
+				label.textContent = action.label || action.id;
+				note.textContent  = action.note || '';
+
+				if (action.detail && action.detail.length > 0) {
+					detail.textContent = action.detail.join('\n');
+					row.querySelector('.action-main-line').style.cursor = 'pointer';
+				} else {
+					detail.textContent = '';
+					row.querySelector('.action-main-line').style.cursor = 'default';
+				}
+			});
+
+			// 4. Recap section
+			const recapEl = document.getElementById('results-recap');
+			const recapText = document.getElementById('recap-text');
+			if (data.recap) {
+				recapText.textContent = data.recap;
+				recapEl.style.display = 'block';
+			} else {
+				recapEl.style.display = 'none';
+			}
+
+			// 5. Changelog section
+			const changelogEl  = document.getElementById('results-changelog');
+			const entriesEl    = document.getElementById('changelog-entries');
+			if (data.changelog_entries && data.changelog_entries.length > 0) {
+				entriesEl.innerHTML = data.changelog_entries.map((entry, i) => {
+					const pre = document.createElement('pre');
+					pre.textContent = entry;
+					return pre.outerHTML +
+						(i < data.changelog_entries.length - 1
+							? '<hr class="changelog-entry-sep">' : '');
+				}).join('');
+				changelogEl.style.display = 'block';
+			} else {
+				changelogEl.style.display = 'none';
+			}
+
+			// 6. Finish button
+			const finishBtn = document.getElementById('finish-btn');
+			if (finishBtn) finishBtn.disabled = !data.done;
+
+			// Spinner: tick interval while any action is running
+			const hasRunning = (data.actions || []).some(a => a.state === 'running');
+			if (hasRunning && !spinInterval) {
+				spinInterval = setInterval(() => {
+					spinIdx++;
+					document.querySelectorAll('.action-icon.state-running').forEach(el => {
+						el.textContent = SPIN_FRAMES[spinIdx % SPIN_FRAMES.length];
+					});
+				}, 120);
+			} else if (!hasRunning && spinInterval) {
+				clearInterval(spinInterval);
+				spinInterval = null;
+			}
+		}
+
+		/* ── Tab status text ─────────────────────────────────────────────── */
+		function updateTabStatus(data) {
+			const tabStatus = document.getElementById('tab-status');
+			if (!tabStatus) return;
+
+			if (data.done) {
+				const d = new Date(data.written_at);
+				const utc = d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+				tabStatus.textContent = 'Done · ' + utc;
+				tabStatus.className = '';
+				return;
+			}
+
+			const labels = { applying: 'Applying…', discussing: 'In discussion…' };
+			let text = labels[data.phase] || data.phase;
+
+			if (data.written_at) {
+				const delta = Math.round((Date.now() - new Date(data.written_at).getTime()) / 1000);
+				text += ' · updated ' + delta + 's ago';
+			}
+
+			const isStale = data.written_at && !data.done &&
+				(Date.now() - new Date(data.written_at).getTime()) > 120000;
+			if (isStale) text += ' · session may have stopped';
+
+			tabStatus.textContent = text;
+			tabStatus.className = isStale ? 'stale' : '';
+		}
+
+		/* ── Polling lifecycle ───────────────────────────────────────────── */
+		function startPolling() {
+			if (pollTimer) return;
+			schedulePoll();
+		}
+
+		function schedulePoll() {
+			pollTimer = setTimeout(poll, pollBackoff);
+		}
+
+		async function poll() {
+			pollTimer = null;
+			if (sessionEnded) return;
+			try {
+				const r = await fetch(base + '/status', { cache: 'no-store' });
+				if (r.ok) {
+					const data = await r.json();
+					pollBackoff = 2000;
+					renderResults(data);
+					if (data.done) return; /* stop polling; Finish button enabled */
+				} else if (r.status === 404) {
+					/* Server up but status.json not yet written; back off */
+					pollBackoff = Math.min(pollBackoff * 1.5, 10000);
+				} else {
+					pollBackoff = 5000;
+				}
+			} catch (_) {
+				/* Network error: server may have gone away prematurely */
+				pollBackoff = Math.min(pollBackoff * 1.5, 15000);
+				const ts = document.getElementById('tab-status');
+				if (ts) { ts.textContent = 'Connection lost — retrying…'; ts.className = 'stale'; }
+			}
+			schedulePoll();
+		}
+
 		/* ── Initialise ──────────────────────────────────────────────────── */
-		renderHeader();
-		renderTools();
-		updateProgress();
-		applyFilters(); /* apply default sort (incompatible first) */
+		probeStatus();
 	</script>
 </body>
 </html>
