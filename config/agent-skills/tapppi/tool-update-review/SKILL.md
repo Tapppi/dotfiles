@@ -93,6 +93,8 @@ with versions only.
 Merge collect + research into the report object (design.md A.1): compute
 `summary` counts, ensure suggestion ids are unique
 (`{source}:{name}:{slug}`), verify evidence paths exist (warn, don't drop).
+Dedup tools that appear both as a cask and standalone (claude-code@latest,
+codex) — keep the standalone entry; `:latest`-style casks don't version-track.
 Write `report.json` to the session dir, then:
 
 ```sh
@@ -130,20 +132,34 @@ might still be reviewing.
 
 ### 5. Apply feedback
 
-Read `{session_dir}/feedback.json` (validate `report_id`). Then:
+Read `{session_dir}/feedback.json` (validate `report_id`). Accepted items
+split into two kinds, both executed in-session:
 
-- **accept** → apply the edit now. Respect repo conventions: paths under
-  `dotfiles/` are edited in the submodule and copied to their deploy target;
-  `Brewfile` changes are mirrored to `intel.Brewfile` when applicable; commit
-  per the repos' CLAUDE.md rules (specific paths, imperative messages, no
-  AI attribution).
+- **Repo/automation changes** (manifests, configs, tasks) → apply to the
+  macos-setup repo. Respect repo conventions: paths under `dotfiles/` are
+  edited in the submodule and copied to their deploy target; a `Brewfile`
+  edit needs a per-host decision about `intel.Brewfile`, not a blind mirror;
+  commit per the repos' CLAUDE.md rules (specific paths, imperative
+  messages, no AI attribution). The `systems` repo (nix) is out of scope
+  until the nix migration — surface nix-relevant findings as notes only.
+- **Machine-local upgrades** (mise runtimes — the collector covers every
+  mise-managed tool via `mise outdated` — and upstream pkg installs) →
+  run them now (`mise upgrade <tool>`, installer commands), then **append
+  an entry to `${XDG_STATE_HOME:-~/.local/state}/tool-update-review/changelog.md`**:
+  date section, tool, source, old → new version, why (CVEs/fixes), and the
+  session's report_id. This file is the audit trail for every non-repo
+  change the agent makes to the machine — never skip it. Upgrades that
+  belong to the user's setup tasks (`brew upgrade`, `./setup.sh install`)
+  are still never run by the agent.
+
 - **discuss** (or any decision with a comment) → after the apply pass, raise
   each item in conversation with the tool, suggestion title, and the user's
   comment. Don't apply until the user confirms.
 - **reject** / undecided → skip, but list in the summary.
 
-Finish with a summary: applied edits (with commits), rejected, discussion
-items, tool notes, and the overall comment if present.
+Finish with a summary: applied edits (with commits), executed upgrades
+(with changelog entries), rejected, discussion items, tool notes, and the
+overall comment if present.
 
 ## Notes
 
