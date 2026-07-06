@@ -1,2 +1,5 @@
 git:
   overrideGpg: true
+
+gui:
+  shrinkSidePanelsToContent: true
