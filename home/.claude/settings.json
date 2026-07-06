@@ -11,6 +11,7 @@
 		"sessionUrl": false
 	},
 	"showThinkingSummaries": true,
+	"skipWorkflowUsageWarning": true,
 	"env": {
 		"CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
 		"DISABLE_AUTOUPDATER": "1",
@@ -26,6 +27,14 @@
 	},
 	"enabledPlugins": {
 		"playwright@claude-plugins-official": true
+	},
+	"extraKnownMarketplaces": {
+		"tapppi-skills": {
+			"source": {
+				"source": "directory",
+				"path": "~/.config/agent-skills/tapppi"
+			}
+		}
 	},
 	"permissions": {
 		"ask": [

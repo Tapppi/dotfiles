@@ -1,0 +1,9 @@
+{
+	"name": "browser",
+	"description": "Browser testing and debugging with Playwright and Chrome DevTools",
+	"version": "1.0.0",
+	"author": {
+		"name": "Tapani Moilanen",
+		"email": "moilanen.tapani@gmail.com"
+	}
+}

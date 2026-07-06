@@ -1,0 +1,18 @@
+{
+	"name": "tapppi-skills",
+	"owner": {
+		"name": "Tapani Moilanen",
+		"email": "moilanen.tapani@gmail.com"
+	},
+	"metadata": {
+		"description": "Personal tapppi skills, packaged as individually-enableable plugins for per-project scoping via enabledPlugins",
+		"version": "1.0.0"
+	},
+	"plugins": [
+		{
+			"name": "browser",
+			"description": "Browser testing and debugging with Playwright and Chrome DevTools",
+			"source": "./browser"
+		}
+	]
+}
