@@ -26,13 +26,18 @@
 		"refreshInterval": 300
 	},
 	"enabledPlugins": {
-		"playwright@claude-plugins-official": true
+		"docx@tapppi-skills": true,
+		"pdf@tapppi-skills": true,
+		"pptx@tapppi-skills": true,
+		"xlsx@tapppi-skills": true,
+		"skill-creator@tapppi-skills": true,
+		"subrepo-permissions@tapppi-skills": true
 	},
 	"extraKnownMarketplaces": {
 		"tapppi-skills": {
 			"source": {
 				"source": "directory",
-				"path": "~/.config/agent-skills/tapppi"
+				"path": "~/.config/agent-skills"
 			}
 		}
 	},
@@ -155,8 +160,8 @@
 			"Read(~/.claude/**)",
 			"Read(~/.cursor/**)",
 			"mcp__context7__*",
-			"mcp__chrome-devtools__*",
-			"mcp__plugin_playwright_playwright__*"
+			"mcp__plugin_browser_browser-playwright__*",
+			"mcp__plugin_browser_browser-chrome-devtools__*"
 		]
 	}
 }
