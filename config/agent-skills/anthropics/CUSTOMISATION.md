@@ -7,9 +7,12 @@ Vendored as a `git subtree` at `config/agent-skills/anthropics/`. See
 
 ## Adopted skills
 
-Symlinks live in `dotfiles/home/.claude/skills/<name>` and
-`dotfiles/config/opencode/skills/<name>` pointing at
-`anthropics/skills/<name>`:
+For OpenCode, symlinks live in `dotfiles/config/opencode/skills/<name>`
+pointing at `anthropics/skills/<name>`. For Claude Code, each is listed
+as a plugin in the `tapppi-skills` marketplace
+(`config/agent-skills/.claude-plugin/marketplace.json`) and enabled
+globally via `claude plugin install <name>@tapppi-skills --scope user`
+— no symlink or local patch to this vendored tree required:
 
 - `skill-creator`
 - `pdf`

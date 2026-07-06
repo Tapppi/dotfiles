@@ -12,11 +12,12 @@ refreshed by `sync-upstream.sh` (see its `sparse_vendors` table), not by
 - `jira/` — Jira via the `ankitpokhrel/jira-cli` (`jira`) CLI, with an Atlassian
   MCP fallback. Upstream path: `skills/jira`.
 
-  **Project-scoped, not global.** This skill is intentionally *not* symlinked
-  into `home/.claude/skills/` or `config/opencode/skills/` (it is not globally
-  active). It is linked per repo by the parent `macos-setup` repo's
-  `./setup.sh projects` task, driven by a gitignored `.tapppi-project.json`
-  workspace manifest. The Jira instance and API token are provisioned per
+  **Project-scoped, not global.** Not symlinked anywhere (not exposed to
+  OpenCode). For Claude Code it's listed as a plugin in the `tapppi-skills`
+  marketplace (`config/agent-skills/.claude-plugin/marketplace.json`) and
+  enabled per repo by the parent `macos-setup` repo's `./setup.sh projects`
+  task, driven by a gitignored `.tapppi-project.json` workspace manifest's
+  `plugins` block. The Jira instance and API token are provisioned per
   workspace via a generated, gitignored `mise.local.toml` that loads a local
   0600 dotenv file.
 

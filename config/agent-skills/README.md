@@ -1,18 +1,29 @@
 # agent-skills
 
 Source-of-truth tree for all agent skills used by Claude Code and OpenCode.
-Synced to `~/.config/agent-skills/` by `bootstrap.sh`. Skills are exposed to
-agents in one of two ways:
+Synced to `~/.config/agent-skills/` by `bootstrap.sh`. The two agents expose
+skills differently:
 
-- **Globally** (active in every project) — `~/.claude/skills/<skill>` and
-  `~/.config/opencode/skills/<skill>` are symlinks pointing here, so a single
-  edit (or upstream pull) updates both agents everywhere.
-- **Per-project** (active only in opted-in projects) — a *workspace* directory
-  carries a gitignored `.tapppi-project.json` manifest and the parent
-  `macos-setup` repo's `./setup.sh projects` task symlinks each repo's named
-  skills into that repo's `.claude/skills/` (and provisions shared per-workspace
-  env). Used for skills that should not be globally active (e.g. `jira`, the
-  Google Cloud skills). See "Per-project setup" below.
+- **OpenCode** has no plugin system or per-project scoping: a skill is either
+  symlinked into `~/.config/opencode/skills/<skill>` (active in every
+  project) or not exposed to OpenCode at all.
+- **Claude Code** delivers every adopted skill as a plugin from the
+  `tapppi-skills` local marketplace (`.claude-plugin/marketplace.json` at
+  this directory's root — see "Plugin marketplace" below), not a symlink.
+  Plugins are enabled either:
+  - **Globally** (active in every project) — `claude plugin install
+    <name>@tapppi-skills --scope user`, e.g. `docx`, `pdf`, `pptx`, `xlsx`,
+    `skill-creator`, `subrepo-permissions`.
+  - **Per-project** (active only in opted-in projects) — a *workspace*
+    directory carries a gitignored `.tapppi-project.json` manifest and the
+    parent `macos-setup` repo's `./setup.sh projects` task enables each
+    repo's named plugins at local scope (and provisions shared per-workspace
+    env). Used for skills that should not be globally active, e.g. `jira`,
+    the Google Cloud skills. See "Per-project setup" below.
+
+  Claude Code has no `enabledSkills` toggle for a raw (unpackaged) skill, so
+  packaging as a plugin is what makes per-project scoping — or even a clean
+  global on/off switch — possible in the first place.
 
 ## Layout
 

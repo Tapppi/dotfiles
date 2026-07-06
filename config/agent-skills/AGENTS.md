@@ -1,8 +1,9 @@
 # agent-skills (OpenCode and other agents)
 
 Canonical tree for agent skills, synced to `~/.config/agent-skills/`.
-Both `~/.claude/skills/<skill>` and `~/.config/opencode/skills/<skill>`
-are symlinks into here.
+`~/.config/opencode/skills/<skill>` symlinks into here. (Claude Code no
+longer uses these symlinks for its own skills — it delivers them as
+plugins instead; see CLAUDE.md. `home/.claude/skills/` stays empty.)
 
 - `tapppi/` — my own skills (source of truth for `browser`,
   `subrepo-permissions`, etc.)
@@ -14,12 +15,11 @@ are symlinks into here.
   vendors) and prints per-skill diffs for review.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills and local patches.
 
-Skills can be **global** (symlinked from `home/.claude/skills/` +
-`config/opencode/skills/`) or **per-project** (linked into a specific
-repo's `.claude/skills/` by the parent `macos-setup` repo's
-`./setup.sh projects` task, driven by a gitignored `.tapppi-project.json`
-workspace manifest). `jira` and the Google Cloud skills are project-scoped,
-not global. See [README.md](README.md).
+OpenCode has no per-project scoping or plugin system, so a skill is either
+symlinked into `config/opencode/skills/` (globally available in every
+OpenCode session) or not exposed to OpenCode at all. `jira` and the
+Google Cloud skills are in the latter camp — they're only reachable from
+Claude Code, where they're enabled per-project as plugins (see CLAUDE.md).
 
 See [README.md](README.md) for the full layout, adoption workflow,
 upstream-sync process, and customisation guidance.
