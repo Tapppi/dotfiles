@@ -195,3 +195,14 @@ function o() {
 function tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX
 }
+
+# Start an on-demand recorded Cursor Agent CLI session. Deliberately not wired
+# up via `cursor-agent install-shell-integration` — that installs a hook that
+# execs `agent record` on every new shell (zsh-only, and it writes straight to
+# ~/.zshrc besides), recording terminal activity by default with no documented
+# control over what's captured or sent. This gives the same recording only
+# when explicitly invoked.
+function cursor-record() {
+	command -v cursor-agent >/dev/null 2>&1 || { echo "cursor-agent not installed" >&2; return 1; }
+	cursor-agent record "$@"
+}
