@@ -9,6 +9,7 @@ uv = "latest"
 zig = "latest"
 
 [settings]
+minimum_release_age = "12h"
 
 [settings.ruby]
 compile = false
