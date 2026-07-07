@@ -5,10 +5,21 @@
 		"email": "moilanen.tapani@gmail.com"
 	},
 	"metadata": {
-		"description": "All agent-skills vendored under this repo (own + adopted upstream), packaged as individually-enableable plugins for per-project or global scoping via enabledPlugins",
+		"description": "All agent-skills vendored under this repo (own + adopted upstream), packaged as individually-enableable plugins for per-project or global scoping via enabledPlugins. Also tracks a few external plugins we don't vendor but want on the same enable/disable mechanism.",
 		"version": "1.0.0"
 	},
 	"plugins": [
+		{
+			"name": "find-skills",
+			"description": "Discover and recommend installable agent skills from the broader ecosystem when a task might already have one",
+			"source": {
+				"source": "git-subdir",
+				"url": "https://github.com/vercel-labs/skills.git",
+				"path": "skills/find-skills",
+				"ref": "main"
+			},
+			"strict": false
+		},
 		{
 			"name": "browser",
 			"description": "Browser testing and debugging with Playwright and Chrome DevTools",

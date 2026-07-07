@@ -31,7 +31,9 @@
 		"pptx@tapppi-skills": true,
 		"xlsx@tapppi-skills": true,
 		"skill-creator@tapppi-skills": true,
-		"subrepo-permissions@tapppi-skills": true
+		"subrepo-permissions@tapppi-skills": true,
+		"duckdb-skills@claude-plugins-official": true,
+		"superpowers@claude-plugins-official": true
 	},
 	"extraKnownMarketplaces": {
 		"tapppi-skills": {
