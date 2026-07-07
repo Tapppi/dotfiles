@@ -57,6 +57,12 @@ shellcheck bootstrap.sh config/bash/.functions
 1. `home/` → `~/` (home-level dotfiles that don't support XDG)
 2. `config/` → `~/.config/` (XDG-compliant config)
 
+Then three scoped `--delete` mirror rsyncs prune de-adopted agent skills
+(`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.config/agent-skills/`).
+The `~/.claude/skills/` mirror excludes `context7-mcp/` — that skill (and
+`~/.claude/rules/context7.md`) is owned by `ctx7 setup --claude`, run from
+macos-setup's `tasks/install.sh`, not tracked here.
+
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 
 ## Code Style

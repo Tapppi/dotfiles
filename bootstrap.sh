@@ -25,7 +25,10 @@ doIt() {
 	# de-adopted skills would linger and stay globally active). Scoped to dirs
 	# fully owned by dotfiles — a global --delete on home/ or config/ would
 	# wipe every untracked file in ~ and ~/.config.
-	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
+	# context7-mcp is owned by `ctx7 setup --claude` (run from macos-setup's
+	# install task), not tracked here — exclude it so the mirror neither
+	# deletes nor overwrites it.
+	rsync --exclude ".DS_Store" --exclude "context7-mcp/" -avh --no-perms --force --delete \
 		home/.claude/skills/ ~/.claude/skills/
 	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
 		config/opencode/skills/ ~/.config/opencode/skills/

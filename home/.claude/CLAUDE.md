@@ -8,10 +8,18 @@
 - `statusline-command.sh` is the status line script showing model, directory,
   session start time, context tokens (with token-count-based color thresholds),
   rate limit percentages, and countdown to reset, in Solarized Dark colors.
-- User-level MCP servers (e.g. context7) are managed via `claude mcp add
-  --scope user` and stored in `~/.claude.json`; that file is not tracked because
-  it contains auto-generated state. The `macos-setup` repo configures these
-  via `tasks/config.sh`.
+- User-level MCP servers are stored in `~/.claude.json`; that file is not
+  tracked because it contains auto-generated state. The `macos-setup` repo
+  configures these via `tasks/install.sh`.
+- context7 is set up by `npx ctx7 setup --claude` (run from `tasks/install.sh`):
+  it OAuth-logs into context7.com for higher rate limits, writes the MCP
+  server (with API key) into `~/.claude.json`, and installs a ctx7-managed
+  skill (`~/.claude/skills/context7-mcp/`) and rule
+  (`~/.claude/rules/context7.md`). Those two files are owned by ctx7, not
+  the dotfiles repo — `bootstrap.sh` excludes the skill dir from its
+  `--delete` mirror. CLI credentials live in `~/.config/context7/`
+  (untracked). Never edit or vendor these files; re-run `ctx7 setup` to
+  update them.
 - This repo does not keep MCP servers that duplicate Claude Code built-in
   capabilities (git, tmux, SSH, web search, file operations all work natively
   via the Bash tool).
