@@ -113,4 +113,10 @@ whu.bindToggle("j", "md.obsidian", whu.sidebar("right", 0.4), {
 })
 
 -- Spotify (hyper+m)
-whu.bindToggle("m", "com.spotify.client", whu.corner("topleft", 800, 600, 10))
+whu.bindToggle("m", "com.spotify.client", whu.corner("topleft", 1064, 800, 10))
+
+-- Discord (hyper+d) — chat layout like Slack/Teams
+whu.bindToggle("d", "com.hnc.Discord", chatLayout)
+
+-- Windows App / RDP (hyper+z) — toggle/focus only, never resize
+whu.bindToggle("z", "com.microsoft.rdc.macos", nil)

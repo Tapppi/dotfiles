@@ -129,6 +129,7 @@ end
 -- Bind a hyper+key hotkey that toggles an app and positions its window.
 --
 -- layoutFn(screen, win) → hs.geometry.rect
+--   Pass nil to toggle/focus without ever repositioning the window.
 --
 -- opts.inputSource  — source ID to set on activation (default: M.fiProg)
 -- opts.watchCreate  — auto-position every new window (for terminal apps)
@@ -181,8 +182,9 @@ function M.bindToggle(key, bundleID, layoutFn, opts)
 		end
 
 		if win then
-			local screen = M.activeScreen()
-			win:setFrame(layoutFn(screen, win))
+			if layoutFn then
+				win:setFrame(layoutFn(M.activeScreen(), win))
+			end
 			app:unhide()
 			win:focus()
 		end
