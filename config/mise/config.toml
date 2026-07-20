@@ -8,6 +8,11 @@ rust = "latest"
 uv = "latest"
 zig = "latest"
 
+# defuddle CLI (the parser behind the Obsidian Web Clipper): strips page
+# chrome/boilerplate to clean HTML/markdown. Used by the tieto
+# hardware-research skill as its HTML preprocessing step (GPCU-4).
+"npm:defuddle-cli" = "latest"
+
 [settings]
 minimum_release_age = "12h"
 
