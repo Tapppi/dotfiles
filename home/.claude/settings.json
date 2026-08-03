@@ -1,8 +1,11 @@
 {
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
-	"model": "sonnet",
+	"model": "opus",
 	"effortLevel": "high",
-	"fallbackModel": ["opus", "sonnet"],
+	"fallbackModel": [
+		"opus",
+		"sonnet"
+	],
 	"cleanupPeriodDays": 365,
 	"tui": "fullscreen",
 	"autoMemoryEnabled": false,
