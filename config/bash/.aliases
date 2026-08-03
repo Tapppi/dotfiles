@@ -201,3 +201,10 @@ alias reload="exec ${SHELL} -l"
 
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'
+
+# Claude Code with model/effort defaults pinned above the user-settings tier.
+# In-session /model and /effort write themselves back into
+# ~/.claude/settings.json, drifting the dotfiles-tracked defaults; a --settings
+# file outranks that tier, so the drift is written but ignored at startup.
+# Experimental — separate name so plain `claude` keeps its normal behaviour.
+alias claudetest='claude --settings ~/.config/claude/pinned.json'
