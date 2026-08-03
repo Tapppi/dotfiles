@@ -168,5 +168,7 @@
 			"mcp__plugin_browser_browser-playwright__*",
 			"mcp__plugin_browser_browser-chrome-devtools__*"
 		]
-	}
+	},
+	"inputNeededNotifEnabled": true,
+	"agentPushNotifEnabled": true
 }
