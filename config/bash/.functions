@@ -206,3 +206,53 @@ function cursor-record() {
 	command -v cursor-agent >/dev/null 2>&1 || { echo "cursor-agent not installed" >&2; return 1; }
 	cursor-agent record "$@"
 }
+
+# Control the podman machine, which is deliberately left stopped on this laptop.
+# Its only long-lived tenant was the kokoro TTS server, and that now lives on
+# tmopro18 (see tieto scripts/tts/kokoro-server.sh); an idle libkrun VM with 8
+# cores and 19.5GB assigned is not worth carrying on battery for containers used
+# a few times a week. Podman Desktop no longer starts it either — its
+# `preferences.podman.engine.autostart` is set to false — so container work
+# begins with `podvm up`.
+function podvm() {
+	command -v podman >/dev/null 2>&1 || { echo "podman not installed" >&2; return 1; }
+	case "${1:-status}" in
+		up|start) podman machine start ;;
+		down|stop) podman machine stop ;;
+		status) podman machine list ;;
+		*) echo "usage: podvm {up|down|status}" >&2; return 1 ;;
+	esac
+}
+
+# Inspect or force the nix-rosetta-builder Linux VM (systems/hosts/darwin-minimal).
+# It runs on-demand: launchd holds localhost:31122 and boots the VM when a Linux
+# build connects, and the guest powers itself off after 15 idle minutes. So the
+# normal path needs none of this — `nix build --system aarch64-linux …` just
+# works, a few seconds slower on a cold VM. These are for when you want to see
+# the state, pre-warm before a big build, or reclaim the RAM early.
+function builder() {
+	local label='system/org.nixos.rosetta-builderd'
+	case "${1:-status}" in
+		status)
+			if pgrep -f 'hostagent .*rosetta-builder-vm' >/dev/null 2>&1; then
+				echo "rosetta-builder: VM up"
+			else
+				echo "rosetta-builder: VM off (wakes itself on the next Linux build)"
+			fi
+			;;
+		# Connecting to the socket is exactly what launchd waits for, so a
+		# throwaway probe boots the VM without needing sudo. A refused connection
+		# means the daemon is not loaded, which is worth saying rather than
+		# claiming a boot that is not happening.
+		up|wake)
+			if nc -z localhost 31122 >/dev/null 2>&1; then
+				echo "poked ${label}; VM booting in the background"
+			else
+				echo "no listener on localhost:31122 — is ${label} loaded?" >&2
+				return 1
+			fi
+			;;
+		down|sleep) sudo launchctl kill TERM "${label}" && echo "sent TERM to ${label}" ;;
+		*) echo "usage: builder {status|up|down}" >&2; return 1 ;;
+	esac
+}
