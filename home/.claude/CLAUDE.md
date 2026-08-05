@@ -93,11 +93,34 @@
 
 ## Platform Gotchas
 
-- **`sed -i` portability**: GNU sed is first in `$PATH` on this machine.
-  GNU sed treats `sed -i ''` as an error (interprets the empty string as a
-  missing filename). Always use `sed -i.bak` and clean up the `.bak` file
-  afterwards — this syntax works identically on both GNU and BSD sed. Never
-  use `sed -i ''`.
+- **GNU tooling is live here, not BSD.** The Brewfile installs the GNU userland
+  and `.path` puts it ahead of Apple's, so on this configured machine the
+  following resolve to the GNU versions, with GNU flags and GNU behaviour.
+  Write GNU-flavoured commands without hedging:
+  - **coreutils** — `ls cp mv rm cat date stat readlink realpath sort head tail
+    wc cut tr uniq du df timeout tac seq split tee numfmt shuf base64
+    sha1sum/sha256sum md5sum install ln mkdir touch chmod chown printf`
+  - **findutils** — `find`, `xargs` (so `-printf`, `-print0`, `-execdir` work)
+  - **gnu-sed** — `sed`, so `-i` takes no argument and `sed -i ''` is an *error*
+  - **gawk** — `awk`
+  - **gnu-tar** — `tar`
+  - **grep** — `grep`/`egrep`/`fgrep`, so `-P` works
+  - **make** — GNU make
+  - **diffutils** — `diff`
+  - **gnu-getopt** — `getopt` from util-linux, so long options work (BSD getopt
+    cannot do them)
+  - **bash** — GNU bash 5, both as `bash` and as the login shell. Note `/bin/sh`
+    is still Apple's bash 3.2 in sh mode
+- **Exceptions**: `curl` is Apple's `/usr/bin/curl` (Homebrew's is keg-only and
+  not on PATH). `less`, `rsync` and `watch` come from Homebrew but are not GNU
+  projects.
+- **Code that *installs* tooling is the exception to all of the above.** Scripts
+  in the setup repos (`macos-setup`, `tapppi/systems`) can run on a freshly
+  imaged Mac, before any of this exists, against the stock BSD userland. Keep
+  anything on that bootstrap path portable — chiefly `sed -i.bak … && rm -f
+  …bak`, which works under both, rather than `sed -i ''` (BSD-only) or bare
+  `sed -i` (GNU-only). Same care for `readlink -f`, `date`, `stat`, `sort`,
+  `grep -P` and `find -printf`.
 
 ## Available CLI Tooling
 
