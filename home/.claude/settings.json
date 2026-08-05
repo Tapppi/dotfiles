@@ -53,8 +53,7 @@
 		],
 		"allow": [
 			"Edit(/**)",
-			"Write(/**)",
-			"Write(//tmp/**)",
+			"Edit(//tmp/**)",
 			"Bash(git status)",
 			"Bash(git status *)",
 			"Bash(git log)",
