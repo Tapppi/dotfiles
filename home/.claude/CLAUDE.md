@@ -116,6 +116,12 @@
   keg-only formulae that Homebrew does not symlink itself — `.path` adds
   `opt/curl/bin` and `opt/libpq/bin` explicitly, so they are the Homebrew
   builds, not Apple's.
+- **PATH precedence** on this machine is `mise shims → Homebrew → Nix
+  (/run/current-system/sw/bin) → macOS defaults`. So Homebrew wins over the
+  nix-darwin config for anything both provide, and a tool is migrated to Nix by
+  uninstalling the Homebrew copy rather than by reordering PATH — that is why
+  `nvim` resolves to the nixCats build. Use `command -v <tool>` to see which
+  layer answered before assuming a version or flag set.
 - **Code that *installs* tooling is the exception to all of the above.** Scripts
   in the setup repos (`macos-setup`, `tapppi/systems`) can run on a freshly
   imaged Mac, before any of this exists, against the stock BSD userland. Keep
