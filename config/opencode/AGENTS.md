@@ -89,9 +89,11 @@
     cannot do them)
   - **bash** — GNU bash 5, both as `bash` and as the login shell. Note `/bin/sh`
     is still Apple's bash 3.2 in sh mode
-- **Exceptions**: `curl` is Apple's `/usr/bin/curl` (Homebrew's is keg-only and
-  not on PATH). `less`, `rsync` and `watch` come from Homebrew but are not GNU
-  projects.
+- **Exceptions**: `less`, `rsync` and `watch` come from Homebrew but are not GNU
+  projects. `curl` and the postgres clients (`psql`, `pg_dump`, …) come from
+  keg-only formulae that Homebrew does not symlink itself — `.path` adds
+  `opt/curl/bin` and `opt/libpq/bin` explicitly, so they are the Homebrew
+  builds, not Apple's.
 - **Code that *installs* tooling is the exception to all of the above.** Scripts
   in the setup repos (`macos-setup`, `tapppi/systems`) can run on a freshly
   imaged Mac, before any of this exists, against the stock BSD userland. Keep
