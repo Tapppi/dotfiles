@@ -234,3 +234,30 @@ is acceptable, ask the user.
   1. Clearly inform the user that commits were made with a placeholder identity.
   2. Note that these commits need `git rebase` / `git commit --amend` to
      restore the correct author before pushing to a shared remote.
+
+### 1Password commit signing
+
+Commits are SSH-signed through 1Password (`gpg.ssh.program` = `op-ssh-sign`),
+which needs an interactive approval in the desktop app. A `git commit` launched
+by an agent often cannot surface that prompt, so it fails with
+`1Password: agent returned an error` or `1Password: failed to fill whole buffer`.
+
+**Do not investigate why.** It is ~99% an approval prompt that nobody was there
+to answer, not a broken configuration. Report that the commit is blocked on
+1Password approval, ask the user to approve and retry, and move on. Dig deeper
+only if the user explicitly asks.
+
+Two red herrings that have already cost agents a lot of time here:
+
+- `SSH_AUTH_SOCK` is irrelevant. `gpg.ssh.program` talks to 1Password directly
+  and bypasses the agent socket, so re-pointing it changes nothing — even though
+  the socket does look wrong (it points at the launchd agent, which holds no
+  identities).
+- `%G?` reporting `N`, or `--show-signature` complaining that
+  `gpg.ssh.allowedSignersFile` must be configured, does **not** mean the commit
+  is unsigned. No allowed-signers file exists, so git cannot *verify* locally.
+  Confirm signing with `git cat-file commit HEAD | grep -q gpgsig`.
+
+Never work around a signing failure: no `--no-gpg-sign`, no disabling
+`commit.gpgsign`, no editing `gpg.ssh.program`. Silently producing an unsigned
+commit is worse than leaving the work uncommitted.
