@@ -232,24 +232,33 @@ function podvm() {
 # the state, pre-warm before a big build, or reclaim the RAM early.
 function builder() {
 	local label='system/org.nixos.rosetta-builderd'
+	# The VM is a lima guest owned by _rosettabuilder; pgrep -f sees other users'
+	# processes, so this identifies it without sudo. Held in one variable because
+	# both branches below match on it and a renamed instance must not drift.
+	local vm_pattern='hostagent .*rosetta-builder-vm'
 	case "${1:-status}" in
 		status)
-			if pgrep -f 'hostagent .*rosetta-builder-vm' >/dev/null 2>&1; then
+			if pgrep -f "${vm_pattern}" >/dev/null 2>&1; then
 				echo "rosetta-builder: VM up"
 			else
 				echo "rosetta-builder: VM off (wakes itself on the next Linux build)"
 			fi
 			;;
 		# Connecting to the socket is exactly what launchd waits for, so a
-		# throwaway probe boots the VM without needing sudo. A refused connection
-		# means the daemon is not loaded, which is worth saying rather than
-		# claiming a boot that is not happening.
+		# throwaway probe boots the VM without needing sudo. Poke unconditionally:
+		# the hostagent is still alive while the guest is powering itself off, so
+		# gating the poke on "is it up?" would silently skip it in exactly the
+		# window a pre-warm is meant to cover. The probe is harmless when the VM
+		# really is up. A refused connection means the daemon is not loaded, which
+		# is worth saying rather than claiming a boot that is not happening.
 		up|wake)
-			if nc -z localhost 31122 >/dev/null 2>&1; then
-				echo "poked ${label}; VM booting in the background"
-			else
+			if ! nc -z localhost 31122 >/dev/null 2>&1; then
 				echo "no listener on localhost:31122 — is ${label} loaded?" >&2
 				return 1
+			elif pgrep -f "${vm_pattern}" >/dev/null 2>&1; then
+				echo "rosetta-builder: up"
+			else
+				echo "poked ${label}; VM booting in the background"
 			fi
 			;;
 		down|sleep) sudo launchctl kill TERM "${label}" && echo "sent TERM to ${label}" ;;
