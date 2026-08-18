@@ -1,0 +1,43 @@
+---
+description: macOS platform gotchas on this machine - GNU (not BSD) userland is first on PATH, PATH layering between mise/Homebrew/Nix/macOS, and the portability exception for bootstrap code.
+alwaysApply: true
+---
+
+# Platform gotchas (this machine)
+
+- **GNU tooling is live here, not BSD.** The Brewfile installs the GNU userland
+  and `.path` puts it ahead of Apple's, so on this configured machine the
+  following resolve to the GNU versions, with GNU flags and GNU behaviour.
+  Write GNU-flavoured commands without hedging:
+  - **coreutils** — `ls cp mv rm cat date stat readlink realpath sort head tail
+    wc cut tr uniq du df timeout tac seq split tee numfmt shuf base64
+    sha1sum/sha256sum md5sum install ln mkdir touch chmod chown printf`
+  - **findutils** — `find`, `xargs` (so `-printf`, `-print0`, `-execdir` work)
+  - **gnu-sed** — `sed`, so `-i` takes no argument and `sed -i ''` is an *error*
+  - **gawk** — `awk`
+  - **gnu-tar** — `tar`
+  - **grep** — `grep`/`egrep`/`fgrep`, so `-P` works
+  - **make** — GNU make
+  - **diffutils** — `diff`
+  - **gnu-getopt** — `getopt` from util-linux, so long options work (BSD getopt
+    cannot do them)
+  - **bash** — GNU bash 5, both as `bash` and as the login shell. Note `/bin/sh`
+    is still Apple's bash 3.2 in sh mode
+- **Exceptions**: `less`, `rsync` and `watch` come from Homebrew but are not GNU
+  projects. `curl` and the postgres clients (`psql`, `pg_dump`, …) come from
+  keg-only formulae that Homebrew does not symlink itself — `.path` adds
+  `opt/curl/bin` and `opt/libpq/bin` explicitly, so they are the Homebrew
+  builds, not Apple's.
+- **PATH precedence** on this machine is `mise shims → Homebrew → Nix
+  (/run/current-system/sw/bin) → macOS defaults`. So Homebrew wins over the
+  nix-darwin config for anything both provide, and a tool is migrated to Nix by
+  uninstalling the Homebrew copy rather than by reordering PATH — that is why
+  `nvim` resolves to the nixCats build. Use `command -v <tool>` to see which
+  layer answered before assuming a version or flag set.
+- **Code that *installs* tooling is the exception to all of the above.** Scripts
+  in the setup repos (`macos-setup`, `tapppi/systems`) can run on a freshly
+  imaged Mac, before any of this exists, against the stock BSD userland. Keep
+  anything on that bootstrap path portable — chiefly `sed -i.bak … && rm -f
+  …bak`, which works under both, rather than `sed -i ''` (BSD-only) or bare
+  `sed -i` (GNU-only). Same care for `readlink -f`, `date`, `stat`, `sort`,
+  `grep -P` and `find -printf`.

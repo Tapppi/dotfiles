@@ -1,0 +1,56 @@
+---
+description: Inventory of CLI tooling installed on this machine (containers, cloud, data, databases, search, git/GitHub, runtimes, media, network) and the policy on installing new tools. Consult before reaching for a tool or suggesting an install.
+alwaysApply: false
+---
+
+# Available CLI tooling
+
+The following tools are available in this environment via Homebrew and mise:
+
+- **Containers**: `podman` with Docker compatibility socket (`$DOCKER_HOST`)
+  and compose support, `kubectl`/`helm` for Kubernetes, `stern` for streaming
+  pod logs.
+- **Cloud**: `gcloud`, `az`/`azcopy`, `terraform`.
+- **Data**: `jq`/`yq` for JSON/YAML, `duckdb` for analytical SQL — **use DuckDB
+  for ad-hoc data analysis, test result aggregation, CSV/Parquet exploration,
+  etc.** unless the project specifies another tool.
+- **HTTP**: `curl`, `httpie` (`http`/`https` commands, prefer `httpie` when
+  instructing the user to do HTTP requests).
+- **Databases**: `psql` (via `libpq`), `redis-cli`, `sqlite3`, `kcat` (kafkacat)
+  for Kafka topic peeking.
+- **Search/files**: `ripgrep` (`rg`), `find`, `fd`, `fzf`, `tree`.
+- **Git/GitHub**: `git`, `gh` CLI — use `gh` for GitHub code search, pull
+  requests, issues, checks, and releases. Prefer `gh` over web scraping for
+  GitHub operations. Always pass explicit flags (`--repo`, `--json`, `--jq`,
+  `--limit`, etc.) to avoid interactive prompts.
+- **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
+  python, etc.). Use `uv` for Python dependency management and `uvx` to run
+  Python CLI packages — prefer these over `pip install`.
+- **Agent skills**: User-level skills are synced from
+  `~/.config/agent-skills/<vendor>/`. To add, modify, or update skills,
+  edit them in the `macos-setup` repo (`dotfiles/config/agent-skills/`) —
+  never in `~/.config/agent-skills/` directly. Skills that should be active
+  only in specific projects (e.g. the Google Cloud skills) are linked per
+  repo into `<repo>/.claude/skills/` by the `macos-setup` `./setup.sh projects`
+  task; Cursor discovers those natively.
+- **Agent-skills Python venv**: Skills that need Python libs share a venv
+  at `~/.local/share/agent-skills/venv/`. Install deps with
+  `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.
+  Run scripts using the venv's interpreter directly:
+  `~/.local/share/agent-skills/venv/bin/python <script>`.
+- **Shell**: `bash` 5, `tmux`/`tmuxinator`, `shellcheck`, `parallel`, `pv`
+  (pipeviewer for debugging pipe throughput).
+- **PowerShell**: `pwsh` with the `PSScriptAnalyzer` module for linting
+  PowerShell scripts (`pwsh -c 'Invoke-ScriptAnalyzer -Path <path> -Recurse'`).
+- **Documents**: `marp-cli` for Markdown presentations, `ghostscript` for
+  PDF manipulation scripting.
+- **Media**: `ffmpeg`, `imagemagick`, `exiftool`, `tesseract`.
+- **Network**: `nmap`, `mtr`.
+
+Prefer using these existing tools over installing new ones. You should only
+install new tools when they are clearly needed or superior for the task, not
+just because they are more common.
+
+If a tool is not available and requires system-level installation, consult
+the user or use a containerised environment — do not pollute the user's
+system with ad-hoc installs.
