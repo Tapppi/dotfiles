@@ -13,6 +13,7 @@ dotfiles/
     .bash_profile             # Sources ~/.config/bash/.bash_profile
     .bashrc                   # Delegates to .bash_profile for interactive shells
     .claude/                  # Claude Code config (no XDG support)
+    .cursor/                  # Cursor CLI: mcp.json, rules/*.mdc, cli-config.json (fallback copy)
     .hammerspoon/init.lua     # Per-app keyboard layout forcing
     .hushlogin                # Suppress login banner
     .parallel/will-cite       # Silence GNU parallel citation warning
@@ -23,6 +24,7 @@ dotfiles/
     bash/.bash_profile        # Main profile (sources all the above + activates mise, zoxide)
     bash/.bash_prompt         # Solarized Dark prompt with git status
     curlrc                    # curl config
+    cursor/cli-config.json    # Cursor CLI settings/permissions (live copy; XDG-resolved)
     fd/                       # fd ignore patterns
     gh/config.yml             # GitHub CLI config (ssh protocol, no prompts)
     ghostty/                  # Ghostty terminal config
@@ -64,6 +66,51 @@ The `~/.claude/skills/` mirror excludes `context7-mcp/` — that skill (and
 macos-setup's `tasks/install.sh`, not tracked here.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
+
+## Cursor CLI config splits across two directories
+
+`cursor-agent` does not resolve all its config from one place, and getting this
+wrong silently disables the file rather than erroring:
+
+- **`cli-config.json` follows XDG**: `$CURSOR_CONFIG_DIR` → `$XDG_CONFIG_HOME/cursor`
+  → `~/.cursor`. `.exports` sets `XDG_CONFIG_HOME=~/.config`, so the live file is
+  `~/.config/cursor/cli-config.json` (synced from `config/cursor/`). An identical
+  copy at `home/.cursor/cli-config.json` covers the fallback path when
+  `XDG_CONFIG_HOME` is unset — keep the two byte-identical.
+- **Everything else is hardcoded to `~/.cursor/`** regardless of XDG: `mcp.json`,
+  `rules/`, `skills/`, `agents/`, `commands/`, `hooks.json` (from `home/.cursor/`).
+
+Cursor natively reads much of the Claude Code setup — repo `CLAUDE.md`,
+`.claude/skills/**/SKILL.md`, `.claude/agents/**`, `~/.claude/commands/`,
+`enabledPlugins` and hooks from `.claude/settings*.json` — so it needs no
+mirroring. It does **not** read `~/.claude/CLAUDE.md` (hence
+`home/.cursor/rules/*.mdc`) or Claude's `Bash(...)` permission entries (Cursor's
+shell tool is `Shell(...)`, so those load but never match).
+
+### Shell permission syntax: spaces, not colons
+
+Verified empirically against `cursor-agent 2026.08.11`:
+
+- `Shell(<cmd>)` matches that command with any arguments (`Shell(tree)` permits
+  `tree -L 1`).
+- Subcommands are space-separated and prefix-matched: `Shell(git status)` matches
+  `git status --short`.
+- **The colon form does nothing for `Shell`** — `Shell(git:push)` never matches
+  `git push`. Colons are only for `Mcp(server:tool)`.
+- `deny` beats `allow`, and chaining (`a && b`) does not bypass a deny.
+
+A malformed entry fails open (silently unmatched) rather than erroring, so verify
+changes instead of assuming.
+
+A project `.cursor/cli.json` **replaces** the global permission set rather than
+merging with it, so prefer one global set over repo-local deltas.
+
+Cursor rewrites `~/.config/cursor/cli-config.json` on startup, appending generated
+state (`authInfo`, `selectedModel`, `model`, `sandbox`, `network`, …) alongside the
+managed keys. `bootstrap.sh` overwrites that state, which is safe — the auth token
+lives in the macOS keychain, so you stay logged in — but it resets model/display
+prefs. **Never copy the live file back into the repo**: its `authInfo` carries
+`email`, `userId`, `teamId` and `teamName`.
 
 ## Code Style
 

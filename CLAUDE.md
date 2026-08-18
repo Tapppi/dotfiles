@@ -26,7 +26,8 @@ shellcheck bootstrap.sh config/bash/.functions
   `tasks/install.sh`, not tracked here. Keyboard layouts are copied separately to
   `~/Library/Keyboard Layouts/`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
-  `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI config), `.hammerspoon/`,
+  `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI: `mcp.json`, `rules/`,
+  and a fallback copy of `cli-config.json`), `.hammerspoon/`,
   `.hushlogin`, `.parallel/`.
 - **`config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
@@ -37,6 +38,9 @@ shellcheck bootstrap.sh config/bash/.functions
   SSH signing. `ignore` is the global gitignore (read automatically by git from XDG).
 - **`config/tmux/tmux.conf`** — tmux with `Ctrl+A` prefix, vim keys, pbcopy integration.
 - **`config/btop/`** — btop system monitor config and catppuccin mocha theme.
+- **`config/cursor/`** — Cursor CLI settings (`cli-config.json`: permissions, approval
+  mode, attribution). Lives here because `cursor-agent` resolves this one file via
+  `XDG_CONFIG_HOME`; see "Cursor CLI splits its config across two directories" below.
 - **`config/opencode/`** — OpenCode AI agent config. `AGENTS.md` here is rsynced to
   `~/.config/opencode/AGENTS.md` as user-level agent context.
 - **`keyboard-layouts/`** — Custom Finnish Programmer keyboard layout bundle.
@@ -46,8 +50,66 @@ shellcheck bootstrap.sh config/bash/.functions
 | Agent       | User-level config dir | Settings file       | User-level rules          | MCP config           |
 |-------------|----------------------|---------------------|--------------------------|---------------------|
 | Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md`              | `~/.claude.json` (untracked) |
-| Cursor CLI  | `home/.cursor/`      | `cli-config.json`   | N/A (project-level only) | `home/.cursor/mcp.json` |
+| Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/*.mdc` | `home/.cursor/mcp.json` |
 | OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md`              | via oh-my-openagent plugin |
+
+#### Cursor CLI splits its config across two directories
+
+`cursor-agent` does **not** resolve all of its config from one place, and getting
+this wrong silently disables the file rather than erroring:
+
+- **`cli-config.json` follows XDG.** The lookup is
+  `$CURSOR_CONFIG_DIR` → `$XDG_CONFIG_HOME/cursor` → `~/.cursor`. `.exports` sets
+  `XDG_CONFIG_HOME=~/.config`, so the live file is **`~/.config/cursor/cli-config.json`**,
+  synced from `config/cursor/`. An identical copy is kept at `home/.cursor/cli-config.json`
+  so the fallback path matches when `XDG_CONFIG_HOME` is unset (e.g. a GUI-launched
+  process); keep the two byte-identical.
+- **Everything else is hardcoded to `~/.cursor/`** regardless of XDG: `mcp.json`,
+  `rules/`, `skills/`, `agents/`, `commands/`, `hooks.json`. These come from `home/.cursor/`.
+
+Cursor reads a lot of the Claude Code setup natively, so most of it needs no
+mirroring: repo `CLAUDE.md`/`CLAUDE.local.md`, `.claude/skills/**/SKILL.md`,
+`.claude/agents/**`, `~/.claude/commands/`, `enabledPlugins` from
+`.claude/settings*.json`, and hooks + `permissions` from `.claude/settings.json`.
+Two things it does **not** read: `~/.claude/CLAUDE.md` (hence
+`home/.cursor/rules/*.mdc`, which the ancestor walk picks up for any repo under
+`~`), and Claude's `Bash(...)` permission entries — those load but never match,
+because Cursor's shell tool is `Shell(...)`.
+
+#### Shell permission syntax: spaces, not colons
+
+Verified empirically against `cursor-agent 2026.08.11`:
+
+- `Shell(<cmd>)` matches that command with **any** arguments — `Shell(tree)`
+  permits `tree -L 1`.
+- Subcommands are **space-separated and prefix-matched**: `Shell(git status)`
+  matches `git status --short`.
+- **The colon form does nothing for `Shell`.** `Shell(git:push)` never matches
+  `git push` — it silently permits/denies nothing. Colons are only for
+  `Mcp(server:tool)`. An earlier version of this config was written entirely in
+  colon form, so none of its allow or deny entries had any effect.
+- `deny` beats `allow`, so the broad `Shell(git)` allow plus a narrow
+  `Shell(git push)` deny works as intended.
+- Denies are **not** bypassed by chaining: `git log … && git status …` is blocked
+  when `Shell(git status)` is denied.
+
+When changing these, verify rather than assume — a malformed entry fails open
+(silently unmatched), it does not error.
+
+**A project `.cursor/cli.json` replaces the global permission set, it does not
+merge with it.** A repo-local permissions file must therefore restate every
+global allow or the repo silently loses them. Prefer keeping one global set.
+
+Cursor rewrites `~/.config/cursor/cli-config.json` on startup, appending
+generated state next to the managed keys (`authInfo`, `selectedModel`, `model`,
+`sandbox`, `network`, `runEverythingSettingsPromptStreak`, …). Two consequences:
+
+- `bootstrap.sh` overwrites that state. This is safe — the auth *token* lives in
+  the macOS keychain, so you stay logged in and `authInfo` repopulates on next
+  launch — but it does reset model choice and display prefs.
+- **Never copy the live file back into the repo.** Its `authInfo` carries
+  `email`, `userId`, `teamId` and `teamName`. `config/cursor/cli-config.json` is
+  hand-maintained and deliberately contains only managed keys.
 
 ## Rules
 
