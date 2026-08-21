@@ -177,9 +177,9 @@ refuses a bare lease, because a background fetch refreshes the remote-tracking
 ref and degrades it into a plain force.
 
 Pushing to `master` always prompts, as do plain `--force`/`-f`, deletes, a different
-remote, and a bare `git push`. A push routed through `git -C`, `--git-dir` or any
-other global option prompts as well — push from inside the worktree rather than
-reaching into it from elsewhere. The guard decides how you may push, never whether —
+remote, and a bare `git push`. A push routed through `--git-dir`, `--work-tree`,
+`-c` or another option that redirects where it lands always prompts; plain
+`git -C <path> push` is evaluated exactly like a direct push. The guard decides how you may push, never whether —
 push only when the request calls for it, and never restructure a command to dodge
 a prompt.
 

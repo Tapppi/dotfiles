@@ -146,17 +146,17 @@ prompts rather than falling through, since the fall-through would otherwise reac
 a permissive default mode. Commands that merely mention a push in passing are left
 alone entirely. Never restructure a command to dodge a prompt; let it ask.
 
-A push routed through a global option — `git -C <path> push`, `--git-dir`,
-`--work-tree`, `-c`, or anything else between `git` and `push` — always prompts.
-Where such a push lands depends on state the guard cannot verify, so it refuses to
-approve it, and the `Bash(git -* push*)` ask rule catches the same shape even in
-repos with no guard installed. Push from inside the worktree instead of reaching
-into it from elsewhere.
+`git -C <path> push` is read as the push it is and judged on its merits. The
+other global options — `--git-dir`, `--work-tree`, `-c`, `--namespace`, or any the
+guard does not recognise — redirect which repository, config or worktree the push
+lands in, which the guard cannot verify, so those always prompt.
 
 The `git push` entries in `permissions.ask` are a fail-closed floor for repos with
 no guard. Keep them disjoint from what the guard approves — an `ask` rule
-overrides a hook's `allow`. The one deliberate exception is `Bash(git -* push*)`:
-it overlaps the guard on purpose, so that indirection prompts everywhere.
+overrides a hook's `allow`. Every `git push` rule there is mirrored onto the
+`git -* push` form, so an indirect push to a default branch, a force-push or a
+delete prompts even where no guard is installed — while a safe `git -C … push`
+matches neither and is left to the guard.
 
 ## Platform Gotchas
 
