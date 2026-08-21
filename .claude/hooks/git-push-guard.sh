@@ -74,28 +74,48 @@ fi
 [[ $cmd =~ [[:space:]]push([[:space:]]|$) ]]   || exit 0
 
 # Parse, don't validate: go on only with a flat list of plain words. Shell
-# operators, quoting, expansion and globbing all land here and exit silently —
-# unparseable is not the same as forbidden, so such a command falls back to the
-# normal permission rules instead of costing a prompt. Silence is safe because it
-# can only withhold approval, never grant it; that is also what keeps a compound
+# operators, quoting, expansion and globbing all land here. By this point the
+# command is known to be a git invocation carrying a `push` token, so it fails
+# closed with a prompt rather than passing through — the fall-through would
+# otherwise reach a permissive default mode. That is also what keeps a compound
 # like `git push … && rm -rf /` off the approval path, since a single "allow"
 # would have covered the whole Bash call.
 # [:blank:], never [:space:]: a newline is a command separator, and `read -ra`
 # below consumes only the first line, so admitting one here would approve a
 # second command sight unseen.
-[[ $cmd =~ ^[A-Za-z0-9_./:=@+[:blank:]-]+$ ]] || exit 0
+[[ $cmd =~ ^[A-Za-z0-9_./:=@+[:blank:]-]+$ ]] ||
+  ask "this push is wrapped in shell syntax the guard cannot parse"
 
 read -ra tok <<<"$cmd"
 [[ ${tok[0]:-} == git ]] || exit 0
 
+# Everything between `git` and its subcommand is a global option, and several of
+# them redirect which repository, config or worktree the push acts on. Walk them
+# explicitly: an option that moves the target is only ever allowed to reach a
+# prompt, and one this guard does not recognise stops it dead rather than being
+# skipped over.
 i=1
 repo_dir=$cwd
-if [[ ${tok[1]:-} == "-C" ]]; then
-  repo_dir=${tok[2]:-}
-  i=3
-fi
+indirect=""
+while [[ ${tok[$i]:-} == -* ]]; do
+  case ${tok[$i]} in
+    -C)                 repo_dir=${tok[$((i+1))]:-}; indirect="-C"; i=$((i+2)) ;;
+    -c)                 indirect=${tok[$i]};         i=$((i+2)) ;;
+    --git-dir=*|--work-tree=*|--namespace=*|--exec-path=*|--bare)
+                        indirect=${tok[$i]%%=*};     i=$((i+1)) ;;
+    --no-pager|--paginate|-p|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
+                        i=$((i+1)) ;;
+    *)                  indirect=${tok[$i]};         i=$((i+1)) ;;
+  esac
+done
 [[ ${tok[$i]:-} == push ]] || exit 0
 ((i++))
+
+# A push reached through an indirection is not the push it appears to be: the
+# repository, the config or the worktree it lands in comes from somewhere this
+# guard cannot verify. Those always go to the user.
+[[ -z $indirect || $indirect == "-C" ]] ||
+  ask "'$indirect' redirects where this push lands, so it needs approval"
 
 positional=()
 rewrites_history=0

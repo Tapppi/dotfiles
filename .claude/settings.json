@@ -7,14 +7,7 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/git-push-guard.sh",
-            "if": "Bash(git push*)",
-            "timeout": 30,
-            "statusMessage": "Checking push target"
-          },
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/git-push-guard.sh",
-            "if": "Bash(git -C * push*)",
+            "if": "Bash(git *)",
             "timeout": 30,
             "statusMessage": "Checking push target"
           }

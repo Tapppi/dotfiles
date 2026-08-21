@@ -123,8 +123,8 @@ request calls for it.
 }
 ```
 
-It approves only a single-line, unquoted `git push` (or `git -C <path> push`)
-whose remote matches, whose every destination ref sits under a configured prefix —
+It approves only a single-line, unquoted `git push` invoked directly, whose
+remote matches, whose every destination ref sits under a configured prefix —
 including the right side of a `src:dst` refspec and `HEAD` resolved to the current
 branch — and whose flags are all on its allowlist: `-u`, `--set-upstream`,
 `--force-with-lease` (bare or `=<value>`), `--force-if-includes`, `--dry-run`,
@@ -141,13 +141,22 @@ a plain force.
 Everything else prompts: plain `--force`/`-f`, `--delete`, `--mirror`, `--prune`,
 a default-branch destination, a `:branch` delete refspec, a `+branch` forced
 refspec, a different remote, a bare `git push`, and `git push origin` with no
-refspec. A push the guard cannot parse gets no decision rather than a refusal — it
-falls back to the ordinary permission rules. Never restructure a command to dodge
-a prompt; let it ask.
+refspec. A `git push` the guard cannot parse — quoting, a pipe, a second command —
+prompts rather than falling through, since the fall-through would otherwise reach
+a permissive default mode. Commands that merely mention a push in passing are left
+alone entirely. Never restructure a command to dodge a prompt; let it ask.
+
+A push routed through a global option — `git -C <path> push`, `--git-dir`,
+`--work-tree`, `-c`, or anything else between `git` and `push` — always prompts.
+Where such a push lands depends on state the guard cannot verify, so it refuses to
+approve it, and the `Bash(git -* push*)` ask rule catches the same shape even in
+repos with no guard installed. Push from inside the worktree instead of reaching
+into it from elsewhere.
 
 The `git push` entries in `permissions.ask` are a fail-closed floor for repos with
 no guard. Keep them disjoint from what the guard approves — an `ask` rule
-overrides a hook's `allow`.
+overrides a hook's `allow`. The one deliberate exception is `Bash(git -* push*)`:
+it overlaps the guard on purpose, so that indirection prompts everywhere.
 
 ## Platform Gotchas
 

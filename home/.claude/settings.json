@@ -49,6 +49,7 @@
 		"defaultMode": "auto",
 		"ask": [
 			"Bash(git push)",
+			"Bash(git -* push*)",
 			"Bash(git push *main*)",
 			"Bash(git push *master*)",
 			"Bash(git push *--force)",
