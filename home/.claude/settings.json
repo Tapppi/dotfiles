@@ -49,7 +49,20 @@
 		"defaultMode": "auto",
 		"ask": [
 			"Bash(git push)",
-			"Bash(git push *)"
+			"Bash(git push *main*)",
+			"Bash(git push *master*)",
+			"Bash(git push *--force)",
+			"Bash(git push *--force *)",
+			"Bash(git push *-f)",
+			"Bash(git push *-f *)",
+			"Bash(git push *-d)",
+			"Bash(git push *-d *)",
+			"Bash(git push *--delete*)",
+			"Bash(git push *--all*)",
+			"Bash(git push *--mirror*)",
+			"Bash(git push *--prune*)",
+			"Bash(git push *--receive-pack*)",
+			"Bash(git push *--exec*)"
 		],
 		"allow": [
 			"Edit(/**)",

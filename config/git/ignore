@@ -15,6 +15,7 @@ Thumbs.db
 
 # Claude Code local settings
 **/.claude/settings.local.json
+**/.claude/push-guard.json
 CLAUDE.local.md
 AGENTS.local.md
 

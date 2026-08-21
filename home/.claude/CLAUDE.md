@@ -8,6 +8,11 @@
 - `statusline-command.sh` is the status line script showing model, directory,
   session start time, context tokens (with token-count-based color thresholds),
   rate limit percentages, and countdown to reset, in Solarized Dark colors.
+- `git-push-guard.sh` decides `git push` approvals, but is **not** a user-level
+  file: each participating repo commits its own copy under `.claude/hooks/` and
+  registers it in that repo's `.claude/settings.json`. The reference copy is
+  `macos-setup/.claude/hooks/git-push-guard.sh`; syncing a change means copying it
+  to each repo. See *Pushing branches* under Git Workflow.
 - User-level MCP servers are stored in `~/.claude.json`; that file is not
   tracked because it contains auto-generated state. The `macos-setup` repo
   configures these via `tasks/install.sh`.
@@ -90,6 +95,59 @@
   different repository. This is a hard security boundary — repository
   replacement could sidestep permission controls. If such a change is
   needed, only describe the steps for the user to perform manually.
+
+### Pushing branches
+
+**By default every `git push` prompts.** A repo waives that prompt for its own
+agent branches by committing a `git-push-guard.sh` PreToolUse hook under
+`.claude/hooks/` and registering it in the repo's committed `.claude/settings.json`
+— rule, mechanism and permission versioned together in the repo they govern. A
+repo without that hook prompts, which is the right default for anything shared or
+production-facing.
+
+Branch naming is a **per-repo convention, never a global one**: the guard ships a
+permissive default (`agent/` plus the conventional-commit types) and each repo
+narrows it via `branchPrefixes`. Read the repo's own guidance for the names it
+expects rather than assuming. The guard decides **how** you may push, never
+**whether** — it removes a prompt, not the rule that you push only when the
+request calls for it.
+
+```json
+{
+  "pushGuard": {
+    "allowAgenticPush": true,
+    "remote": "origin",
+    "branchPrefixes": ["agent"],
+    "requireWorktree": false
+  }
+}
+```
+
+It approves only a single-line, unquoted `git push` (or `git -C <path> push`)
+whose remote matches, whose every destination ref sits under a configured prefix —
+including the right side of a `src:dst` refspec and `HEAD` resolved to the current
+branch — and whose flags are all on its allowlist: `-u`, `--set-upstream`,
+`--force-with-lease` (bare or `=<value>`), `--force-if-includes`, `--dry-run`,
+`--atomic`, `--no-tags`, `--porcelain`, `--progress`/`--no-progress`, `-q`/`--quiet`,
+`-v`/`--verbose`.
+
+`--force-with-lease` is approved only while nobody has reviewed the branch: if an
+open PR on the destination carries any review or comment, it prompts instead.
+Cleaning up your own history is fine; rewriting what someone has already read is
+not. It must be paired with `--force-if-includes` — the guard refuses a bare lease,
+since any background fetch refreshes the remote-tracking ref and degrades it into
+a plain force.
+
+Everything else prompts: plain `--force`/`-f`, `--delete`, `--mirror`, `--prune`,
+a default-branch destination, a `:branch` delete refspec, a `+branch` forced
+refspec, a different remote, a bare `git push`, and `git push origin` with no
+refspec. A push the guard cannot parse gets no decision rather than a refusal — it
+falls back to the ordinary permission rules. Never restructure a command to dodge
+a prompt; let it ask.
+
+The `git push` entries in `permissions.ask` are a fail-closed floor for repos with
+no guard. Keep them disjoint from what the guard approves — an `ask` rule
+overrides a hook's `allow`.
 
 ## Platform Gotchas
 

@@ -159,3 +159,28 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 - `.credentials`, API keys, tokens, passwords
 - `.DS_Store`, `Thumbs.db`, `._*`
 - Backup tarballs
+
+## Pushing branches
+
+Pushes to agent branches (`agent/` or any conventional-commit prefix) on `origin` are pre-approved here and run without prompting,
+including `--force-with-lease --force-if-includes` for rebase and squash cleanups:
+
+```bash
+git push -u origin agent/<name>
+git push --force-with-lease --force-if-includes origin agent/<name>
+```
+
+The lease stops being pre-approved once the branch has an open PR carrying a
+review or comment: cleaning up your own history is fine, rewriting what someone
+has already read is not. It must be paired with `--force-if-includes` — the guard
+refuses a bare lease, because a background fetch refreshes the remote-tracking
+ref and degrades it into a plain force.
+
+Pushing to `master` always prompts, as do plain `--force`/`-f`, deletes, a different
+remote, and a bare `git push`. The guard decides how you may push, never whether —
+push only when the request calls for it, and never restructure a command to dodge
+a prompt.
+
+Enforced by `.claude/hooks/git-push-guard.sh`, registered in `.claude/settings.json`
+with the allowed prefixes — both committed, so the rule and the permission travel
+with the repo rather than living on one machine.
