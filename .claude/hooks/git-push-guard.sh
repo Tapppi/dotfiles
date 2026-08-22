@@ -21,11 +21,14 @@
 #     yields "ask" — including one wrapped in quoting, chained onto any other
 #     command, or preceded by a global option the walk below cannot account for,
 #     none of which this script will parse and therefore cannot vouch for.
-#   - Only a command that is not a `git push` at all produces no output, leaving
-#     the normal permission rules in charge. Withholding a decision hands the
-#     command back to those rules — under a permissive default mode they may
+#   - Only a command that runs no `git push` produces no output, leaving the
+#     normal permission rules in charge. A push that is not the command's first
+#     word — behind an environment assignment, an absolute path, a subshell or
+#     another command — is refused rather than ignored; a push named inside
+#     quotes is not a push and is left alone. Withholding a decision hands the
+#     command back to those rules, and under a permissive default mode they may
 #     still approve it, so silence is a fallback, not a guarantee, and is never
-#     what a push receives.
+#     what an actual push receives.
 #   - Never emits "deny": the user always keeps the option to approve by hand.
 #
 # Branch naming is a per-repo convention, not a global one, so the built-in
@@ -72,7 +75,7 @@ IFS= read -r -d '' payload || true
 # would miss `git --git-dir <path> push` — the very shape most worth catching.
 # Prompting for a commit beats staying silent for a redirected push.
 if ! command -v jq >/dev/null 2>&1; then
-  [[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"git[[:space:]][^\"]*push ]] || exit 0
+  [[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"[^\"]*git[[:space:]][^\"]*push ]] || exit 0
   printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push guard: jq is not installed, so this push cannot be checked against the repo policy — install jq to restore pre-approved pushes"}}'
   exit 0
 fi
@@ -80,9 +83,11 @@ cmd=$(jq -r '.tool_input.command // ""' <<<"$payload")
 cwd=$(jq -r '.cwd // ""' <<<"$payload")
 
 # Loose pre-filter. Anything not plausibly a `git push` is none of this script's
-# business and must pass through without a decision. The command has to *start*
-# with git, so a heredoc, grep pattern or jq argument that merely mentions a push
-# is never mistaken for one.
+# business and must pass through without a decision — but "not plausibly a push"
+# is decided on the command's first word and on text outside quotes, so a
+# heredoc, grep pattern or jq argument that merely mentions a push is never
+# mistaken for one, while a push hidden behind an environment assignment, an
+# absolute path or a preceding command still gets a verdict.
 # `cd <dir> && git push …` is a routine shape here, so normalize it instead of
 # leaving it unparseable: the push is evaluated as the push it is, resolved
 # against the directory the cd moves to.
@@ -92,8 +97,32 @@ if [[ $cmd =~ ^[[:space:]]*cd[[:space:]]+([A-Za-z0-9_./-]+)[[:space:]]*\&\&[[:sp
   [[ $cd_target == /* ]] && cwd=$cd_target || cwd=$cwd/$cd_target
 fi
 
-[[ $cmd =~ ^[[:space:]]*git[[:space:]] ]]      || exit 0
-[[ $cmd =~ [[:space:]]push([[:space:]]|$) ]]   || exit 0
+# `probe` drops everything from the first quote or redirection onward, and
+# `first` additionally drops everything past a command separator. Asking "is
+# this a push?" of `first` rather than of the whole string keeps
+# `git commit -m "do not push to main"` and `git log | grep push` out of the
+# guard's way: their push token lives past the cut, so they never reach it.
+probe=${cmd%%[\"\'\<\>]*}
+first=${probe%%[|;\&]*}
+
+# Held in variables: bash mis-parses a bracket expression containing `(` when
+# the regex is written inline.
+re_push='[[:blank:]]push([[:blank:]]|$)'
+re_git_word='(^|[[:blank:]]|[/=(])git[[:blank:]]'
+
+if [[ $cmd =~ ^[[:blank:]]*git[[:blank:]] ]]; then
+  [[ $first =~ $re_push ]] || exit 0
+else
+  # A push that is not the first thing the command runs is still a push, and
+  # ignoring it hands it to the ordinary rules, which may approve it. An
+  # environment assignment, an absolute path, a subshell or a preceding command
+  # all land here. Matching on `probe` keeps a quoted mention of a push — a
+  # heredoc, a grep pattern, an echo — outside this entirely.
+  if [[ $probe =~ $re_git_word ]] && [[ $probe =~ $re_push ]]; then
+    ask "this runs a git push that is not the command's first word, so the guard cannot vouch for it"
+  fi
+  exit 0
+fi
 
 # Parse, don't validate: go on only with a flat list of plain words. Shell
 # operators, quoting, expansion and globbing all land here. By this point the
@@ -119,20 +148,30 @@ read -ra tok <<<"$cmd"
 i=1
 repo_dir=$cwd
 indirect=""
+# Keep the FIRST redirection seen. Overwriting it lets a later, resolvable
+# option stand in for an earlier unresolvable one — `-c core.hooksPath=... -C .`
+# would otherwise read as a plain `-C` push and be approved, with git then
+# running a hook of the caller's choosing.
+note_indirect() { [[ -n $indirect ]] || indirect=$1; }
 while [[ ${tok[$i]:-} == -* ]]; do
   case ${tok[$i]} in
-    -C)                 repo_dir=${tok[$((i+1))]:-}; indirect="-C"; i=$((i+2)) ;;
-    -c)                 indirect=${tok[$i]};         i=$((i+2)) ;;
+    # -C is the one redirection this guard can follow, so it records no
+    # indirection — but it must be resolved exactly as git resolves it:
+    # relative to what came before, which starts at the payload's cwd.
+    -C)                 t_dir=${tok[$((i+1))]:-}
+                        [[ $t_dir == /* ]] && repo_dir=$t_dir || repo_dir=$repo_dir/$t_dir
+                        i=$((i+2)) ;;
+    -c)                 note_indirect "${tok[$i]}";  i=$((i+2)) ;;
     --git-dir=*|--work-tree=*|--namespace=*|--exec-path=*|--bare)
-                        indirect=${tok[$i]%%=*};     i=$((i+1)) ;;
+                        note_indirect "${tok[$i]%%=*}"; i=$((i+1)) ;;
     # The same options spelled with a space take their value as a separate word.
     # Stepping over only the option would leave its value where the subcommand
     # should be, and the check below would then read a path as "not a push".
     --git-dir|--work-tree|--namespace|--exec-path|--super-prefix|--config-env|--attr-source)
-                        indirect=${tok[$i]};         i=$((i+2)) ;;
+                        note_indirect "${tok[$i]}";  i=$((i+2)) ;;
     --no-pager|--paginate|-p|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
                         i=$((i+1)) ;;
-    *)                  indirect=${tok[$i]};         i=$((i+1)) ;;
+    *)                  note_indirect "${tok[$i]}";  i=$((i+1)) ;;
   esac
 done
 
@@ -152,7 +191,7 @@ fi
 # A push reached through an indirection is not the push it appears to be: the
 # repository, the config or the worktree it lands in comes from somewhere this
 # guard cannot verify. Those always go to the user.
-[[ -z $indirect || $indirect == "-C" ]] ||
+[[ -z $indirect ]] ||
   ask "'$indirect' redirects where this push lands, so it needs approval"
 
 positional=()
