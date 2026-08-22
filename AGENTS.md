@@ -167,8 +167,13 @@ including `--force-with-lease --force-if-includes` for rebase and squash cleanup
 
 ```bash
 git push -u origin agent/<name>
+git push origin agent/<name>
 git push --force-with-lease --force-if-includes origin agent/<name>
 ```
+
+Name the branch every time: a bare `git push` prompts even after `-u` has set
+the upstream, because the guard approves a destination it can read rather than
+one it would have to infer.
 
 The lease stops being pre-approved once the branch has an open PR carrying a
 review or comment: cleaning up your own history is fine, rewriting what someone
@@ -176,13 +181,24 @@ has already read is not. It must be paired with `--force-if-includes` — the gu
 refuses a bare lease, because a background fetch refreshes the remote-tracking
 ref and degrades it into a plain force.
 
-Pushing to `master` always prompts, as do plain `--force`/`-f`, deletes, a different
-remote, and a bare `git push`. A push routed through `--git-dir`, `--work-tree`,
-`-c` or another option that redirects where it lands always prompts; plain
-`git -C <path> push` is evaluated exactly like a direct push. The guard decides how you may push, never whether —
-push only when the request calls for it, and never restructure a command to dodge
-a prompt.
+Everything else prompts, and that is not only `master`: any destination outside the
+prefixes above — `release/1.2`, `hotfix-3` — prompts too, as do plain
+`--force`/`-f`, deletes and a different remote. `HEAD` is resolved to the branch
+you are on and judged by that same prefix rule. A push routed through
+`--git-dir`, `--work-tree`, `-c` or another option that redirects where it lands
+always prompts; plain `git -C <path> push` is evaluated exactly like a direct push.
+
+The guard reads one unquoted `git push` at a time. Quoting the branch
+(`git push origin "agent/$name"`) or chaining onto it (`git push … && gh pr create`)
+puts the command past what it will parse, so it prompts instead of pre-approving —
+keep the push on its own line, unquoted, and follow up in a separate command.
+
+The guard decides how you may push, never whether — push only when the request
+calls for it, and never restructure a command to dodge a prompt.
 
 Enforced by `.claude/hooks/git-push-guard.sh`, registered in `.claude/settings.json`
 with the allowed prefixes — both committed, so the rule and the permission travel
-with the repo rather than living on one machine.
+with the repo rather than living on one machine. That file also carries an `ask`
+rule on `master` destinations, so the default branch stays protected even when the
+hook cannot run — on a machine without `jq`, for instance, where the guard prompts
+and says why rather than going quiet.

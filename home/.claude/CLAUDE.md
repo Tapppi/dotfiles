@@ -127,7 +127,8 @@ It approves only a single-line, unquoted `git push` invoked directly, whose
 remote matches, whose every destination ref sits under a configured prefix —
 including the right side of a `src:dst` refspec and `HEAD` resolved to the current
 branch — and whose flags are all on its allowlist: `-u`, `--set-upstream`,
-`--force-with-lease` (bare or `=<value>`), `--force-if-includes`, `--dry-run`,
+`--force-with-lease` (bare, or `=<ref>` naming only the ref), `--force-if-includes`,
+`--dry-run`,
 `--atomic`, `--no-tags`, `--porcelain`, `--progress`/`--no-progress`, `-q`/`--quiet`,
 `-v`/`--verbose`.
 
@@ -143,16 +144,23 @@ a default-branch destination, a `:branch` delete refspec, a `+branch` forced
 refspec, a different remote, a bare `git push`, and `git push origin` with no
 refspec. A `git push` the guard cannot parse — quoting, a pipe, a second command —
 prompts rather than falling through, since the fall-through would otherwise reach
-a permissive default mode. Commands that merely mention a push in passing are left
-alone entirely. Never restructure a command to dodge a prompt; let it ask.
+a permissive default mode. A `--force-with-lease=<ref>:<expected>` that supplies its
+own expected value is a plain force in disguise, so it prompts too. Commands that
+merely mention a push in passing are left alone entirely. Never restructure a
+command to dodge a prompt; let it ask.
+
+The guard needs `jq` to read its input and write its verdict. Without it a push
+prompts and says so rather than going quiet, while ordinary git commands pass
+through untouched.
 
 `git -C <path> push` is read as the push it is and judged on its merits. The
 other global options — `--git-dir`, `--work-tree`, `-c`, `--namespace`, or any the
 guard does not recognise — redirect which repository, config or worktree the push
 lands in, which the guard cannot verify, so those always prompt.
 
-The `git push` entries in `permissions.ask` are a fail-closed floor for repos with
-no guard. Keep them disjoint from what the guard approves — an `ask` rule
+The `git push` entries in user-level `permissions.ask` are a fail-closed floor for
+repos with no guard; a guarded repo commits its own four-rule floor on
+`main`/`master` destinations, so its default branch survives the hook not running. Keep them disjoint from what the guard approves — an `ask` rule
 overrides a hook's `allow`. Every `git push` rule there is mirrored onto the
 `git -* push` form, so an indirect push to a default branch, a force-push or a
 delete prompts even where no guard is installed — while a safe `git -C … push`
