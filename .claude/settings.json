@@ -19,5 +19,13 @@
     "allowAgenticPush": true,
     "remote": "origin",
     "requireWorktree": false
+  },
+  "permissions": {
+    "ask": [
+      "Bash(git push *main*)",
+      "Bash(git push *master*)",
+      "Bash(git -* push *main*)",
+      "Bash(git -* push *master*)"
+    ]
   }
 }
