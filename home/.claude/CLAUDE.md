@@ -98,6 +98,12 @@
 
 ### Pushing branches
 
+This whole arrangement is an interim measure for an unsandboxed local workspace:
+it buys back a little autonomy without widening what an agent can reach. The
+intended end state is the opposite shape — agents working freely inside a sandbox,
+with scripted guards only where work crosses the boundary. Treat what follows as a
+stopgap to keep consistent, not as an architecture to build on.
+
 **By default every `git push` prompts.** A repo waives that prompt for its own
 agent branches by committing a `git-push-guard.sh` PreToolUse hook under
 `.claude/hooks/` and registering it in the repo's committed `.claude/settings.json`
@@ -165,6 +171,13 @@ repos with no guard; a guarded repo commits its own four-rule floor on
 `main`/`master` destinations, so its default branch survives the hook not
 running. Keep them disjoint from what the guard approves — an `ask` rule
 overrides a hook's `allow`.
+
+**Neither floor is a rule to reason from.** Both are backstops for the hook
+failing to run, and both match on command text, so each has forms it cannot see —
+a push that reaches the default branch without naming it, most of all. Never
+decide whether a push is acceptable by working out what the floor would match;
+decide by what the guard permits, and treat a prompt as the answer rather than as
+an obstacle to reshape the command around.
 
 **The trailing space in `Bash(git push *--force *)` is load-bearing.** It forces a
 word boundary, so the rule catches `--force` but not `--force-with-lease` or
