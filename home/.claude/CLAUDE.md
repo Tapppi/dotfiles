@@ -176,9 +176,13 @@ Every `git push` rule there is mirrored onto the `git -* push` form, so an indir
 push to a default branch, a force-push or a delete prompts even where no guard is
 installed — while a safe `git -C … push` matches neither and is left to the guard.
 
-One override surface worth knowing: the guard reads `.claude/push-guard.json` and
-`.claude/settings.local.json` *before* the committed `.claude/settings.json`, so a
-gitignored local file silently outranks a repo's committed policy.
+Separately — and this is the script's own lookup, not permission-rule precedence,
+which unions rules across files and resolves them by decision type — the guard
+resolves its `pushGuard` config first-match-wins over `.claude/push-guard.json`,
+then `.claude/settings.local.json`, then the committed `.claude/settings.json`. A
+gitignored local file therefore outranks a repo's committed policy silently, so a
+stray `pushGuard` in one can loosen `requireWorktree` or `branchPrefixes` with no
+signal that the committed file was ignored.
 
 ## Platform Gotchas
 
