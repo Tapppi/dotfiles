@@ -14,9 +14,13 @@
 #   - "allow" is emitted only for a single, unquoted `git push` whose flags are
 #     all on the allowlist, whose remote is the configured one, and whose every
 #     destination ref lives under a configured branch prefix.
-#   - Anything recognisable as a `git push` that fails any of those checks yields
-#     "ask" — including one wrapped in quoting or chained onto another command,
-#     which this script will not parse and therefore cannot vouch for.
+#   - "allow" is also emitted for `cd <dir> && git push ...`, the one compound
+#     shape this script normalizes rather than refuses. Note that the approval
+#     then covers the whole Bash call, the `cd` included.
+#   - Anything else recognisable as a `git push` that fails any of those checks
+#     yields "ask" — including one wrapped in quoting, chained onto any other
+#     command, or preceded by a global option the walk below cannot account for,
+#     none of which this script will parse and therefore cannot vouch for.
 #   - Only a command that is not a `git push` at all produces no output, leaving
 #     the normal permission rules in charge. Withholding a decision hands the
 #     command back to those rules — under a permissive default mode they may
@@ -63,6 +67,10 @@ IFS= read -r -d '' payload || true
 # without it the guard cannot function at all. Every git command reaches this
 # hook, so stay quiet unless the payload plausibly carries a push — but never let
 # a push through unexamined and unexplained just because a dependency is absent.
+# This match is on raw text, so it over-prompts: `git commit -m push` trips it. A
+# tighter pattern would have to assume `push` follows only option words, which
+# would miss `git --git-dir <path> push` — the very shape most worth catching.
+# Prompting for a commit beats staying silent for a redirected push.
 if ! command -v jq >/dev/null 2>&1; then
   [[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"git[[:space:]][^\"]*push ]] || exit 0
   printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push guard: jq is not installed, so this push cannot be checked against the repo policy — install jq to restore pre-approved pushes"}}'
@@ -117,12 +125,28 @@ while [[ ${tok[$i]:-} == -* ]]; do
     -c)                 indirect=${tok[$i]};         i=$((i+2)) ;;
     --git-dir=*|--work-tree=*|--namespace=*|--exec-path=*|--bare)
                         indirect=${tok[$i]%%=*};     i=$((i+1)) ;;
+    # The same options spelled with a space take their value as a separate word.
+    # Stepping over only the option would leave its value where the subcommand
+    # should be, and the check below would then read a path as "not a push".
+    --git-dir|--work-tree|--namespace|--exec-path|--super-prefix|--config-env|--attr-source)
+                        indirect=${tok[$i]};         i=$((i+2)) ;;
     --no-pager|--paginate|-p|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
                         i=$((i+1)) ;;
     *)                  indirect=${tok[$i]};         i=$((i+1)) ;;
   esac
 done
-[[ ${tok[$i]:-} == push ]] || exit 0
+
+# Not landing on `push` means one of two things. If no global option was consumed
+# this is an ordinary git command that merely carries the word somewhere, and it
+# is none of this script's business. If options *were* consumed, the walk lost
+# track of the subcommand — an unknown option that swallows a value looks exactly
+# like this — and a push whose position cannot be established is a push that
+# cannot be vouched for, so it goes to the user rather than to silence.
+if [[ ${tok[$i]:-} != push ]]; then
+  [[ -n $indirect ]] ||
+    exit 0
+  ask "the global options before 'push' are not ones the guard can account for"
+fi
 ((i++))
 
 # A push reached through an indirection is not the push it appears to be: the
