@@ -186,7 +186,9 @@ always prompts; plain `git -C <path> push` is evaluated exactly like a direct pu
 The guard reads one unquoted `git push` at a time. Quoting the branch
 (`git push origin "agent/$name"`) or chaining onto it (`git push … && gh pr create`)
 puts the command past what it will parse, so it prompts instead of pre-approving —
-keep the push on its own line, unquoted, and follow up in a separate command.
+keep the push on its own line, unquoted, and follow up in a separate command. The
+one exception is `cd <dir> && git push …`, which the guard normalizes and judges as
+the push it is — the approval then covers the whole command, `cd` included.
 
 The guard decides how you may push, never whether — push only when the request
 calls for it, and never restructure a command to dodge a prompt.
@@ -195,6 +197,8 @@ Enforced by `.claude/hooks/git-push-guard.sh`, registered in `.claude/settings.j
 — both committed, so the rule and the permission travel with the repo rather than
 living on one machine. This repo sets no `branchPrefixes`, so the list above is
 the guard's own built-in default rather than anything named in `settings.json`. That file also carries an `ask`
-rule on `master` destinations, so the default branch stays protected even when the
-hook cannot run — on a machine without `jq`, for instance, where the guard prompts
-and says why rather than going quiet.
+rule on `master` destinations, so a push that names the default branch is refused
+even when the hook does not run at all. That rule matches the command text, so
+it only catches a push that spells `master` out: `git push origin HEAD`, a bare
+`git push`, or `git push origin` with no refspec still reach `master` without
+matching it. The hook catches those; the floor is a second line, not an equal one.

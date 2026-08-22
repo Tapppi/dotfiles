@@ -151,8 +151,9 @@ merely mention a push in passing are left alone entirely. Never restructure a
 command to dodge a prompt; let it ask.
 
 The guard needs `jq` to read its input and write its verdict. Without it a push
-prompts and says so rather than going quiet, while ordinary git commands pass
-through untouched.
+prompts and says so rather than going quiet. In that degraded mode it matches on
+raw text, so it over-prompts a little — `git commit -m push` trips it. That is the
+deliberate trade: a tighter pattern would miss `git --git-dir <path> push`.
 
 `git -C <path> push` is read as the push it is and judged on its merits. The
 other global options — `--git-dir`, `--work-tree`, `-c`, `--namespace`, or any the
