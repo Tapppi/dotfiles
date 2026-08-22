@@ -25,8 +25,10 @@
 #   - Never emits "deny": the user always keeps the option to approve by hand.
 #
 # Branch naming is a per-repo convention, not a global one, so the built-in
-# prefix list is deliberately permissive (agent/ plus the conventional-commit
-# types) and each repo narrows it through `branchPrefixes`.
+# prefix list is deliberately permissive — agent/, the conventional-commit types,
+# plus debug/ and backup/ — and each repo narrows it through `branchPrefixes`.
+# Keep this comment in step with the default list below; a repo that omits
+# `branchPrefixes` is governed by that list and by nothing else.
 #
 # A --force-with-lease push is approved only while nobody has reviewed the
 # branch: if an open PR on the destination carries any review or comment, it

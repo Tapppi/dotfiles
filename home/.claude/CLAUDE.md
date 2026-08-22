@@ -106,11 +106,12 @@ repo without that hook prompts, which is the right default for anything shared o
 production-facing.
 
 Branch naming is a **per-repo convention, never a global one**: the guard ships a
-permissive default (`agent/` plus the conventional-commit types) and each repo
-narrows it via `branchPrefixes`. Read the repo's own guidance for the names it
-expects rather than assuming. The guard decides **how** you may push, never
-**whether** — it removes a prompt, not the rule that you push only when the
-request calls for it.
+permissive default — `agent/`, the conventional-commit types, plus `debug/` and
+`backup/` — and each repo narrows it via `branchPrefixes`. A repo that omits
+`branchPrefixes` is governed by that default and by nothing in its own settings.
+Read the repo's own guidance for the names it expects rather than assuming. The
+guard decides **how** you may push, never **whether** — it removes a prompt, not
+the rule that you push only when the request calls for it.
 
 ```json
 {
@@ -160,11 +161,24 @@ lands in, which the guard cannot verify, so those always prompt.
 
 The `git push` entries in user-level `permissions.ask` are a fail-closed floor for
 repos with no guard; a guarded repo commits its own four-rule floor on
-`main`/`master` destinations, so its default branch survives the hook not running. Keep them disjoint from what the guard approves — an `ask` rule
-overrides a hook's `allow`. Every `git push` rule there is mirrored onto the
-`git -* push` form, so an indirect push to a default branch, a force-push or a
-delete prompts even where no guard is installed — while a safe `git -C … push`
-matches neither and is left to the guard.
+`main`/`master` destinations, so its default branch survives the hook not
+running. Keep them disjoint from what the guard approves — an `ask` rule
+overrides a hook's `allow`.
+
+**The trailing space in `Bash(git push *--force *)` is load-bearing.** It forces a
+word boundary, so the rule catches `--force` but not `--force-with-lease` or
+`--force-if-includes`. Rewriting it as `*--force*` would swallow every lease push
+and silently neuter the guard in every repo. The same applies to `*-f *`/`*-d *`.
+Never drop that space, and never widen one of these rules without re-checking it
+against a lease push.
+
+Every `git push` rule there is mirrored onto the `git -* push` form, so an indirect
+push to a default branch, a force-push or a delete prompts even where no guard is
+installed — while a safe `git -C … push` matches neither and is left to the guard.
+
+One override surface worth knowing: the guard reads `.claude/push-guard.json` and
+`.claude/settings.local.json` *before* the committed `.claude/settings.json`, so a
+gitignored local file silently outranks a repo's committed policy.
 
 ## Platform Gotchas
 

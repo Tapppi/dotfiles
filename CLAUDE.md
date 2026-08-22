@@ -156,7 +156,8 @@ Tabs (width 2), UTF-8, LF line endings, trim trailing whitespace, insert final n
 
 ## Pushing branches
 
-Pushes to agent branches (`agent/` or any conventional-commit prefix) on `origin` are pre-approved here and run without prompting,
+Pushes to agent branches on `origin` are pre-approved here and run without prompting —
+`agent/`, any conventional-commit prefix, plus `debug/` and `backup/` —
 including `--force-with-lease --force-if-includes` for rebase and squash cleanups:
 
 ```bash
@@ -191,8 +192,9 @@ The guard decides how you may push, never whether — push only when the request
 calls for it, and never restructure a command to dodge a prompt.
 
 Enforced by `.claude/hooks/git-push-guard.sh`, registered in `.claude/settings.json`
-with the allowed prefixes — both committed, so the rule and the permission travel
-with the repo rather than living on one machine. That file also carries an `ask`
+— both committed, so the rule and the permission travel with the repo rather than
+living on one machine. This repo sets no `branchPrefixes`, so the list above is
+the guard's own built-in default rather than anything named in `settings.json`. That file also carries an `ask`
 rule on `master` destinations, so the default branch stays protected even when the
 hook cannot run — on a machine without `jq`, for instance, where the guard prompts
 and says why rather than going quiet.
