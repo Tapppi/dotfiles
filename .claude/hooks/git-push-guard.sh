@@ -14,12 +14,14 @@
 #   - "allow" is emitted only for a single, unquoted `git push` whose flags are
 #     all on the allowlist, whose remote is the configured one, and whose every
 #     destination ref lives under a configured branch prefix.
-#   - A parseable `git push` that fails any of those checks yields "ask".
-#   - Everything else produces no output at all, leaving the normal permission
-#     rules in charge: commands that are not a `git push`, and pushes wrapped in
-#     shell syntax this script will not parse. Withholding a decision hands the
-#     command back to the permission rules — under a permissive default mode
-#     those may still approve it, so silence is a fallback, not a guarantee.
+#   - Anything recognisable as a `git push` that fails any of those checks yields
+#     "ask" — including one wrapped in quoting or chained onto another command,
+#     which this script will not parse and therefore cannot vouch for.
+#   - Only a command that is not a `git push` at all produces no output, leaving
+#     the normal permission rules in charge. Withholding a decision hands the
+#     command back to those rules — under a permissive default mode they may
+#     still approve it, so silence is a fallback, not a guarantee, and is never
+#     what a push receives.
 #   - Never emits "deny": the user always keeps the option to approve by hand.
 #
 # Branch naming is a per-repo convention, not a global one, so the built-in
@@ -51,9 +53,19 @@ decide() { # decision, reason
 ask()   { decide ask   "push guard: $1"; }
 allow() { decide allow "push guard: $1"; }
 
-payload=$(cat)
+# Read stdin with a builtin rather than `cat`: a guard whose job is to degrade
+# safely must not need a healthy PATH to reach its own fallback.
+IFS= read -r -d '' payload || true
 
-command -v jq >/dev/null 2>&1 || exit 0   # no jq: stay silent, rules take over
+# jq is both how this script reads its input and how it writes its verdict, so
+# without it the guard cannot function at all. Every git command reaches this
+# hook, so stay quiet unless the payload plausibly carries a push — but never let
+# a push through unexamined and unexplained just because a dependency is absent.
+if ! command -v jq >/dev/null 2>&1; then
+  [[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"git[[:space:]][^\"]*push ]] || exit 0
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push guard: jq is not installed, so this push cannot be checked against the repo policy — install jq to restore pre-approved pushes"}}'
+  exit 0
+fi
 cmd=$(jq -r '.tool_input.command // ""' <<<"$payload")
 cwd=$(jq -r '.cwd // ""' <<<"$payload")
 
