@@ -122,6 +122,32 @@ source in this repo (`home/` or `config/` directories) and then copy the changed
 destination (e.g., `cp home/.claude/foo ~/.claude/foo`). The home directory copies are deployment
 targets — this repo is the source of truth.
 
+### Tool-Owned Config Inside Tracked Files
+
+Some tools write their own config into paths this repo tracks. Those writes are
+**not** vendored here, and the source-of-truth rule above does not apply to them:
+
+| Tool    | What it writes into a tracked path | Written by |
+|---------|------------------------------------|------------|
+| `ctx7`  | `~/.claude/skills/context7-mcp/`, `~/.claude/rules/context7.md` | `ctx7 setup --claude` |
+| `herdr` | `~/.claude/hooks/herdr-agent-state.sh`, plus a `SessionStart` entry in `~/.claude/settings.json` | `herdr integration install claude` |
+
+Both commands run from macos-setup's `tasks/install.sh` **after** `bootstrap.sh`.
+So the sync drops the tool's key and the tool writes it straight back — that
+ordering is the entire mechanism, and it is why the tracked `settings.json` has
+no `hooks` key while the live one does.
+
+**Do not copy a tool-written key into `home/`.** Vendoring one means tracking a
+hook path and payload the tool owns and rewrites between versions, so it goes
+stale silently on the next upgrade. If such a key is missing from `~`, re-run the
+command that writes it — `./setup.sh herdr` in macos-setup for herdr — rather
+than adding it here.
+
+The exception is a tool that writes into one of the **`--delete` mirrored**
+directories: there the mirror prunes the file before the tool can restore it, so
+it needs an explicit exclude. That is why the `~/.claude/skills/` mirror excludes
+`context7-mcp/`. `~/.claude/hooks/` is not mirrored, so herdr needs none.
+
 ### Git Identity and Attribution
 - **NEVER** add AI attribution to commits (no `Co-authored-by`, no agent signatures).
   Commits must look like normal developer commits.
