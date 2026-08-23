@@ -67,6 +67,31 @@ macos-setup's `tasks/install.sh`, not tracked here.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 
+### Tool-owned config inside tracked files
+
+Some tools write their own config into paths this repo tracks:
+
+- `ctx7 setup --claude` writes `~/.claude/skills/context7-mcp/` and
+  `~/.claude/rules/context7.md`.
+- `herdr integration install claude` writes
+  `~/.claude/hooks/herdr-agent-state.sh` and a `SessionStart` entry in
+  `~/.claude/settings.json`.
+
+Neither is vendored here. Both commands run from macos-setup's
+`tasks/install.sh` **after** `bootstrap.sh`, so the sync drops the tool's key and
+the tool writes it straight back. That ordering is the whole mechanism, and it is
+why the tracked `settings.json` carries no `hooks` key while the live one does.
+
+Do not copy a tool-written key into `home/` — that means tracking a hook path and
+payload the tool owns and rewrites between versions, which goes stale silently on
+the next upgrade. If one is missing from `~`, re-run the writing command
+(`./setup.sh herdr` in macos-setup for herdr) instead.
+
+A tool writing into a `--delete` mirrored directory is the exception: the mirror
+prunes the file before the tool can restore it, so it needs an explicit exclude —
+hence `context7-mcp/` above. `~/.claude/hooks/` is not mirrored, so herdr needs
+none.
+
 ## Cursor CLI config splits across two directories
 
 `cursor-agent` does not resolve all its config from one place, and getting this
