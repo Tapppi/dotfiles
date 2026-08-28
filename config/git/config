@@ -91,6 +91,13 @@
 	# Show most recently changed branches first.
 	sort = -committerdate
 
+	# Only set an upstream when the new branch's name matches the remote branch
+	# it forks from. The default (true) makes `git worktree add -b foo origin/main`
+	# point foo's upstream at refs/heads/main, so a later plain `git push` aims at
+	# main. With `simple`, such a branch gets no upstream and `git push -u origin
+	# <branch>` does the right thing.
+	autoSetupMerge = simple
+
 [core]
 
 	# Global ignore is at $XDG_CONFIG_HOME/git/ignore (git reads it automatically)
