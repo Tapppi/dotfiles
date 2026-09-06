@@ -27,8 +27,7 @@ shellcheck bootstrap.sh config/bash/.functions
   `~/Library/Keyboard Layouts/`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
   `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI: `mcp.json`, `rules/`,
-  and a fallback copy of `cli-config.json`), `.hammerspoon/`,
-  `.hushlogin`, `.parallel/`.
+  and a fallback copy of `cli-config.json`), `.hushlogin`, `.parallel/`.
 - **`config/bash/`** — Shell configuration sourced by `.bash_profile`:
   `.aliases`, `.exports`, `.functions`, `.bash_prompt` (Solarized Dark with git status).
   The parent repo's `.extra` and `.path` are also copied to `~/.config/bash/` during install.

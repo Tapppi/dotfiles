@@ -14,7 +14,6 @@ dotfiles/
     .bashrc                   # Delegates to .bash_profile for interactive shells
     .claude/                  # Claude Code config (no XDG support)
     .cursor/                  # Cursor CLI: mcp.json, rules/*.mdc, cli-config.json (fallback copy)
-    .hammerspoon/init.lua     # Per-app keyboard layout forcing
     .hushlogin                # Suppress login banner
     .parallel/will-cite       # Silence GNU parallel citation warning
   config/                     # rsync → ~/.config/
