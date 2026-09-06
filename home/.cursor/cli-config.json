@@ -31,7 +31,6 @@
 			"Shell(make destroy)",
 			"Write(**/*.tfstate)",
 			"Write(**/*.tfstate.*)",
-			"Write(**/backend.tf)",
 			"Read(**/.credentials)"
 		],
 		"allow": [
