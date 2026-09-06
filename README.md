@@ -18,7 +18,7 @@ that repo for the full setup automation.
 Two sync directories plus standalone files at the repo root:
 
 - `home/` — rsynced to `~/` (files that don't support XDG):
-  `.bash_profile`, `.bashrc`, `.claude/`, `.hammerspoon/`, `.hushlogin`, `.parallel/`
+  `.bash_profile`, `.bashrc`, `.claude/`, `.hushlogin`, `.parallel/`
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
   `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
   `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
@@ -41,13 +41,16 @@ Two sync directories plus standalone files at the repo root:
 - `config/ripgrep/` — Ripgrep defaults
 - `config/tmux/tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
 - `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline)
-- `home/.hammerspoon/` — Per-app US keyboard layout forcing, Ghostty dropdown toggle (Hyper+S)
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
 ## Application hotkeys
 
-Managed via [Hammerspoon](home/.hammerspoon/init.lua) with
-[Karabiner Tab→Hyper](config/karabiner/) (Cmd+Ctrl+Opt+Shift).
+[Karabiner Tab→Hyper](config/karabiner/) (Cmd+Ctrl+Opt+Shift) maps the modifier;
+the hotkeys themselves live in [tapppi/systems](https://github.com/Tapppi/systems),
+which owns Hammerspoon and its configuration.
+
+The table below is the pre-migration set and no longer matches the running
+config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 
 | Hotkey | Application |
 |--------|-------------|
