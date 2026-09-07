@@ -17,14 +17,15 @@ shellcheck bootstrap.sh config/bash/.functions
 
 ## Architecture
 
-- **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Then three
-  **scoped `--delete` mirror** rsyncs for the agent-skill dirs (`~/.claude/skills/`,
-  `~/.config/opencode/skills/`, `~/.config/agent-skills/`) so de-adopted skills are pruned, not
-  just added. `--delete` is **never** applied to the whole `home/`/`config/` sync (it would wipe
-  untracked files in `~`). The `~/.claude/skills/` mirror excludes `context7-mcp/` — that skill
-  (and `~/.claude/rules/context7.md`) is owned by `ctx7 setup --claude`, run from macos-setup's
-  `tasks/install.sh`, not tracked here. Keyboard layouts are copied separately to
-  `~/Library/Keyboard Layouts/`.
+- **`bootstrap.sh`** — Two rsyncs: `home/` → `~/` and `config/` → `~/.config/`. Then two
+  **scoped `--delete` mirror** rsyncs for the agent-skill dirs (`~/.config/opencode/skills/`,
+  `~/.config/agent-skills/`) so de-adopted skills are pruned, not just added. `--delete` is
+  **never** applied to the whole `home/`/`config/` sync (it would wipe untracked files in `~`).
+  There is **no** `~/.claude/skills/` mirror: that source was emptied when the global skill
+  symlinks became plugins and then removed, and rsync exits 23 on a missing source, so the mirror
+  had been failing on every run. `~/.claude/skills/` is left alone — its only occupant is
+  `context7-mcp`, owned by `ctx7 setup --claude` (run from macos-setup's `tasks/install.sh`).
+  Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
   `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI: `mcp.json`, `rules/`,
   and a fallback copy of `cli-config.json`), `.hushlogin`, `.parallel/`.

@@ -4,9 +4,12 @@ Source-of-truth tree for all agent skills used by Claude Code and OpenCode.
 Synced to `~/.config/agent-skills/` by `bootstrap.sh`. The two agents expose
 skills differently:
 
-- **OpenCode** has no plugin system or per-project scoping: a skill is either
-  symlinked into `~/.config/opencode/skills/<skill>` (active in every
-  project) or not exposed to OpenCode at all.
+- **OpenCode** (1.15.12) reads a repo's `.claude/skills/` and `.agents/skills/`
+  natively and recursively, so per-project delivery works with no symlink. It
+  also has its own JS/TS plugin system under `.opencode/plugins/` — an
+  event-hook module format, not a skill bundle. A symlink into
+  `~/.config/opencode/skills/<skill>` makes a skill *global* in every OpenCode
+  session; it is not the only route to reaching one.
 - **Claude Code** delivers every adopted skill as a plugin from the
   `tapppi-skills` local marketplace (`.claude-plugin/marketplace.json` at
   this directory's root — see "Plugin marketplace" below), not a symlink.

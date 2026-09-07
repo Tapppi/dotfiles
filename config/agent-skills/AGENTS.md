@@ -15,11 +15,17 @@ plugins instead; see CLAUDE.md. `home/.claude/skills/` stays empty.)
   vendors) and prints per-skill diffs for review.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills and local patches.
 
-OpenCode has no per-project scoping or plugin system, so a skill is either
-symlinked into `config/opencode/skills/` (globally available in every
-OpenCode session) or not exposed to OpenCode at all. `jira` and the
-Google Cloud skills are in the latter camp — they're only reachable from
-Claude Code, where they're enabled per-project as plugins (see CLAUDE.md).
+OpenCode 1.15.12 reads a repo's `.claude/skills/` and `.agents/skills/`
+natively and recursively, so per-project delivery does work there — a skill
+committed in a repo is picked up with no symlink and no config. It also has its
+own JS/TS plugin system under `.opencode/plugins/`, though that is an
+event-hook module format, not a skill bundle.
+
+The symlinks in `config/opencode/skills/` therefore make a skill *globally*
+available in every OpenCode session; they are not the only way to reach it.
+`jira` and the Google Cloud skills carry no such symlink, so they are not global
+in OpenCode — but a repo that commits them reaches OpenCode like any other
+harness.
 
 See [README.md](README.md) for the full layout, adoption workflow,
 upstream-sync process, and customisation guidance.
