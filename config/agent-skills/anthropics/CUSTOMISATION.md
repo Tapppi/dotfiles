@@ -89,18 +89,19 @@ Upstream ships a `.claude-plugin/marketplace.json` advertising its plugins,
 including `document-skills`, whose sources are the four excluded paths. It is
 excluded outright rather than kept and patched.
 
-Keeping it forced three separate workarounds: a hand-maintained deletion of the
-`document-skills` entry and the `doc-coauthoring` array member, which conflicted
-on every upstream edit to that file; a narrowing of `projects_ensure_marketplaces`
-in the parent repo so it would not register a *second* marketplace under the name
-`anthropic-agent-skills`, colliding with the GitHub-sourced one that
-`~/.claude/settings.json` declares; and a caveat that the vendored manifest
-advertised a plugin whose source was not on disk.
+Keeping it forced a hand-maintained deletion of the `document-skills` entry and
+the `doc-coauthoring` array member, which conflicted on every upstream edit to
+that file, and left the vendored manifest advertising a plugin whose source was
+not on disk. Nothing registers vendored marketplaces, so the file served no
+purpose here; excluding it removes both.
 
-Nothing registers vendored marketplaces, so the file served no purpose here.
-Excluding it removes all three at once, and closes the class rather than the
-instance: any future vendor shipping its own marketplace manifest under a
-colliding name is handled by the same rule instead of another special case.
+It also removes one source of a name collision. Upstream's manifest declares
+`anthropic-agent-skills`, the same name `~/.claude/settings.json` binds to
+GitHub `anthropics/skills`. The parent repo's `projects_ensure_marketplaces`
+registers only the root manifest, which prevents that collision structurally
+whatever a vendor tree happens to contain; excluding the file removes the
+instance as well. Both are kept deliberately — the exclusion is not a
+replacement for the narrowing.
 
 ### Why the sync script has to know
 
