@@ -25,11 +25,13 @@ doIt() {
 	# de-adopted skills would linger and stay globally active). Scoped to dirs
 	# fully owned by dotfiles — a global --delete on home/ or config/ would
 	# wipe every untracked file in ~ and ~/.config.
-	# context7-mcp is owned by `ctx7 setup --claude` (run from macos-setup's
-	# install task), not tracked here — exclude it so the mirror neither
-	# deletes nor overwrites it.
-	rsync --exclude ".DS_Store" --exclude "context7-mcp/" -avh --no-perms --force --delete \
-		home/.claude/skills/ ~/.claude/skills/
+	#
+	# There is no `home/.claude/skills/` mirror any more. That directory was
+	# emptied when the global skill symlinks were replaced by plugins, and then
+	# removed; rsync exits 23 on a missing source, so the mirror had been failing
+	# on every run. `~/.claude/skills/` is now left alone — the only thing in it
+	# is context7-mcp, which `ctx7 setup --claude` owns and which the mirror had
+	# to carry an explicit exclude for anyway.
 	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \
 		config/opencode/skills/ ~/.config/opencode/skills/
 	rsync --exclude ".DS_Store" -avh --no-perms --force --delete \

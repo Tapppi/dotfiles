@@ -58,11 +58,15 @@ shellcheck bootstrap.sh config/bash/.functions
 1. `home/` → `~/` (home-level dotfiles that don't support XDG)
 2. `config/` → `~/.config/` (XDG-compliant config)
 
-Then three scoped `--delete` mirror rsyncs prune de-adopted agent skills
-(`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.config/agent-skills/`).
-The `~/.claude/skills/` mirror excludes `context7-mcp/` — that skill (and
-`~/.claude/rules/context7.md`) is owned by `ctx7 setup --claude`, run from
-macos-setup's `tasks/install.sh`, not tracked here.
+Then two scoped `--delete` mirror rsyncs prune de-adopted agent skills
+(`~/.config/opencode/skills/`, `~/.config/agent-skills/`).
+
+There is no `~/.claude/skills/` mirror. That source directory was emptied when
+the global skill symlinks became plugins, then removed — and since rsync exits
+23 on a missing source, the mirror had been failing on every run. `~/.claude/skills/`
+is now left alone; its only occupant is `context7-mcp`, owned by
+`ctx7 setup --claude` (run from macos-setup's `tasks/install.sh`), which the
+mirror needed an explicit exclude for anyway.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 
