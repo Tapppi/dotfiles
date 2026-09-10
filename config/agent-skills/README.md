@@ -39,7 +39,9 @@ agent-skills/
   anthropics/                           # git subtree of anthropics/skills (squashed)
     CUSTOMISATION.md                    # adopted skills, excluded paths, local patches
     skills/                             # upstream layout preserved
-      skill-creator/  ...               # docx/ pdf/ pptx/ xlsx/ excluded: proprietary licence
+      skill-creator/  ...               # each carries its own Apache-2.0 LICENSE.txt
+                                        # docx/ pdf/ pptx/ xlsx/ excluded: proprietary licence
+                                        # doc-coauthoring/ excluded: no licence at all
     spec/  template/  README.md  ...    # other upstream content (not symlinked)
   google/                               # git subtree of google/skills (squashed)
     CUSTOMISATION.md
@@ -47,29 +49,41 @@ agent-skills/
       cloud-run-basics/  cloud-sql-basics/  gke-basics/  ...   # project-scoped
     README.md  LICENSE  ...
   softaworks/                           # sparse vendor (single skill, not a subtree)
-    CUSTOMISATION.md                    # provenance + sync commit
+    CUSTOMISATION.md                    # provenance + sync commit + licence note
+    LICENSE                             # upstream MIT, verbatim — vendor level, see below
     jira/  SKILL.md  references/         # project-scoped (drives ankitpokhrel/jira-cli)
 ```
 
 The vendor directories preserve the upstream repo layout exactly so
 `git subtree pull` is conflict-free for unmodified content. Adopted
-skills are surfaced via symlinks in `dotfiles/home/.claude/skills/` and
-`dotfiles/config/opencode/skills/`; non-adopted upstream content stays
-on disk but isn't exposed to either agent.
+skills are surfaced as `tapppi-skills` marketplace plugins for Claude
+Code and as symlinks in `dotfiles/config/opencode/skills/` for OpenCode;
+non-adopted upstream content stays on disk but isn't exposed to either
+agent. There is no `home/.claude/skills/` route — that directory was
+emptied when the global skill symlinks became plugins, and `bootstrap.sh`
+no longer mirrors it.
 
 ## Adopting / dropping a skill (global)
 
-Adopt: add a symlink in both `home/.claude/skills/<name>` and
-`config/opencode/skills/<name>` pointing into the relevant
-`agent-skills/<vendor>/skills/[cloud/]<upstream-name>/`. Use the
-upstream skill name verbatim — keeps customisations and upstream
-references aligned.
+Adopt, for Claude Code: add an entry to `.claude-plugin/marketplace.json`
+whose `source` points at the relevant
+`./<vendor>/skills/[cloud/]<upstream-name>` (`"strict": false` supplies
+name and description inline, so the vendored tree is left untouched), then
+`claude plugin install <name>@tapppi-skills --scope user`.
 
-Drop: remove the two symlinks. `bootstrap.sh` mirrors the skill dirs with
-`rsync --delete`, so the dropped symlinks are pruned from `~/.claude/skills/`
-and `~/.config/opencode/skills/` on the next sync (a plain rsync only adds).
-The upstream content stays in the subtree so the skill can be re-adopted later
-without re-fetching.
+Adopt, for OpenCode: add a symlink at `config/opencode/skills/<name>`
+pointing into the same directory. Use the upstream skill name verbatim in
+both — it keeps customisations and upstream references aligned.
+
+Drop: remove the marketplace entry (and the `enabledPlugins` key in
+`home/.claude/settings.json`) and the OpenCode symlink. `bootstrap.sh`
+mirrors `~/.config/opencode/skills/` with `rsync --delete`, so a dropped
+symlink is pruned on the next sync rather than lingering (a plain rsync
+only adds). The upstream content stays in the subtree so the skill can be
+re-adopted later without re-fetching — unless it is on the vendor's
+excluded-paths list, in which case it is not on disk at all and the route
+back is a marketplace, not a re-adoption (see "Getting an excluded skill
+back, without vendoring it").
 
 ## Per-project setup (`.tapppi-project`)
 
@@ -188,12 +202,23 @@ message (`git log --grep=git-subtree-dir`).
 
 ### Excluded upstream content
 
-This repo is public, so it must not carry upstream content whose licence
-forbids redistribution. The vendor table in `sync-upstream.sh` has a
-fifth field for such paths — today `skills/docx skills/pdf skills/pptx
-skills/xlsx` under `anthropics/`, whose `LICENSE.txt` is Anthropic's
-proprietary "all rights reserved" notice; `anthropics/CUSTOMISATION.md`
-quotes the terms. Removing them from the worktree is not enough:
+This repo is public, so publishing it is redistribution — and it must not
+carry upstream content it has no right to redistribute. Two things fail
+that test, and both are excluded:
+
+- **A licence that forbids it.** `skills/docx`, `skills/pdf`,
+  `skills/pptx` and `skills/xlsx` under `anthropics/` each ship a
+  `LICENSE.txt` that is Anthropic's proprietary "all rights reserved"
+  notice, explicitly barring reproduction and distribution to third
+  parties. `anthropics/CUSTOMISATION.md` quotes the terms.
+- **No licence at all.** `skills/doc-coauthoring` under `anthropics/`
+  ships no licence file, and `anthropics/skills` has no repo-root
+  `LICENSE` to fall back on. Copyright applies by default, so silence
+  grants nothing — absence of a grant is not permission, and an
+  unlicensed file is excluded on the same footing as a prohibited one.
+
+The vendor table in `sync-upstream.sh` has a fifth field listing these
+paths. Removing them from the worktree is not enough:
 `git subtree pull --squash` writes a squash commit whose tree is the
 *whole* upstream tree, so every pull would put them back into reachable
 history and the next push would publish them again. For a vendor with
@@ -205,6 +230,49 @@ pull still merges three-way against the right base, and the squash
 commit message records what was excluded. Never run `git subtree pull`
 by hand for a vendor that has exclusions.
 
+An excluded path must also leave the vendored
+`<vendor>/.claude-plugin/marketplace.json`, or that marketplace advertises
+a plugin whose source is not on disk. Both edits are recorded as local
+patches in the vendor's `CUSTOMISATION.md`, because upstream will keep
+re-adding them.
+
+### Getting an excluded skill back, without vendoring it
+
+Excluding a skill from this tree does not mean giving it up. Where the
+upstream publishes its own marketplace, the skill is reached by *naming*
+that marketplace in the tracked `home/.claude/settings.json` —
+an `extraKnownMarketplaces` entry plus an `enabledPlugins` key — and
+letting Claude Code fetch the plugin itself. Config, not a copy: nothing
+is redistributed, which is exactly why this is legitimate where vendoring
+was not, and it is what upstream's own README tells users to do.
+
+That is how the four document skills come back:
+
+```jsonc
+"enabledPlugins": {
+  "document-skills@anthropic-agent-skills": true
+},
+"extraKnownMarketplaces": {
+  "anthropic-agent-skills": {
+    "source": { "source": "github", "repo": "anthropics/skills" }
+  }
+}
+```
+
+A plugin namespaces its skills under the *plugin* name, so these arrive as
+`document-skills:docx`, `:pdf`, `:pptx`, `:xlsx`. The retired
+`tapppi-skills` entries were one plugin per skill, so the same four used
+to appear as `docx:docx`, `pdf:pdf`, `pptx:pptx`, `xlsx:xlsx` — anything
+referring to them by those old names needs updating.
+
+The setting is committed but machine-local in effect: it reaches a machine
+only on the next `bootstrap.sh` run, and Claude Code fetches the plugin
+from GitHub at use time. And it is Claude-Code-only — OpenCode does not
+read `enabledPlugins`, so a skill delivered this way is unavailable there.
+
+Prefer this route over vendoring for any upstream content whose licence
+does not clearly permit redistribution.
+
 ### Sparse vendors
 
 When only a single skill is wanted out of a large upstream collection
@@ -214,6 +282,27 @@ listed in the `sparse_vendors` table in `sync-upstream.sh`; the same
 script refreshes them via a shallow sparse checkout + `rsync` and prints
 a diff. Bump the `Last synced commit` in the vendor's `CUSTOMISATION.md`
 after a sparse update.
+
+**A sparse vendor needs its licence placed by hand, one level up.** A
+subtree carries the upstream repo root with it, so the licence comes for
+free; a sparse copy takes only the skill subdirectory, and upstream
+licences almost always live at the repo root. The copy then travels
+without the notice — which for a permissive licence like MIT is the one
+condition it imposes ("shall be included in all copies or substantial
+portions of the Software"). So fetch the upstream licence and commit it
+at **vendor level**, next to `CUSTOMISATION.md` — `softaworks/LICENSE` —
+and record its provenance there.
+
+Not inside the skill directory: the refresh is
+`rsync -a --delete … "${dest}/"`, so anything in `softaworks/jira/` with
+no upstream counterpart is deleted on the next sync. A licence placed
+there would disappear the first time the skill was refreshed, silently
+putting the repo back out of compliance. One level up is outside the
+mirror.
+
+The corollary is that a vendor directory covers exactly one upstream
+licence. A skill sparse-vendored from a different repo needs its own
+vendor directory with its own `LICENSE`.
 
 ## Customisation workflow
 
@@ -236,9 +325,18 @@ git subtree add --prefix=config/agent-skills/<vendor> \
 Then add a `CUSTOMISATION.md` inside the new vendor dir, append the
 vendor entry to `sync-upstream.sh`, and update this README.
 
+Check the licence before the first commit, not after. A subtree brings
+the upstream repo root along, so its `LICENSE` arrives on its own; a
+sparse vendor does not, and needs the licence placed by hand at vendor
+level (see "Sparse vendors"). Record the licence and its upstream
+provenance in the new `CUSTOMISATION.md`, and put any path this public
+repo may not redistribute — a licence that forbids it, or no licence at
+all — on the vendor's excluded-paths list straight away.
+
 ## Why this lives in `config/`
 
 `bootstrap.sh` rsyncs `config/` → `~/.config/`, so the canonical tree
-lands at `~/.config/agent-skills/` automatically. Symlinks under
-`home/.claude/skills/` and `config/opencode/skills/` resolve there at
-agent runtime — one tree on disk, two agent-facing views.
+lands at `~/.config/agent-skills/` automatically. Claude Code reaches it
+as the `tapppi-skills` marketplace (registered by directory path) and
+OpenCode through the symlinks under `config/opencode/skills/` — one tree
+on disk, two agent-facing views.
