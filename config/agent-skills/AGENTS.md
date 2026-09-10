@@ -12,7 +12,12 @@ plugins instead; see CLAUDE.md. `home/.claude/skills/` stays empty.)
   upstream content stays on disk but isn't exposed.
 - `softaworks/` — sparse vendor (single `jira` skill, not a full subtree).
 - `sync-upstream.sh` — pulls upstream subtrees (and refreshes sparse
-  vendors) and prints per-skill diffs for review.
+  vendors) and prints per-skill diffs for review. Honours each vendor's
+  excluded-paths list: upstream content this public repo must not carry
+  (`anthropics/skills/{docx,pdf,pptx,xlsx}`, proprietary licence — see
+  `anthropics/CUSTOMISATION.md`) is filtered out of the squash commit
+  itself, so a pull can never re-add it. Never `git subtree pull` such a
+  vendor by hand.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills and local patches.
 
 OpenCode 1.15.12 reads a repo's `.claude/skills/` and `.agents/skills/`

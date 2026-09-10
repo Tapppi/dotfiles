@@ -8,6 +8,13 @@
 # --squash, then prints a stat-level diff for every adopted skill so
 # you can spot upstream changes that may need customisation review or
 # that affect symlinked skills.
+#
+# A vendor may also list paths that must never be vendored: upstream
+# content whose licence forbids redistribution, which this public repo
+# cannot carry. Such a vendor is pulled through subtree_pull_excluding
+# below, which builds the squash commit from a filtered tree so the
+# excluded paths never enter the worktree *or* reachable history. Each
+# exclusion is explained in the vendor's CUSTOMISATION.md.
 
 set -euo pipefail
 
@@ -30,11 +37,17 @@ p3() { printf "%s     %s%s\n" "${c_dim}" "$*" "${c_reset}"; }
 warn() { printf "%s  !! %s%s\n" "${c_yellow}" "$*" "${c_reset}" >&2; }
 
 # Vendor table:
-#   <prefix>|<upstream-url>|<branch>|<adopted-skills-relative-to-prefix>
-# Adopted-skills paths are space-separated, relative to the vendor prefix.
+#   <prefix>|<upstream-url>|<branch>|<adopted-skills>|<excluded-paths>
+# Adopted-skills and excluded paths are space-separated, relative to the
+# vendor prefix. Excluded paths are dropped from the upstream tree before
+# it is squashed and merged. Never `git subtree pull` such a vendor by
+# hand: a stock pull squashes the whole upstream tree, which puts the
+# excluded content back into history even if the merge then drops it
+# from the worktree. Do not remove a path from the list without reading
+# the vendor's CUSTOMISATION.md — it says why the path is there.
 vendors=(
-	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator skills/pdf skills/pptx skills/docx skills/xlsx"
-	"config/agent-skills/google|https://github.com/google/skills|main|skills/cloud/cloud-run-basics skills/cloud/cloud-sql-basics skills/cloud/gke-basics skills/cloud/google-cloud-waf-cost-optimization skills/cloud/google-cloud-waf-reliability skills/cloud/google-cloud-waf-security skills/cloud/bigquery-basics skills/cloud/google-cloud-networking-observability skills/cloud/google-cloud-recipe-auth"
+	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator|skills/docx skills/pdf skills/pptx skills/xlsx"
+	"config/agent-skills/google|https://github.com/google/skills|main|skills/cloud/cloud-run-basics skills/cloud/cloud-sql-basics skills/cloud/gke-basics skills/cloud/google-cloud-waf-cost-optimization skills/cloud/google-cloud-waf-reliability skills/cloud/google-cloud-waf-security skills/cloud/bigquery-basics skills/cloud/google-cloud-networking-observability skills/cloud/google-cloud-recipe-auth|"
 )
 
 # Sparse vendors: single-skill copies (not full subtrees) for upstream repos
@@ -45,6 +58,79 @@ sparse_vendors=(
 	"config/agent-skills/softaworks/jira|https://github.com/softaworks/agent-toolkit|main|skills/jira"
 )
 
+# Mirror of git-subtree's find_latest_squash. Prints "<squash-commit>
+# <upstream-commit>" for the most recent squash of <prefix> reachable from
+# HEAD, located via the git-subtree-dir / git-subtree-split trailers that
+# git subtree writes into every squash commit. A `git subtree add` merge
+# commit carries a git-subtree-mainline trailer as well; its squash is its
+# second parent.
+latest_squash() {
+	local prefix=$1 key val sq="" main="" split=""
+	while read -r key val; do
+		case "${key}" in
+			START) sq="${val}"; main=""; split="" ;;
+			git-subtree-mainline:) main="${val}" ;;
+			git-subtree-split:) split="${val}" ;;
+			END)
+				if [[ -n "${split}" ]]; then
+					if [[ -n "${main}" ]]; then
+						sq="$(git rev-parse "${sq}^2")"
+					fi
+					printf '%s %s\n' "${sq}" "${split}"
+					return 0
+				fi
+				;;
+		esac
+	done < <(git log --grep="^git-subtree-dir: ${prefix}/*\$" --no-show-signature --pretty=format:'START %H%n%B%nEND%n' HEAD)
+	return 1
+}
+
+# `git subtree pull --squash`, minus the excluded paths.
+#
+# A stock pull writes a squash commit whose tree is the *whole* upstream
+# tree, so content removed for licence reasons would re-enter reachable
+# history on every pull and be published again by the next push, even
+# if the merge then dropped it from the worktree. This does what git
+# subtree does, with one extra step: it reads the upstream commit into a
+# scratch index, drops the excluded paths, and squashes and merges *that*
+# tree. Same parent chain and trailers as git subtree, so the next pull
+# still finds the chain and merges three-way against the right base.
+subtree_pull_excluding() {
+	local prefix=$1 upstream=$2 branch=$3
+	shift 3
+	local excluded=("$@")
+	local old_squash old_split new_split scratch tree squash
+
+	git fetch --quiet "${upstream}" "${branch}"
+	new_split="$(git rev-parse FETCH_HEAD)"
+
+	if ! read -r old_squash old_split < <(latest_squash "${prefix}"); then
+		warn "No earlier squash commit found for ${prefix}; cannot pull."
+		return 1
+	fi
+	if [[ "${old_split}" == "${new_split}" ]]; then
+		return 0
+	fi
+
+	# Filtered tree, built in a scratch index so the repo's own index is
+	# never touched. --ignore-unmatch: upstream may have dropped a path.
+	scratch="$(mktemp -d)"
+	GIT_INDEX_FILE="${scratch}/index" git read-tree "${new_split}"
+	GIT_INDEX_FILE="${scratch}/index" git rm -r -q --cached --ignore-unmatch -- "${excluded[@]}"
+	tree="$(GIT_INDEX_FILE="${scratch}/index" git write-tree)"
+	rm -rf "${scratch}"
+
+	squash="$(
+		{
+			printf "Squashed '%s/' changes from %s..%s\n\n" "${prefix}" "${old_split:0:7}" "${new_split:0:7}"
+			git log --no-show-signature --pretty=tformat:'%h %s' "${old_split}..${new_split}" 2>/dev/null || true
+			printf '\nExcluded from the squashed tree: %s\n' "${excluded[*]}"
+			printf '\ngit-subtree-dir: %s\ngit-subtree-split: %s\n' "${prefix}" "${new_split}"
+		} | git commit-tree "${tree}" -p "${old_squash}"
+	)"
+	git merge --no-ff -Xsubtree="${prefix}" -m "Merge commit '${squash}'" "${squash}"
+}
+
 # Refuse to run on a dirty tree — subtree pulls require clean state
 if ! git diff --quiet || ! git diff --cached --quiet; then
 	warn "Working tree is dirty. Commit or stash before running sync-upstream.sh."
@@ -52,19 +138,36 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 
 for entry in "${vendors[@]}"; do
-	IFS="|" read -r prefix upstream branch skills_str <<< "${entry}"
+	IFS="|" read -r prefix upstream branch skills_str excluded_str <<< "${entry}"
 	read -ra skills <<< "${skills_str}"
+	read -ra excluded <<< "${excluded_str}"
 	vendor="$(basename "${prefix}")"
 
 	p1 "Syncing ${vendor} (${upstream} ${branch})"
 	pre_sha="$(git rev-parse HEAD)"
 
-	# git subtree pull writes a merge commit even when up-to-date in some
-	# git versions; suppress noise but capture failures.
-	if ! git subtree pull --prefix="${prefix}" "${upstream}" "${branch}" --squash; then
-		warn "Subtree pull failed for ${vendor}. Resolve conflicts then re-run."
-		exit 1
+	if [[ "${#excluded[@]}" -gt 0 ]]; then
+		p2 "Excluding ${excluded[*]} (see ${prefix}/CUSTOMISATION.md)"
+		if ! subtree_pull_excluding "${prefix}" "${upstream}" "${branch}" "${excluded[@]}"; then
+			warn "Filtered subtree pull failed for ${vendor}. Resolve conflicts, commit the merge, then re-run."
+			exit 1
+		fi
+	else
+		# git subtree pull writes a merge commit even when up-to-date in some
+		# git versions; suppress noise but capture failures.
+		if ! git subtree pull --prefix="${prefix}" "${upstream}" "${branch}" --squash; then
+			warn "Subtree pull failed for ${vendor}. Resolve conflicts then re-run."
+			exit 1
+		fi
 	fi
+
+	# The merge cannot add an excluded path (neither side has it), so one on
+	# disk here was re-added locally. Say so before it gets pushed.
+	for path in "${excluded[@]}"; do
+		if [[ -e "${prefix}/${path}" ]]; then
+			warn "${prefix}/${path} is excluded but present — remove it before pushing (see ${prefix}/CUSTOMISATION.md)."
+		fi
+	done
 
 	post_sha="$(git rev-parse HEAD)"
 

@@ -10,18 +10,6 @@
   },
   "plugins": [
     {
-      "name": "document-skills",
-      "description": "Collection of document processing suite including Excel, Word, PowerPoint, and PDF capabilities",
-      "source": "./",
-      "strict": false,
-      "skills": [
-        "./skills/xlsx",
-        "./skills/docx",
-        "./skills/pptx",
-        "./skills/pdf"
-      ]
-    },
-    {
       "name": "example-skills",
       "description": "Collection of example skills demonstrating various capabilities including skill creation, MCP building, visual design, algorithmic art, internal communications, web testing, artifact building, Slack GIFs, and theme styling",
       "source": "./",

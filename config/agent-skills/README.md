@@ -15,8 +15,8 @@ skills differently:
   this directory's root — see "Plugin marketplace" below), not a symlink.
   Plugins are enabled either:
   - **Globally** (active in every project) — `claude plugin install
-    <name>@tapppi-skills --scope user`, e.g. `docx`, `pdf`, `pptx`, `xlsx`,
-    `skill-creator`, `subrepo-permissions`.
+    <name>@tapppi-skills --scope user`, e.g. `skill-creator`,
+    `subrepo-permissions`.
   - **Per-project** (active only in opted-in projects) — a *workspace*
     directory carries a gitignored `.tapppi-project.json` manifest and the
     parent `macos-setup` repo's `./setup.sh projects` task enables each
@@ -33,13 +33,13 @@ skills differently:
 ```
 agent-skills/
   CLAUDE.md  AGENTS.md  README.md       # this file is the canonical doc
-  sync-upstream.sh                      # subtree pull + per-skill diff
+  sync-upstream.sh                      # subtree pull (minus excluded paths) + per-skill diff
   tapppi/                               # my own skills
     browser/  subrepo-permissions/  ...
   anthropics/                           # git subtree of anthropics/skills (squashed)
-    CUSTOMISATION.md                    # adopted skills + local patches
+    CUSTOMISATION.md                    # adopted skills, excluded paths, local patches
     skills/                             # upstream layout preserved
-      skill-creator/  pdf/  pptx/  docx/  xlsx/  ...
+      skill-creator/  ...               # docx/ pdf/ pptx/ xlsx/ excluded: proprietary licence
     spec/  template/  README.md  ...    # other upstream content (not symlinked)
   google/                               # git subtree of google/skills (squashed)
     CUSTOMISATION.md
@@ -164,7 +164,9 @@ root). The script:
 
 1. Records each vendor's HEAD commit before pulling.
 2. Runs `git subtree pull --prefix=config/agent-skills/<vendor>
-   <upstream-url> main --squash` for each vendor.
+   <upstream-url> main --squash` for each vendor — except a vendor with
+   excluded paths, which gets the script's own filtered squash instead
+   (see "Excluded upstream content" below).
 3. For every adopted skill (the symlink targets), prints a stat-level
    diff between the pre-pull and post-pull state and lists touched
    files. **Always review this output before committing the pull —
@@ -174,9 +176,8 @@ root). The script:
 Manual subtree commands (if needed):
 
 ```sh
-# From dotfiles repo root:
-git subtree pull --prefix=config/agent-skills/anthropics \
-    https://github.com/anthropics/skills main --squash
+# From dotfiles repo root. Only for a vendor with no excluded paths —
+# a stock pull of anthropics would put the excluded content back.
 git subtree pull --prefix=config/agent-skills/google \
     https://github.com/google/skills main --squash
 ```
@@ -184,6 +185,25 @@ git subtree pull --prefix=config/agent-skills/google \
 Use `--squash` always: each pull collapses to one commit, keeping the
 dotfiles history readable. Last-pull SHA is in the squash commit
 message (`git log --grep=git-subtree-dir`).
+
+### Excluded upstream content
+
+This repo is public, so it must not carry upstream content whose licence
+forbids redistribution. The vendor table in `sync-upstream.sh` has a
+fifth field for such paths — today `skills/docx skills/pdf skills/pptx
+skills/xlsx` under `anthropics/`, whose `LICENSE.txt` is Anthropic's
+proprietary "all rights reserved" notice; `anthropics/CUSTOMISATION.md`
+quotes the terms. Removing them from the worktree is not enough:
+`git subtree pull --squash` writes a squash commit whose tree is the
+*whole* upstream tree, so every pull would put them back into reachable
+history and the next push would publish them again. For a vendor with
+exclusions the script does what `git subtree pull --squash` does, with
+one extra step: it reads the upstream commit into a scratch index, drops
+the excluded paths, and squashes and merges *that* tree — same parent
+chain and `git-subtree-dir`/`git-subtree-split` trailers, so the next
+pull still merges three-way against the right base, and the squash
+commit message records what was excluded. Never run `git subtree pull`
+by hand for a vendor that has exclusions.
 
 ### Sparse vendors
 

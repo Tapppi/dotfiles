@@ -12,7 +12,12 @@ symlinks — see below.
   (see below); non-adopted upstream content stays on disk but isn't exposed.
 - `softaworks/` — sparse vendor (single `jira` skill, not a full subtree).
 - `sync-upstream.sh` — pulls upstream subtrees (and refreshes sparse
-  vendors) and prints per-skill diffs for review.
+  vendors) and prints per-skill diffs for review. Honours each vendor's
+  excluded-paths list: upstream content this public repo must not carry
+  (`anthropics/skills/{docx,pdf,pptx,xlsx}`, proprietary licence — see
+  `anthropics/CUSTOMISATION.md`) is filtered out of the squash commit
+  itself, so a pull can never re-add it. Never `git subtree pull` such a
+  vendor by hand.
 - `.claude-plugin/marketplace.json` — the `tapppi-skills` local plugin
   marketplace (registered via `claude plugin marketplace add
   ~/.config/agent-skills`). Every adopted skill (own + upstream) is listed
@@ -26,8 +31,8 @@ symlinks — see below.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills and local patches.
 
 Plugins can be enabled **globally** (`claude plugin install
-<name>@tapppi-skills --scope user`, e.g. `docx`, `pdf`, `pptx`, `xlsx`,
-`skill-creator`, `subrepo-permissions`) or **per-project** (enabled at
+<name>@tapppi-skills --scope user`, e.g. `skill-creator`,
+`subrepo-permissions`) or **per-project** (enabled at
 local scope by the parent `macos-setup` repo's `./setup.sh projects` task,
 driven by a gitignored `.tapppi-project.json` workspace manifest's
 `plugins` block — e.g. `jira` and the Google Cloud skills; see
