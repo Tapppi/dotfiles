@@ -70,6 +70,15 @@ mirror needed an explicit exclude for anyway.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 
+Every rsync's exit status is checked. A failure is named on stderr (which mirror,
+which rsync code, plus a hint that 23 means a vanished source directory) and the
+script exits with the first failing rsync's own code. Mirrors after a failing one
+still run — a half-synced `~` beats one abandoned mid-sync. macos-setup's
+`install_dotfiles` gates its tool-integration steps on that status; before this,
+`bootstrap.sh` always exited 0 and the gate was dead code. There is deliberately
+no `set -e`: it would abort the remaining mirrors, fail the sync on a flaky
+`git pull`, and trip over the `[ … ] && source` idioms at the end of `doIt`.
+
 ### Tool-owned config inside tracked files
 
 Some tools write their own config into paths this repo tracks:
