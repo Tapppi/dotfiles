@@ -18,8 +18,10 @@ plugins instead; see CLAUDE.md. `home/.claude/skills/` stays empty.)
   licence) and `anthropics/skills/doc-coauthoring` (no licence file at
   all, upstream included; absence of a grant is not permission) — is
   filtered out of the squash commit itself, so a pull can never re-add
-  it. See `anthropics/CUSTOMISATION.md`. Never `git subtree pull` such a
-  vendor by hand.
+  it, and the pull is refused outright if an excluded path is no longer
+  where upstream had it (a likely rename — a human must look first). See
+  `anthropics/CUSTOMISATION.md`. Never `git subtree pull` such a vendor
+  by hand.
 - Per-vendor `CUSTOMISATION.md` lists adopted skills, excluded paths,
   upstream licence provenance and local patches. A vendored copy carries
   the upstream licence: `google/LICENSE` and `anthropics/skills/*/LICENSE.txt`

@@ -230,6 +230,23 @@ pull still merges three-way against the right base, and the squash
 commit message records what was excluded. Never run `git subtree pull`
 by hand for a vendor that has exclusions.
 
+The list is a guard, so it fails loudly rather than tolerating a miss.
+Before building the filtered tree the script checks that every excluded
+path exists in the upstream commit it is about to squash, and refuses the
+pull — naming the path and listing the upstream commits that touched it —
+if one does not. A path that matches nothing is most likely a rename
+(`skills/docx` → `skills/word`), and skipping it would carry the content
+into reachable history under the new name, where a check on the old path
+never sees it. Git cannot tell that from a deliberate upstream removal,
+so a human has to look either way: find where it went, update the vendor
+table and the vendor's `CUSTOMISATION.md`, re-run. Every other step —
+fetch, read-tree, write-tree, commit-tree, merge — is checked the same
+way, and a filtered tree that comes out empty is refused too, since it
+would merge cleanly as the deletion of the whole vendor. A refusal leaves
+the tree clean, so the script goes on to the other vendors and exits
+non-zero at the end; only a merge that actually conflicts stops the run
+where it is.
+
 An excluded path must also leave the vendored
 `<vendor>/.claude-plugin/marketplace.json`, or that marketplace advertises
 a plugin whose source is not on disk. Both edits are recorded as local

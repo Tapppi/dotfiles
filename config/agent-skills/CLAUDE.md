@@ -18,8 +18,10 @@ symlinks — see below.
   licence) and `anthropics/skills/doc-coauthoring` (no licence file at
   all, upstream included; absence of a grant is not permission) — is
   filtered out of the squash commit itself, so a pull can never re-add
-  it. See `anthropics/CUSTOMISATION.md`. Never `git subtree pull` such a
-  vendor by hand.
+  it, and the pull is refused outright if an excluded path is no longer
+  where upstream had it (a likely rename — a human must look first). See
+  `anthropics/CUSTOMISATION.md`. Never `git subtree pull` such a vendor
+  by hand.
 - `.claude-plugin/marketplace.json` — the `tapppi-skills` local plugin
   marketplace (registered via `claude plugin marketplace add
   ~/.config/agent-skills`). Every adopted skill (own + upstream) is listed
