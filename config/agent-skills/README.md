@@ -95,9 +95,9 @@ are vendored here but **not** symlinked into the global skill dirs. Instead, a
 
 ```json
 {
-  "skills": {
-    "service-a": ["jira", "gke-basics"],
-    "service-b": ["jira"]
+  "plugins": {
+    "service-a": ["jira@tapppi-skills", "gke-basics@tapppi-skills"],
+    "service-b": ["jira@tapppi-skills"]
   },
   "jira": {
     "installation": "local",
@@ -115,13 +115,36 @@ are vendored here but **not** symlinked into the global skill dirs. Instead, a
 Running `./setup.sh projects` (in the parent `macos-setup` repo) scans
 `~/project` for these manifests and, per workspace:
 
-1. **Skills (per repo).** For each `repo -> [skills]` entry, symlinks the named
-   skills into `<workspace>/<repo>/.claude/skills/<name>` (resolved from
-   anywhere under `~/.config/agent-skills/` by matching a dir with a `SKILL.md`)
-   and adds `/.claude/skills/` to that repo's `.git/info/exclude`. Skills are
-   **per repo** because Claude Code only discovers project skills up to a repo's
-   git root — a `.claude/skills/` in the workspace dir is invisible from inside
-   a child repo.
+1. **Plugins (per repo).** For each `repo -> [plugin@marketplace]` entry,
+   enables the plugin at local scope (`claude plugin install --scope local`),
+   recorded in that repo's gitignored `.claude/settings.local.json`. This is
+   how a marketplace plugin gets per-project scoping. Skills themselves are
+   no longer linked in by this task: a skill lives committed in the repo that
+   uses it, as `.agents/skills/<bundle>/` plus a committed *relative* symlink
+   at `.claude/skills/<bundle>` (see the parent repo's `CLAUDE.md`, "Where
+   skills live"). Per repo, because Claude Code only discovers project skills
+   up to a repo's git root.
+
+   The retired `skills` block used to symlink skills into
+   `<repo>/.claude/skills/` and write `/.claude/skills/` into that repo's
+   `.git/info/exclude`. The block is now warned about and ignored, but the
+   exclude line outlives it and blocks the new shape: the committed
+   `.claude/skills/<bundle>` symlink is hidden from `git status` and `git
+   add -A`, and an explicit `git add` of it refuses ("ignored by one of your
+   .gitignore files"). Run `./setup.sh projects` once *before* deleting the
+   block and the task removes the line from each repo the block names (it
+   wrote it, so it takes it back; it never walks other repos). If the block
+   is already gone, drop the line by hand, once per repo:
+
+   ```sh
+   cd <repo>
+   x="$(git rev-parse --git-path info/exclude)"
+   sed -i.bak '\#^/\.claude/skills/$#d' "$x" && rm -f "$x.bak"
+   ```
+
+   (`--git-path` is what finds the file for a worktree too, where it lives
+   in the shared common dir; the `sed -i.bak` form works under both BSD
+   and GNU sed.)
 2. **Shared env (per workspace).** If `jira.env_file` is set, renders
    `<workspace>/mise.local.toml` with a single `[env]` `_.file = "<env_file>"`.
    mise walks **up** the directory tree (ignoring git boundaries), so every repo
