@@ -26,6 +26,15 @@ shellcheck bootstrap.sh config/bash/.functions
   had been failing on every run. `~/.claude/skills/` is left alone — its only occupant is
   `context7-mcp`, owned by `ctx7 setup --claude` (run from macos-setup's `tasks/install.sh`).
   Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
+
+  **Every rsync's exit status is checked** and the script exits with the first failing one — the
+  rsync code itself, so a caller can name the failure (23 = partial transfer, in practice a source
+  directory that no longer exists). Each failure is also printed to stderr with the mirror that
+  produced it. The mirrors after a failing one still run: a half-synced `~` beats one abandoned
+  mid-sync. This is what macos-setup's `install_dotfiles` gates the tool integrations on; before
+  it, `bootstrap.sh` always exited 0 and that gate was dead code. Deliberately not `set -e` — it
+  would abort the remaining mirrors, fail the whole sync on a flaky `git pull`, and trip over the
+  `[ … ] && source` idioms at the end of `doIt`.
 - **`home/`** — Files that must live in `~/` (no XDG support): `.bash_profile`, `.bashrc`,
   `.claude/` (Claude Code config), `.cursor/` (Cursor Agent CLI: `mcp.json`, `rules/`,
   and a fallback copy of `cli-config.json`), `.hushlogin`, `.parallel/`.

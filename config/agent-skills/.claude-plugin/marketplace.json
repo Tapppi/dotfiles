@@ -32,30 +32,6 @@
 			"strict": false
 		},
 		{
-			"name": "docx",
-			"description": "Create, read, and edit Word documents (.docx)",
-			"source": "./anthropics/skills/docx",
-			"strict": false
-		},
-		{
-			"name": "pdf",
-			"description": "Read, create, merge, split, and manipulate PDF files",
-			"source": "./anthropics/skills/pdf",
-			"strict": false
-		},
-		{
-			"name": "pptx",
-			"description": "Create, read, and edit PowerPoint presentations (.pptx)",
-			"source": "./anthropics/skills/pptx",
-			"strict": false
-		},
-		{
-			"name": "xlsx",
-			"description": "Create, read, and edit spreadsheets (.xlsx, .csv, .tsv)",
-			"source": "./anthropics/skills/xlsx",
-			"strict": false
-		},
-		{
 			"name": "skill-creator",
 			"description": "Create, edit, and evaluate Claude Code skills",
 			"source": "./anthropics/skills/skill-creator",

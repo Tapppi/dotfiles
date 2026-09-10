@@ -28,20 +28,30 @@
 		"refreshInterval": 300
 	},
 	"enabledPlugins": {
-		"docx@tapppi-skills": true,
-		"pdf@tapppi-skills": true,
-		"pptx@tapppi-skills": true,
-		"xlsx@tapppi-skills": true,
 		"skill-creator@tapppi-skills": true,
 		"subrepo-permissions@tapppi-skills": true,
+		"document-skills@anthropic-agent-skills": true,
 		"duckdb-skills@claude-plugins-official": true,
-		"superpowers@claude-plugins-official": true
+		"superpowers@claude-plugins-official": true,
+		"codex@openai-codex": true
 	},
 	"extraKnownMarketplaces": {
 		"tapppi-skills": {
 			"source": {
 				"source": "directory",
 				"path": "~/.config/agent-skills"
+			}
+		},
+		"anthropic-agent-skills": {
+			"source": {
+				"source": "github",
+				"repo": "anthropics/skills"
+			}
+		},
+		"openai-codex": {
+			"source": {
+				"source": "github",
+				"repo": "openai/codex-plugin-cc"
 			}
 		}
 	},
