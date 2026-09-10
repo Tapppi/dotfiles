@@ -26,8 +26,34 @@ refreshed by `sync-upstream.sh` (see its `sparse_vendors` table), not by
 - Source: `https://github.com/softaworks/agent-toolkit`
 - Branch: `main`
 - Last synced commit: `3027f20f3181758385a1bb8c022d4041dfb4de84`
-- License: MIT (upstream `LICENSE`)
+- License: MIT — upstream repo-root `LICENSE`, "Copyright (c) 2026 Leonardo
+  Flores", copied here verbatim as `softaworks/LICENSE` (byte-identical to
+  the upstream blob `fc473440ee9ae27aa3d774bcd3888496ef0fad2d`).
+
+## Licence
+
+MIT's only condition is a notice one: "The above copyright notice and this
+permission notice shall be included in all copies or substantial portions of
+the Software." This repo is public, so vendoring `skills/jira` here *is* a
+copy that has to carry the notice — and it did not, because the sparse copy
+takes only `skills/jira` and upstream keeps `LICENSE` at the repo root.
+Hence `softaworks/LICENSE`.
+
+**It sits at vendor level, not inside `jira/`, and that placement matters.**
+`sync-upstream.sh` refreshes a sparse vendor with
+`rsync -a --delete … "${tmp}/repo/${subpath}/" "${dest}/"`, where `${dest}`
+is `softaworks/jira`. Anything in that directory with no counterpart under
+upstream's `skills/jira` is deleted on the next sync — so a
+`softaworks/jira/LICENSE` would silently vanish the first time the skill was
+refreshed, putting the repo back out of compliance with no signal. One level
+up, next to this file, is outside the mirror and survives.
+
+The corollary: every skill sparse-vendored into `softaworks/` must come from
+this same MIT-licensed upstream. A skill from a different repo, or from an
+upstream that relicenses, needs its own vendor directory with its own
+`LICENSE` — do not let a second provenance shelter under this one.
 
 ## Local patches
 
-(none)
+(none — `LICENSE` is not a patch to upstream content; it is upstream's own
+repo-root file, carried alongside the sparse copy rather than inside it.)
