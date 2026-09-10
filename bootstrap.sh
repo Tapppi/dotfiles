@@ -27,6 +27,16 @@ run_rsync() {
 	local status=0
 	rsync "$@" || status=$?
 
+	# 24 means source files vanished mid-transfer — an editor swap file or a
+	# .DS_Store rewritten by Finder while rsync walked the tree. Everything else
+	# copied, so it is a warning, not a failed sync. Treating it as a failure
+	# would skip the herdr/ctx7 re-assertion that runs after this script and
+	# leave exactly the half-configured state the gating exists to prevent.
+	if [[ "${status}" -eq 24 ]]; then
+		echo "bootstrap: ${label} — some source files vanished during transfer (rsync exit 24); the sync itself completed." >&2
+		return 0
+	fi
+
 	if [[ "${status}" -ne 0 ]]; then
 		echo "bootstrap: FAILED to sync ${label} (rsync exit ${status})" >&2
 		if [[ "${status}" -eq 23 ]]; then

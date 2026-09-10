@@ -83,6 +83,25 @@ upstream lists `doc-coauthoring` under its own `example-skills` plugin, so
 installing that plugin from `anthropic-agent-skills` is the way to reach it
 machine-locally if it is ever wanted.
 
+### `.claude-plugin/` — upstream's own marketplace manifest
+
+Upstream ships a `.claude-plugin/marketplace.json` advertising its plugins,
+including `document-skills`, whose sources are the four excluded paths. It is
+excluded outright rather than kept and patched.
+
+Keeping it forced three separate workarounds: a hand-maintained deletion of the
+`document-skills` entry and the `doc-coauthoring` array member, which conflicted
+on every upstream edit to that file; a narrowing of `projects_ensure_marketplaces`
+in the parent repo so it would not register a *second* marketplace under the name
+`anthropic-agent-skills`, colliding with the GitHub-sourced one that
+`~/.claude/settings.json` declares; and a caveat that the vendored manifest
+advertised a plugin whose source was not on disk.
+
+Nothing registers vendored marketplaces, so the file served no purpose here.
+Excluding it removes all three at once, and closes the class rather than the
+instance: any future vendor shipping its own marketplace manifest under a
+colliding name is handled by the same rule instead of another special case.
+
 ### Why the sync script has to know
 
 Rather than this just being a `git rm`: a stock `git subtree pull --squash`
@@ -90,9 +109,16 @@ writes a squash commit whose tree is the *entire* upstream tree. Even if
 the merge then dropped these paths from the worktree, every pull would
 re-add them to reachable history and the next push would publish them
 again. `sync-upstream.sh` therefore builds the squash commit from a
-filtered tree (`subtree_pull_excluding`): the paths never enter the squash
-commit or the merge, and the squash commit message records what was
+filtered tree (`subtree_pull_excluding`): the paths never enter any *new*
+squash commit or merge, and the squash commit message records what was
 excluded. That is also why this vendor must not be pulled by hand.
+
+This stops the content being added again; it does not remove what is already
+there. The original unfiltered squash stays reachable from `master`, and each
+filtered squash is parented onto it, so a clone of this public repo still carries
+the excluded trees in history. Clearing that needs a `git filter-repo` rewrite of
+this repository and a force-push — planned separately, and not something this
+mechanism achieves.
 
 ## Local patches
 
@@ -101,14 +127,6 @@ excluded. That is also why this vendor must not be pulled by hand.
   Surface <https://agentskills.io/specification> from inside the skill
   so authors don't have to discover the URL via the repo-root
   `spec/agent-skills-spec.md` pointer. Could be upstreamed.
-- `.claude-plugin/marketplace.json` — upstream's `document-skills` plugin
-  entry removed, since it pointed at the excluded `skills/{docx,pdf,pptx,xlsx}`
-  paths, and `"./skills/doc-coauthoring"` dropped from the `example-skills`
-  plugin's `skills` array for the same reason. Every excluded path must also
-  leave this file, or the vendored marketplace advertises a plugin whose
-  source is not on disk. Expect a conflict here whenever upstream edits that
-  file; resolve it by dropping the entry (and the array member) again. Not
-  for upstreaming.
 
 When adding a local patch, append a bullet here noting:
 - File(s) touched

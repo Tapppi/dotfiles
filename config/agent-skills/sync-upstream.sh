@@ -51,7 +51,7 @@ warn() { printf "%s  !! %s%s\n" "${c_yellow}" "$*" "${c_reset}" >&2; }
 # then drops it from the worktree. Do not remove a path from the list
 # without reading the vendor's CUSTOMISATION.md — it says why it is there.
 vendors=(
-	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator|skills/docx skills/pdf skills/pptx skills/xlsx skills/doc-coauthoring"
+	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator|skills/docx skills/pdf skills/pptx skills/xlsx skills/doc-coauthoring .claude-plugin"
 	"config/agent-skills/google|https://github.com/google/skills|main|skills/cloud/cloud-run-basics skills/cloud/cloud-sql-basics skills/cloud/gke-basics skills/cloud/google-cloud-waf-cost-optimization skills/cloud/google-cloud-waf-reliability skills/cloud/google-cloud-waf-security skills/cloud/bigquery-basics skills/cloud/google-cloud-networking-observability skills/cloud/google-cloud-recipe-auth|"
 )
 
