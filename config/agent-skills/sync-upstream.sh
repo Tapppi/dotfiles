@@ -10,8 +10,10 @@
 # that affect symlinked skills.
 #
 # A vendor may also list paths that must never be vendored: upstream
-# content whose licence forbids redistribution, which this public repo
-# cannot carry. Such a vendor is pulled through subtree_pull_excluding
+# content this public repo has no right to redistribute — either a
+# licence that forbids it, or no licence at all, since absence of a
+# grant is not permission. Such a vendor is pulled through
+# subtree_pull_excluding
 # below, which builds the squash commit from a filtered tree so the
 # excluded paths never enter the worktree *or* reachable history. Each
 # exclusion is explained in the vendor's CUSTOMISATION.md.
@@ -46,7 +48,7 @@ warn() { printf "%s  !! %s%s\n" "${c_yellow}" "$*" "${c_reset}" >&2; }
 # from the worktree. Do not remove a path from the list without reading
 # the vendor's CUSTOMISATION.md — it says why the path is there.
 vendors=(
-	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator|skills/docx skills/pdf skills/pptx skills/xlsx"
+	"config/agent-skills/anthropics|https://github.com/anthropics/skills|main|skills/skill-creator|skills/docx skills/pdf skills/pptx skills/xlsx skills/doc-coauthoring"
 	"config/agent-skills/google|https://github.com/google/skills|main|skills/cloud/cloud-run-basics skills/cloud/cloud-sql-basics skills/cloud/gke-basics skills/cloud/google-cloud-waf-cost-optimization skills/cloud/google-cloud-waf-reliability skills/cloud/google-cloud-waf-security skills/cloud/bigquery-basics skills/cloud/google-cloud-networking-observability skills/cloud/google-cloud-recipe-auth|"
 )
 
