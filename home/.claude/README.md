@@ -11,7 +11,6 @@ Source of truth for `~/.claude/`. Synced from `dotfiles/home/.claude/` by
 | `keybindings.json`      | Customized keyboard bindings.                                      |
 | `statusline-command.sh` | Status line script (model, dir, ctx tokens, rate-limit countdown). |
 | `CLAUDE.md`             | User-level rules loaded as context on every session.               |
-| `skills/`               | User-level skills.                                                 |
 
 ## Notable `settings.json` choices
 

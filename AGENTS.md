@@ -25,7 +25,8 @@ dotfiles/
     curlrc                    # curl config
     cursor/cli-config.json    # Cursor CLI settings/permissions (live copy; XDG-resolved)
     fd/                       # fd ignore patterns
-    gh/config.yml             # GitHub CLI config (ssh protocol, no prompts)
+    gh/config.yml             # GitHub CLI config (ssh protocol, no prompts).
+                              # Auth state (hosts.yml) is untracked — `gh auth login` owns it.
     ghostty/                  # Ghostty terminal config
     git/config                # Git aliases, diff-so-fancy, 1Password SSH signing
     git/ignore                # Global gitignore
@@ -44,6 +45,9 @@ dotfiles/
   keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
 
+The parent repo's `.extra` and `.path` are not in this repo but land in the same
+place: `install_dotfiles` copies them into `~/.config/bash/` during install.
+
 ## Build / Lint
 
 No build system or test suite. Validate shell scripts with:
@@ -59,16 +63,15 @@ shellcheck bootstrap.sh config/bash/.functions
 2. `config/` → `~/.config/` (XDG-compliant config)
 
 Then two scoped `--delete` mirror rsyncs prune de-adopted agent skills
-(`~/.config/opencode/skills/`, `~/.config/agent-skills/`).
-
-There is no `~/.claude/skills/` mirror. That source directory was emptied when
-the global skill symlinks became plugins, then removed — and since rsync exits
-23 on a missing source, the mirror had been failing on every run. `~/.claude/skills/`
-is now left alone; its only occupant is `context7-mcp`, owned by
-`ctx7 setup --claude` (run from macos-setup's `tasks/install.sh`), which the
-mirror needed an explicit exclude for anyway.
+(`~/.config/opencode/skills/`, `~/.config/agent-skills/`). `--delete` is never
+applied to the whole `home/`/`config/` sync — it would wipe untracked files
+in `~`.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
+
+Every rsync's exit status is checked and the script exits with the first
+failure's own rsync code, which macos-setup's `install_dotfiles` gates its
+tool-integration steps on. `bootstrap.sh` has the details.
 
 ### Tool-owned config inside tracked files
 
@@ -90,10 +93,22 @@ payload the tool owns and rewrites between versions, which goes stale silently o
 the next upgrade. If one is missing from `~`, re-run the writing command
 (`./setup.sh herdr` in macos-setup for herdr) instead.
 
-A tool writing into a `--delete` mirrored directory is the exception: the mirror
-prunes the file before the tool can restore it, so it needs an explicit exclude —
-hence `context7-mcp/` above. `~/.claude/hooks/` is not mirrored, so herdr needs
-none.
+**`~/.claude/skills/` and `~/.claude/hooks/` are not dotfiles' to manage.** The
+tools that write them own them, this repo tracks neither, and bootstrap leaves
+both alone — so no mirror and no mirror exclude is needed for either.
+
+## Agent CLI config locations
+
+| Agent       | User-level config dir | Settings file       | User-level rules          | MCP config           |
+|-------------|----------------------|---------------------|--------------------------|---------------------|
+| Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md`              | `~/.claude.json` (untracked) |
+| Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/*.mdc` | `home/.cursor/mcp.json` |
+| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md`              | via oh-my-openagent plugin |
+
+Agent skills are not in that table: they are not dotfiles' to manage. See
+`config/agent-skills/AGENTS.md` for the tree this repo does own, and
+the parent `macos-setup` repo's `docs/skills.md` for how capability reaches a
+repo.
 
 ## Cursor CLI config splits across two directories
 
@@ -181,6 +196,17 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 
 - **NEVER** run `bootstrap.sh` automatically. This script
   syncs files to `~`. The user must always run it manually.
+
+### Edit Source Files Here, Not in `~/`
+
+**NEVER** edit deployed files directly in `~/`, `~/.claude/`, `~/.cursor/` or
+`~/.config/`. Edit the source in `home/` or `config/` here, then copy the
+changed file to its destination (`cp home/.claude/foo ~/.claude/foo`). The home
+directory copies are deployment targets; this repo is the source of truth.
+
+The exception is config a tool writes into a path this repo tracks — see
+*Tool-owned config inside tracked files* above. Those are re-asserted by the
+tool, never vendored here.
 
 ### Files to Never Commit
 

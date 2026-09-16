@@ -125,7 +125,8 @@
 			"WebFetch(cloud.google.com)",
 			"Mcp(context7:*)",
 			"Mcp(chrome-devtools:*)",
-			"Mcp(playwright:*)"
+			"Mcp(playwright:*)",
+			"Mcp(google-dev-knowledge:*)"
 		]
 	}
 }
