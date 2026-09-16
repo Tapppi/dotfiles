@@ -36,6 +36,10 @@ The following tools are available in this environment via Homebrew and mise:
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.
   Run scripts using the venv's interpreter directly:
   `~/.local/share/agent-skills/venv/bin/python <script>`.
+  Today it holds the deps for Anthropic's `document-skills` plugin (docx, pdf,
+  pptx, xlsx) and Python Playwright with a Chromium for the `browser` bundle's
+  scripted mode; a skill that asks for "an interpreter that can import X" means
+  this one, unless a repo's own agent instructions name another.
 - **Shell**: `bash` 5, `tmux`/`tmuxinator`, `shellcheck`, `parallel`, `pv`
   (pipeviewer for debugging pipe throughput).
 - **PowerShell**: `pwsh` with the `PSScriptAnalyzer` module for linting
