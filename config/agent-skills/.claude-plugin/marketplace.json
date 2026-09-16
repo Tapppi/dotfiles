@@ -10,17 +10,6 @@
 	},
 	"plugins": [
 		{
-			"name": "find-skills",
-			"description": "Discover and recommend installable agent skills from the broader ecosystem when a task might already have one",
-			"source": {
-				"source": "git-subdir",
-				"url": "https://github.com/vercel-labs/skills.git",
-				"path": "skills/find-skills",
-				"ref": "main"
-			},
-			"strict": false
-		},
-		{
 			"name": "browser",
 			"description": "Browser testing and debugging with Playwright and Chrome DevTools",
 			"source": "./tapppi/browser"
@@ -29,30 +18,6 @@
 			"name": "subrepo-permissions",
 			"description": "Generate git -C permission rules for nested git repos in a project directory",
 			"source": "./tapppi/subrepo-permissions",
-			"strict": false
-		},
-		{
-			"name": "docx",
-			"description": "Create, read, and edit Word documents (.docx)",
-			"source": "./anthropics/skills/docx",
-			"strict": false
-		},
-		{
-			"name": "pdf",
-			"description": "Read, create, merge, split, and manipulate PDF files",
-			"source": "./anthropics/skills/pdf",
-			"strict": false
-		},
-		{
-			"name": "pptx",
-			"description": "Create, read, and edit PowerPoint presentations (.pptx)",
-			"source": "./anthropics/skills/pptx",
-			"strict": false
-		},
-		{
-			"name": "xlsx",
-			"description": "Create, read, and edit spreadsheets (.xlsx, .csv, .tsv)",
-			"source": "./anthropics/skills/xlsx",
 			"strict": false
 		},
 		{
@@ -65,60 +30,6 @@
 			"name": "jira",
 			"description": "Jira issue tracking via jira-cli, with an Atlassian MCP fallback",
 			"source": "./softaworks/jira",
-			"strict": false
-		},
-		{
-			"name": "bigquery-basics",
-			"description": "BigQuery datasets, queries, and cost/performance guidance",
-			"source": "./google/skills/cloud/bigquery-basics",
-			"strict": false
-		},
-		{
-			"name": "cloud-run-basics",
-			"description": "Deploy and configure Google Cloud Run services",
-			"source": "./google/skills/cloud/cloud-run-basics",
-			"strict": false
-		},
-		{
-			"name": "cloud-sql-basics",
-			"description": "Provision and configure Google Cloud SQL instances",
-			"source": "./google/skills/cloud/cloud-sql-basics",
-			"strict": false
-		},
-		{
-			"name": "gke-basics",
-			"description": "Plan, create, and configure production-ready GKE clusters (Autopilot golden path)",
-			"source": "./google/skills/cloud/gke-basics",
-			"strict": false
-		},
-		{
-			"name": "google-cloud-networking-observability",
-			"description": "Google Cloud networking and observability guidance",
-			"source": "./google/skills/cloud/google-cloud-networking-observability",
-			"strict": false
-		},
-		{
-			"name": "google-cloud-recipe-auth",
-			"description": "Authentication and authorization guidance for Google Cloud services and APIs",
-			"source": "./google/skills/cloud/google-cloud-recipe-auth",
-			"strict": false
-		},
-		{
-			"name": "google-cloud-waf-cost-optimization",
-			"description": "Google Cloud Well-Architected Framework cost optimization guidance",
-			"source": "./google/skills/cloud/google-cloud-waf-cost-optimization",
-			"strict": false
-		},
-		{
-			"name": "google-cloud-waf-reliability",
-			"description": "Google Cloud Well-Architected Framework reliability guidance",
-			"source": "./google/skills/cloud/google-cloud-waf-reliability",
-			"strict": false
-		},
-		{
-			"name": "google-cloud-waf-security",
-			"description": "Google Cloud Well-Architected Framework security guidance",
-			"source": "./google/skills/cloud/google-cloud-waf-security",
 			"strict": false
 		}
 	]

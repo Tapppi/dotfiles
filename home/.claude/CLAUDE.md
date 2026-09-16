@@ -20,11 +20,11 @@
   it OAuth-logs into context7.com for higher rate limits, writes the MCP
   server (with API key) into `~/.claude.json`, and installs a ctx7-managed
   skill (`~/.claude/skills/context7-mcp/`) and rule
-  (`~/.claude/rules/context7.md`). Those two files are owned by ctx7, not
-  the dotfiles repo — `bootstrap.sh` excludes the skill dir from its
-  `--delete` mirror. CLI credentials live in `~/.config/context7/`
-  (untracked). Never edit or vendor these files; re-run `ctx7 setup` to
-  update them.
+  (`~/.claude/rules/context7.md`). Those two files are owned by ctx7, not the
+  dotfiles repo — like everything else under `~/.claude/skills/` and
+  `~/.claude/hooks/`, which dotfiles neither tracks nor mirrors. CLI
+  credentials live in `~/.config/context7/` (untracked). Never edit or vendor
+  these files; re-run `ctx7 setup` to update them.
 - This repo does not keep MCP servers that duplicate Claude Code built-in
   capabilities (git, tmux, SSH, web search, file operations all work natively
   via the Bash tool).
@@ -260,23 +260,19 @@ The following tools are available in this environment via Homebrew and mise:
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
   Python CLI packages — prefer these over `pip install`.
-- **Agent skills**: User-level skills are synced from
-  `~/.config/agent-skills/<vendor>/`. To add, modify, or update skills,
-  edit them in the `macos-setup` repo (`dotfiles/config/agent-skills/`) —
-  never in `~/.config/agent-skills/` directly. Globally-active skills are
-  symlinked from `home/.claude/skills/`; skills that should be active only
-  in specific projects (e.g. `jira`, the Google Cloud skills) are **not**
-  symlinked globally — a workspace dir carries a gitignored
-  `.tapppi-project.json` manifest and the `macos-setup` `./setup.sh projects`
-  task links each repo's skills into that repo's `.claude/skills/` (per repo —
-  Claude Code only discovers skills up to a repo's git root). For env it renders
-  one `mise.local.toml` in the workspace dir that `_.file`-loads a local `0600`
-  dotenv file; mise walks up across git boundaries, so every repo under the
-  workspace inherits it. mise evaluates env on every `cd`, so the loader must be
-  instant — a file read is, but a blocking `op read` there would hang the shell,
-  so no secret is fetched in mise. The Jira PAT is written once from 1Password
-  into that dotenv file (which also holds `JIRA_CONFIG_FILE`/`JIRA_AUTH_TYPE`),
-  and mise exposes `JIRA_API_TOKEN`, which is where `jira-cli` reads it.
+- **Agent skills**: edit the dotfiles-managed tree in
+  `macos-setup/dotfiles/config/agent-skills/`, never the deployed
+  `~/.config/agent-skills/`. How capability reaches a repo, and the layout a
+  repo commits, are documented in the `macos-setup` repo at `docs/skills.md`.
+  The live settings are the source of truth for what is currently enabled.
+- **Per-project env**: `macos-setup`'s `./setup.sh projects` renders one
+  `mise.local.toml` per workspace that `_.file`-loads a local `0600` dotenv
+  file. mise walks up across git boundaries, so every repo under the workspace
+  inherits it. mise evaluates env on every `cd`, so the loader must be instant —
+  a file read is, but a blocking `op read` there would hang the shell, so no
+  secret is fetched in mise. The Jira PAT is written once from 1Password into
+  that dotenv file (which also holds `JIRA_CONFIG_FILE`/`JIRA_AUTH_TYPE`), and
+  mise exposes `JIRA_API_TOKEN`, which is where `jira-cli` reads it.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.
