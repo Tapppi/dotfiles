@@ -133,9 +133,11 @@ The following tools are available in this environment via Homebrew and mise:
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
   Python CLI packages — prefer these over `pip install`.
 - **Agent skills**: shared bundles live in the `Tapppi/skills` repo at
-  `~/project/github/tapppi/skills`, published as the `tapppi-skills` marketplace
-  and consumed as plugins. Edit them there. See the `macos-setup` repo's
-  `docs/skills.md` for how capability reaches a repo.
+  `~/project/github/tapppi/skills`, published as the `tapppi-skills` marketplace.
+  OpenCode has no marketplace: it loads a skill only from a repo's committed
+  `.agents/skills` or `.claude/skills` bundle, or from the user-level
+  `~/.agents/skills`. There is no global OpenCode skills mirror any more. See
+  the `macos-setup` repo's `docs/skills.md` for how capability reaches a repo.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.

@@ -41,7 +41,7 @@ dotfiles/
     terminal/                 # Terminal.app Solarized themes
     tmux/tmux.conf            # tmux with Ctrl+A prefix, vim keys, pbcopy
     wgetrc                    # wget config
-  bootstrap.sh                # rsync home/→~/ and config/→~/.config/, then --delete-mirror OpenCode skills
+  bootstrap.sh                # rsync home/→~/ and config/→~/.config/
   keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
 
@@ -62,10 +62,10 @@ shellcheck bootstrap.sh config/bash/.functions
 1. `home/` → `~/` (home-level dotfiles that don't support XDG)
 2. `config/` → `~/.config/` (XDG-compliant config)
 
-Then a scoped `--delete` mirror rsync prunes de-adopted OpenCode skills
-in `~/.config/opencode/skills/`. `--delete` is never
-applied to the whole `home/`/`config/` sync — it would wipe untracked files
-in `~`.
+`--delete` is never applied to either sync — it would wipe untracked files in
+`~` and `~/.config`. There is no global OpenCode skills mirror any more:
+OpenCode gets a skill only from a repo's committed `.agents/skills` or
+`.claude/skills` bundle, or from the user-level `~/.agents/skills`.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 
