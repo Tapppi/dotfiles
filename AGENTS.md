@@ -63,9 +63,9 @@ shellcheck bootstrap.sh config/bash/.functions
 2. `config/` → `~/.config/` (XDG-compliant config)
 
 `--delete` is never applied to either sync — it would wipe untracked files in
-`~` and `~/.config`. There is no global OpenCode skills mirror any more:
-OpenCode gets a skill only from a repo's committed `.agents/skills` or
-`.claude/skills` bundle, or from the user-level `~/.agents/skills`.
+`~` and `~/.config`. dotfiles no longer writes any global OpenCode skills
+directory; where the harnesses look for skills is documented in the parent
+`macos-setup` repo's `docs/skills.md`, not restated here.
 
 Keyboard layouts are copied separately to `~/Library/Keyboard Layouts/`.
 

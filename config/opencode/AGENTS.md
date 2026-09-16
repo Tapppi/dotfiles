@@ -62,8 +62,10 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  Pushes are governed by each nested repo's committed push guard; other
-  `git -C` commands are judged by the session's normal permission mode.
+  Where a nested repo commits a push guard (`macos-setup`, `dotfiles`,
+  `skills`) it governs pushes there; elsewhere the user-level ask floor is
+  all that stands. Other `git -C` commands are judged by the session's normal
+  permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
   different repository. This is a hard security boundary — repository
@@ -134,10 +136,10 @@ The following tools are available in this environment via Homebrew and mise:
   Python CLI packages — prefer these over `pip install`.
 - **Agent skills**: shared bundles live in the `Tapppi/skills` repo at
   `~/project/github/tapppi/skills`, published as the `tapppi-skills` marketplace.
-  OpenCode has no marketplace: it loads a skill only from a repo's committed
-  `.agents/skills` or `.claude/skills` bundle, or from the user-level
-  `~/.agents/skills`. There is no global OpenCode skills mirror any more. See
-  the `macos-setup` repo's `docs/skills.md` for how capability reaches a repo.
+  OpenCode has no marketplace, and dotfiles no longer writes any global
+  OpenCode skills directory; a skill reaches OpenCode through a repo's
+  committed bundle or a user-level skills directory. See the `macos-setup`
+  repo's `docs/skills.md` for how capability reaches a repo.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.

@@ -22,9 +22,9 @@ Two sync directories plus standalone files at the repo root:
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
   `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
   `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
-- `bootstrap.sh` — two rsyncs (`home/` → `~/` and `config/` → `~/.config/`), then scoped
-  `rsync --delete` mirrors of the agent-skill dirs so de-adopted skills are pruned. A failing
-  rsync is reported and becomes the script's exit status; the remaining syncs still run
+- `bootstrap.sh` — two rsyncs (`home/` → `~/` and `config/` → `~/.config/`), nothing
+  mirrored with `--delete`. A failing rsync is reported and becomes the script's exit
+  status; the remaining sync still runs
 - `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
 
 ## What's inside
