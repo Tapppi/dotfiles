@@ -6,12 +6,12 @@ git pull origin
 
 # First non-zero rsync status of this run, and this script's own exit status.
 # It is the *rsync* code, not a generic 1, so the caller can name the failure:
-# macos-setup's install_dotfiles reports "exited 23", and 23 is exactly what a
-# --delete mirror whose source directory no longer exists returns. Without this
-# every run exited 0 and that failure was invisible.
+# macos-setup's install_dotfiles reports the code rsync gave (23 for a
+# partial transfer, say). Without this every run exited 0 and that failure
+# was invisible.
 #
-# Deliberately not `set -e`, on three counts: a failing mirror must not skip the
-# mirrors after it (aborting halfway leaves ~ *more* half-synced, not less); the
+# Deliberately not `set -e`, on three counts: a failing sync step must not skip
+# the steps after it (aborting halfway leaves ~ *more* half-synced, not less); the
 # `git pull` above is allowed to fail on a flaky network without cancelling a
 # local sync; and the `[ … ] && source` idioms at the end of doIt rely on a
 # false test being harmless.
@@ -39,9 +39,6 @@ run_rsync() {
 
 	if [[ "${status}" -ne 0 ]]; then
 		echo "bootstrap: FAILED to sync ${label} (rsync exit ${status})" >&2
-		if [[ "${status}" -eq 23 ]]; then
-			echo "bootstrap:   exit 23 is a partial transfer — most often a source directory that no longer exists." >&2
-		fi
 		[[ "${sync_status}" -eq 0 ]] && sync_status="${status}"
 	fi
 
@@ -49,11 +46,11 @@ run_rsync() {
 }
 
 doIt() {
-	# --force lets rsync replace a destination directory with a symlink (or
-	# vice versa) when the source/destination types diverge — needed when
-	# tracked entries flip between a regular dir and a symlink (e.g. skill
-	# entries moving into config/agent-skills/). Without --force, rsync
-	# errors with "cannot delete non-empty directory" and skips the entry.
+	# --force lets rsync replace a destination directory with a file or symlink
+	# (or vice versa) when the source and destination types diverge; without it
+	# rsync errors with "cannot delete non-empty directory" and skips the entry.
+	# The tree carries no symlinks today, so this is a general guard, not a
+	# case it needs.
 	# Sync home-level dotfiles to ~/
 	run_rsync "home/ -> ~" \
 		--exclude ".DS_Store" \
@@ -64,20 +61,10 @@ doIt() {
 		--exclude ".DS_Store" \
 		-avh --no-perms --force config/ ~/.config/
 
-	# Mirror the agent-skill trees exactly with --delete so that *dropped*
-	# skills and symlinks are pruned from ~ (a plain rsync only ever adds, so
-	# de-adopted skills would linger and stay globally active). Scoped to dirs
-	# fully owned by dotfiles — a global --delete on home/ or config/ would
-	# wipe every untracked file in ~ and ~/.config.
-	#
-	# ~/.claude/skills/ and ~/.claude/hooks/ are deliberately not mirrored:
+	# Nothing is mirrored with --delete: a plain rsync only ever adds, and a
+	# --delete on home/ or config/ would wipe every untracked file in ~ and
+	# ~/.config. ~/.claude/skills/ and ~/.claude/hooks/ are likewise left alone:
 	# dotfiles owns neither, and the tools that write them do.
-	run_rsync "config/opencode/skills/ -> ~/.config/opencode/skills/ (--delete mirror)" \
-		--exclude ".DS_Store" -avh --no-perms --force --delete \
-		config/opencode/skills/ ~/.config/opencode/skills/
-	run_rsync "config/agent-skills/ -> ~/.config/agent-skills/ (--delete mirror)" \
-		--exclude ".DS_Store" -avh --no-perms --force --delete \
-		config/agent-skills/ ~/.config/agent-skills/
 
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts
@@ -111,5 +98,5 @@ fi
 unset -f doIt run_rsync
 
 # Both branches above land here: declining the prompt syncs nothing and exits 0,
-# and either doIt path exits with the first mirror failure it recorded.
+# and either doIt path exits with the first rsync failure it recorded.
 exit "${sync_status}"
