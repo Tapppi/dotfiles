@@ -62,7 +62,8 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  These `-C` commands are pre-allowed in project-level permission settings.
+  Pushes are governed by each nested repo's committed push guard; other
+  `git -C` commands are judged by the session's normal permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
   different repository. This is a hard security boundary — repository
@@ -131,10 +132,10 @@ The following tools are available in this environment via Homebrew and mise:
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
   Python CLI packages — prefer these over `pip install`.
-- **Agent skills**: User-level skills are synced from
-  `~/.config/agent-skills/<vendor>/`. To add, modify, or update skills,
-  edit them in the `macos-setup` repo (`dotfiles/config/agent-skills/`) —
-  never in `~/.config/agent-skills/` directly.
+- **Agent skills**: shared bundles live in the `Tapppi/skills` repo at
+  `~/project/github/tapppi/skills`, published as the `tapppi-skills` marketplace
+  and consumed as plugins. Edit them there. See the `macos-setup` repo's
+  `docs/skills.md` for how capability reaches a repo.
 - **Agent-skills Python venv**: Skills that need Python libs share a venv
   at `~/.local/share/agent-skills/venv/`. Install deps with
   `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>`.

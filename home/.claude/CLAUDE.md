@@ -89,7 +89,8 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  These `-C` commands are pre-allowed in project-level permission settings.
+  Pushes are governed by each nested repo's committed push guard; other
+  `git -C` commands are judged by the session's normal permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
   different repository. This is a hard security boundary — repository
@@ -260,10 +261,10 @@ The following tools are available in this environment via Homebrew and mise:
 - **Languages/runtimes**: All runtimes installed via `mise` (node, go, rust,
   python, etc.). Use `uv` for Python dependency management and `uvx` to run
   Python CLI packages — prefer these over `pip install`.
-- **Agent skills**: edit the dotfiles-managed tree in
-  `macos-setup/dotfiles/config/agent-skills/`, never the deployed
-  `~/.config/agent-skills/`. How capability reaches a repo, and the layout a
-  repo commits, are documented in the `macos-setup` repo at `docs/skills.md`.
+- **Agent skills**: shared bundles live in the `Tapppi/skills` repo at
+  `~/project/github/tapppi/skills`, published as the `tapppi-skills` marketplace
+  and consumed as plugins. Edit them there. How capability reaches a repo, and
+  the layout a repo commits, are documented in `macos-setup`'s `docs/skills.md`.
   The live settings are the source of truth for what is currently enabled.
 - **Per-project env**: `macos-setup`'s `./setup.sh projects` renders one
   `mise.local.toml` per workspace that `_.file`-loads a local `0600` dotenv

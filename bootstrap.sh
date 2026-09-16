@@ -11,7 +11,7 @@ git pull origin
 # every run exited 0 and that failure was invisible.
 #
 # Deliberately not `set -e`, on three counts: a failing mirror must not skip the
-# mirrors after it (aborting halfway leaves ~ *more* half-synced, not less); the
+# sync steps after it (aborting halfway leaves ~ *more* half-synced, not less); the
 # `git pull` above is allowed to fail on a flaky network without cancelling a
 # local sync; and the `[ … ] && source` idioms at the end of doIt rely on a
 # false test being harmless.
@@ -51,8 +51,7 @@ run_rsync() {
 doIt() {
 	# --force lets rsync replace a destination directory with a symlink (or
 	# vice versa) when the source/destination types diverge — needed when
-	# tracked entries flip between a regular dir and a symlink (e.g. skill
-	# entries moving into config/agent-skills/). Without --force, rsync
+	# tracked entries flip between a regular dir and a symlink. Without --force, rsync
 	# errors with "cannot delete non-empty directory" and skips the entry.
 	# Sync home-level dotfiles to ~/
 	run_rsync "home/ -> ~" \
@@ -64,9 +63,9 @@ doIt() {
 		--exclude ".DS_Store" \
 		-avh --no-perms --force config/ ~/.config/
 
-	# Mirror the agent-skill trees exactly with --delete so that *dropped*
+	# Mirror the OpenCode skill tree exactly with --delete so that *dropped*
 	# skills and symlinks are pruned from ~ (a plain rsync only ever adds, so
-	# de-adopted skills would linger and stay globally active). Scoped to dirs
+	# de-adopted skills would linger and stay globally active). Scoped to a dir
 	# fully owned by dotfiles — a global --delete on home/ or config/ would
 	# wipe every untracked file in ~ and ~/.config.
 	#
@@ -75,9 +74,6 @@ doIt() {
 	run_rsync "config/opencode/skills/ -> ~/.config/opencode/skills/ (--delete mirror)" \
 		--exclude ".DS_Store" -avh --no-perms --force --delete \
 		config/opencode/skills/ ~/.config/opencode/skills/
-	run_rsync "config/agent-skills/ -> ~/.config/agent-skills/ (--delete mirror)" \
-		--exclude ".DS_Store" -avh --no-perms --force --delete \
-		config/agent-skills/ ~/.config/agent-skills/
 
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts

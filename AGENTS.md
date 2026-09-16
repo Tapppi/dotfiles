@@ -41,7 +41,7 @@ dotfiles/
     terminal/                 # Terminal.app Solarized themes
     tmux/tmux.conf            # tmux with Ctrl+A prefix, vim keys, pbcopy
     wgetrc                    # wget config
-  bootstrap.sh                # rsync home/→~/ and config/→~/.config/, then --delete-mirror skill dirs
+  bootstrap.sh                # rsync home/→~/ and config/→~/.config/, then --delete-mirror OpenCode skills
   keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
 
@@ -62,8 +62,8 @@ shellcheck bootstrap.sh config/bash/.functions
 1. `home/` → `~/` (home-level dotfiles that don't support XDG)
 2. `config/` → `~/.config/` (XDG-compliant config)
 
-Then two scoped `--delete` mirror rsyncs prune de-adopted agent skills
-(`~/.config/opencode/skills/`, `~/.config/agent-skills/`). `--delete` is never
+Then a scoped `--delete` mirror rsync prunes de-adopted OpenCode skills
+in `~/.config/opencode/skills/`. `--delete` is never
 applied to the whole `home/`/`config/` sync — it would wipe untracked files
 in `~`.
 
@@ -106,7 +106,7 @@ both alone — so no mirror and no mirror exclude is needed for either.
 | OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md`              | via oh-my-openagent plugin |
 
 Agent skills are not in that table: they are not dotfiles' to manage. See
-`config/agent-skills/AGENTS.md` for the tree this repo does own, and
+[Tapppi/skills](https://github.com/Tapppi/skills) for the shared bundles, and
 the parent `macos-setup` repo's `docs/skills.md` for how capability reaches a
 repo.
 
