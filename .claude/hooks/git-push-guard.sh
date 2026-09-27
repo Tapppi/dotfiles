@@ -25,10 +25,12 @@
 #     normal permission rules in charge. A push that is not the command's first
 #     word — behind an environment assignment, an absolute path, a subshell or
 #     another command — is refused rather than ignored; a push named inside
-#     quotes is not a push and is left alone. Withholding a decision hands the
-#     command back to those rules, and under a permissive default mode they may
-#     still approve it, so silence is a fallback, not a guarantee, and is never
-#     what an actual push receives.
+#     quotes is not a push and is left alone, and neither is `git stash push`,
+#     quoted or not, when the call provably runs that one git stash push and
+#     nothing else. Withholding a decision hands the command back to those
+#     rules, and under a permissive default mode they may still approve it, so
+#     silence is a fallback, not a guarantee, and is never what an actual push
+#     receives.
 #   - Never emits "deny": the user always keeps the option to approve by hand.
 #
 # Branch naming is a per-repo convention, not a global one, so the built-in
@@ -81,6 +83,8 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 cmd=$(jq -r '.tool_input.command // ""' <<<"$payload")
 cwd=$(jq -r '.cwd // ""' <<<"$payload")
+# The Bash call exactly as sent; `cmd` may be narrowed to its git part below.
+call=$cmd
 
 # Loose pre-filter. Anything not plausibly a `git push` is none of this script's
 # business and must pass through without a decision — but "not plausibly a push"
@@ -124,6 +128,84 @@ else
 	exit 0
 fi
 
+# split_single_command <string>: succeed, with the words in the global array
+# `words`, only when the string is one simple command made of nothing but plain
+# words drawn from the alphabet of the gate below, '…' strings, and "…" strings
+# holding nothing that expands inside double quotes. That grammar has no
+# separator, newline, redirection, substitution, expansion, glob or escape
+# anywhere in it, so the shell runs exactly one command and splits it into
+# exactly these words. Every other string fails, however harmless.
+# The blanks are the shell's own two, spelled out, because some locales class
+# Unicode spaces as [:blank:] and the shell never splits on those. The C locale
+# keeps [:alnum:] and [:cntrl:] to ASCII and makes the scan byte by byte, so no
+# multibyte character passes for a word character. Past 4096 bytes, far beyond
+# any stash message, the string fails too: this scan is quadratic in bash, and a
+# hook that runs out its time budget hands the call back undecided.
+split_single_command() {
+	local LC_ALL=C s=$1 w="" in_word=0 q
+	words=()
+	(( ${#s} <= 4096 )) || return 1
+	while [[ -n $s ]]; do
+		case ${s:0:1} in
+			' '|$'\t')
+				(( in_word )) && words+=("$w")
+				w="" in_word=0 s=${s:1} ;;
+			[[:alnum:]_./:=@+-])
+				w+=${s:0:1} in_word=1 s=${s:1} ;;
+			"'")
+				s=${s:1}
+				[[ $s == *"'"* ]] || return 1
+				q=${s%%"'"*}
+				case $q in *[[:cntrl:]]*) return 1 ;; esac
+				w+=$q in_word=1 s=${s#*"'"} ;;
+			'"')
+				s=${s:1}
+				[[ $s == *'"'* ]] || return 1
+				q=${s%%'"'*}
+				case $q in *[[:cntrl:]]*|*'$'*|*'`'*|*"\\"*|*'!'*) return 1 ;; esac
+				w+=$q in_word=1 s=${s#*'"'} ;;
+			*) return 1 ;;
+		esac
+	done
+	(( in_word )) && words+=("$w")
+	return 0
+}
+
+# runs_only_git_stash <string>: succeed only when the string provably runs one
+# git command, `git stash push`, and nothing makes git start another program
+# for it. Before the subcommand only -C and its value and the value-less
+# options that neither page nor redirect are stepped over; -p and --paginate
+# start a pager, and anything this guard does not know may swallow the word
+# after it. After `stash push` only its non-interactive options are accepted:
+# --help (and `stash --help`) starts man and a pager, and --patch is an
+# interactive session. Short options are accepted one to a word, and the value
+# of -m is stepped over whatever it looks like.
+runs_only_git_stash() {
+	local i=1
+	split_single_command "$1" || return 1
+	[[ ${words[0]:-} == git ]] || return 1
+	while [[ ${words[$i]:-} == -* ]]; do
+		case ${words[$i]} in
+			-C) i=$((i+2)) ;;
+			--no-pager|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
+				i=$((i+1)) ;;
+			*) return 1 ;;
+		esac
+	done
+	[[ ${words[$i]:-} == stash && ${words[$((i+1))]:-} == push ]] || return 1
+	for ((i += 2; i < ${#words[@]}; i++)); do
+		case ${words[$i]} in
+			--) return 0 ;;
+			-m|--message) i=$((i+1)) ;;
+			-m?*|--message=*) ;;
+			-u|--include-untracked|-a|--all|-k|--keep-index|--no-keep-index) ;;
+			-S|--staged|-q|--quiet) ;;
+			-*) return 1 ;;
+		esac
+	done
+	return 0
+}
+
 # Parse, don't validate: go on only with a flat list of plain words. Shell
 # operators, quoting, expansion and globbing all land here. By this point the
 # command is known to be a git invocation carrying a `push` token, so it fails
@@ -134,8 +216,16 @@ fi
 # [:blank:], never [:space:]: a newline is a command separator, and `read -ra`
 # below consumes only the first line, so admitting one here would approve a
 # second command sight unseen.
-[[ $cmd =~ ^[A-Za-z0-9_./:=@+[:blank:]-]+$ ]] ||
+# The one way past this gate without a prompt is silence for a quoted
+# `git stash push -m "…"`: its push token is only a stash subcommand, and it is
+# let through only when the whole call as sent — so nothing chained on, the cd
+# shape included — provably runs that single git stash push and nothing else.
+# Stash alone, because other subcommands that carry a push token can run one:
+# `git submodule foreach git push …` is a push.
+if ! [[ $cmd =~ ^[A-Za-z0-9_./:=@+[:blank:]-]+$ ]]; then
+	runs_only_git_stash "$call" && exit 0
 	ask "this push is wrapped in shell syntax the guard cannot parse"
+fi
 
 read -ra tok <<<"$cmd"
 [[ ${tok[0]:-} == git ]] || exit 0
