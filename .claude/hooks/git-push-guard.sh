@@ -55,9 +55,9 @@
 set -uo pipefail
 
 decide() { # decision, reason
-  jq -nc --arg d "$1" --arg r "$2" \
-    '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:$d,permissionDecisionReason:$r}}'
-  exit 0
+	jq -nc --arg d "$1" --arg r "$2" \
+		'{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:$d,permissionDecisionReason:$r}}'
+	exit 0
 }
 ask()   { decide ask   "push guard: $1"; }
 allow() { decide allow "push guard: $1"; }
@@ -75,9 +75,9 @@ IFS= read -r -d '' payload || true
 # would miss `git --git-dir <path> push` — the very shape most worth catching.
 # Prompting for a commit beats staying silent for a redirected push.
 if ! command -v jq >/dev/null 2>&1; then
-  [[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"[^\"]*git[[:space:]][^\"]*push ]] || exit 0
-  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push guard: jq is not installed, so this push cannot be checked against the repo policy — install jq to restore pre-approved pushes"}}'
-  exit 0
+	[[ $payload =~ \"command\"[[:space:]]*:[[:space:]]*\"[^\"]*git[[:space:]][^\"]*push ]] || exit 0
+	printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"push guard: jq is not installed, so this push cannot be checked against the repo policy — install jq to restore pre-approved pushes"}}'
+	exit 0
 fi
 cmd=$(jq -r '.tool_input.command // ""' <<<"$payload")
 cwd=$(jq -r '.cwd // ""' <<<"$payload")
@@ -92,9 +92,9 @@ cwd=$(jq -r '.cwd // ""' <<<"$payload")
 # leaving it unparseable: the push is evaluated as the push it is, resolved
 # against the directory the cd moves to.
 if [[ $cmd =~ ^[[:space:]]*cd[[:space:]]+([A-Za-z0-9_./-]+)[[:space:]]*\&\&[[:space:]]*(git[[:space:]].*)$ ]]; then
-  cd_target=${BASH_REMATCH[1]}
-  cmd=${BASH_REMATCH[2]}
-  [[ $cd_target == /* ]] && cwd=$cd_target || cwd=$cwd/$cd_target
+	cd_target=${BASH_REMATCH[1]}
+	cmd=${BASH_REMATCH[2]}
+	[[ $cd_target == /* ]] && cwd=$cd_target || cwd=$cwd/$cd_target
 fi
 
 # `probe` drops everything from the first quote or redirection onward, and
@@ -111,17 +111,17 @@ re_push='[[:blank:]]push([[:blank:]]|$)'
 re_git_word='(^|[[:blank:]]|[/=(])git[[:blank:]]'
 
 if [[ $cmd =~ ^[[:blank:]]*git[[:blank:]] ]]; then
-  [[ $first =~ $re_push ]] || exit 0
+	[[ $first =~ $re_push ]] || exit 0
 else
-  # A push that is not the first thing the command runs is still a push, and
-  # ignoring it hands it to the ordinary rules, which may approve it. An
-  # environment assignment, an absolute path, a subshell or a preceding command
-  # all land here. Matching on `probe` keeps a quoted mention of a push — a
-  # heredoc, a grep pattern, an echo — outside this entirely.
-  if [[ $probe =~ $re_git_word ]] && [[ $probe =~ $re_push ]]; then
-    ask "this runs a git push that is not the command's first word, so the guard cannot vouch for it"
-  fi
-  exit 0
+	# A push that is not the first thing the command runs is still a push, and
+	# ignoring it hands it to the ordinary rules, which may approve it. An
+	# environment assignment, an absolute path, a subshell or a preceding command
+	# all land here. Matching on `probe` keeps a quoted mention of a push — a
+	# heredoc, a grep pattern, an echo — outside this entirely.
+	if [[ $probe =~ $re_git_word ]] && [[ $probe =~ $re_push ]]; then
+		ask "this runs a git push that is not the command's first word, so the guard cannot vouch for it"
+	fi
+	exit 0
 fi
 
 # Parse, don't validate: go on only with a flat list of plain words. Shell
@@ -135,7 +135,7 @@ fi
 # below consumes only the first line, so admitting one here would approve a
 # second command sight unseen.
 [[ $cmd =~ ^[A-Za-z0-9_./:=@+[:blank:]-]+$ ]] ||
-  ask "this push is wrapped in shell syntax the guard cannot parse"
+	ask "this push is wrapped in shell syntax the guard cannot parse"
 
 read -ra tok <<<"$cmd"
 [[ ${tok[0]:-} == git ]] || exit 0
@@ -154,25 +154,25 @@ indirect=""
 # running a hook of the caller's choosing.
 note_indirect() { [[ -n $indirect ]] || indirect=$1; }
 while [[ ${tok[$i]:-} == -* ]]; do
-  case ${tok[$i]} in
-    # -C is the one redirection this guard can follow, so it records no
-    # indirection — but it must be resolved exactly as git resolves it:
-    # relative to what came before, which starts at the payload's cwd.
-    -C)                 t_dir=${tok[$((i+1))]:-}
-                        [[ $t_dir == /* ]] && repo_dir=$t_dir || repo_dir=$repo_dir/$t_dir
-                        i=$((i+2)) ;;
-    -c)                 note_indirect "${tok[$i]}";  i=$((i+2)) ;;
-    --git-dir=*|--work-tree=*|--namespace=*|--exec-path=*|--bare)
-                        note_indirect "${tok[$i]%%=*}"; i=$((i+1)) ;;
-    # The same options spelled with a space take their value as a separate word.
-    # Stepping over only the option would leave its value where the subcommand
-    # should be, and the check below would then read a path as "not a push".
-    --git-dir|--work-tree|--namespace|--exec-path|--super-prefix|--config-env|--attr-source)
-                        note_indirect "${tok[$i]}";  i=$((i+2)) ;;
-    --no-pager|--paginate|-p|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
-                        i=$((i+1)) ;;
-    *)                  note_indirect "${tok[$i]}";  i=$((i+1)) ;;
-  esac
+	case ${tok[$i]} in
+		# -C is the one redirection this guard can follow, so it records no
+		# indirection — but it must be resolved exactly as git resolves it:
+		# relative to what came before, which starts at the payload's cwd.
+		-C)                 t_dir=${tok[$((i+1))]:-}
+		                    [[ $t_dir == /* ]] && repo_dir=$t_dir || repo_dir=$repo_dir/$t_dir
+		                    i=$((i+2)) ;;
+		-c)                 note_indirect "${tok[$i]}";  i=$((i+2)) ;;
+		--git-dir=*|--work-tree=*|--namespace=*|--exec-path=*|--bare)
+		                    note_indirect "${tok[$i]%%=*}"; i=$((i+1)) ;;
+		# The same options spelled with a space take their value as a separate word.
+		# Stepping over only the option would leave its value where the subcommand
+		# should be, and the check below would then read a path as "not a push".
+		--git-dir|--work-tree|--namespace|--exec-path|--super-prefix|--config-env|--attr-source)
+		                    note_indirect "${tok[$i]}";  i=$((i+2)) ;;
+		--no-pager|--paginate|-p|--literal-pathspecs|--no-replace-objects|--no-optional-locks)
+		                    i=$((i+1)) ;;
+		*)                  note_indirect "${tok[$i]}";  i=$((i+1)) ;;
+	esac
 done
 
 # Not landing on `push` means one of two things. If no global option was consumed
@@ -182,9 +182,9 @@ done
 # like this — and a push whose position cannot be established is a push that
 # cannot be vouched for, so it goes to the user rather than to silence.
 if [[ ${tok[$i]:-} != push ]]; then
-  [[ -n $indirect ]] ||
-    exit 0
-  ask "the global options before 'push' are not ones the guard can account for"
+	[[ -n $indirect ]] ||
+		exit 0
+	ask "the global options before 'push' are not ones the guard can account for"
 fi
 ((i++))
 
@@ -192,124 +192,124 @@ fi
 # repository, the config or the worktree it lands in comes from somewhere this
 # guard cannot verify. Those always go to the user.
 [[ -z $indirect ]] ||
-  ask "'$indirect' redirects where this push lands, so it needs approval"
+	ask "'$indirect' redirects where this push lands, so it needs approval"
 
 positional=()
 rewrites_history=0
 saw_if_includes=0
 for ((; i < ${#tok[@]}; i++)); do
-  t=${tok[$i]}
-  case $t in
-    --force-with-lease) rewrites_history=1 ;;
-    --force-with-lease=*)
-      # `--force-with-lease=<ref>:<expect>` supplies the expected value itself,
-      # which reduces the lease to a plain force and makes --force-if-includes a
-      # no-op. Only the ref-only form keeps the protection.
-      [[ ${t#--force-with-lease=} == *:* ]] &&
-        ask "'$t' names its own expected value, which is a plain force in disguise"
-      rewrites_history=1 ;;
-    --force-if-includes) saw_if_includes=1 ;;
-    -u|--set-upstream) ;;
-    --dry-run|--atomic|--no-tags|--porcelain|--progress|--no-progress|-q|--quiet|-v|--verbose) ;;
-    -*) ask "flag '$t' is not on the allowlist" ;;
-    *)  positional+=("$t") ;;
-  esac
+	t=${tok[$i]}
+	case $t in
+		--force-with-lease) rewrites_history=1 ;;
+		--force-with-lease=*)
+			# `--force-with-lease=<ref>:<expect>` supplies the expected value itself,
+			# which reduces the lease to a plain force and makes --force-if-includes a
+			# no-op. Only the ref-only form keeps the protection.
+			[[ ${t#--force-with-lease=} == *:* ]] &&
+				ask "'$t' names its own expected value, which is a plain force in disguise"
+			rewrites_history=1 ;;
+		--force-if-includes) saw_if_includes=1 ;;
+		-u|--set-upstream) ;;
+		--dry-run|--atomic|--no-tags|--porcelain|--progress|--no-progress|-q|--quiet|-v|--verbose) ;;
+		-*) ask "flag '$t' is not on the allowlist" ;;
+		*)  positional+=("$t") ;;
+	esac
 done
 
 # A bare lease compares against the remote-tracking ref, which any background
 # fetch refreshes — after which the lease passes and silently discards whatever
 # the other side had pushed. --force-if-includes restores the protection.
 (( rewrites_history && ! saw_if_includes )) &&
-  ask "--force-with-lease without --force-if-includes: a background fetch can degrade the lease into a plain force"
+	ask "--force-with-lease without --force-if-includes: a background fetch can degrade the lease into a plain force"
 
 (( ${#positional[@]} >= 2 )) || ask "push must name a remote and at least one refspec"
 remote=${positional[0]}
 refspecs=("${positional[@]:1}")
 
 root=$(git -C "$repo_dir" rev-parse --show-toplevel 2>/dev/null) ||
-  ask "'$repo_dir' is not inside a git repository"
+	ask "'$repo_dir' is not inside a git repository"
 
 config=""
 for candidate in "$root/.claude/push-guard.json:." \
                  "$root/.claude/settings.local.json:.pushGuard" \
                  "$root/.claude/settings.json:.pushGuard"; do
-  file=${candidate%:*}
-  filter=${candidate##*:}
-  [[ -f $file ]] || continue
-  config=$(jq -c "$filter // empty" "$file" 2>/dev/null) || config=""
-  [[ -n $config && $config != null ]] && break
-  config=""
+	file=${candidate%:*}
+	filter=${candidate##*:}
+	[[ -f $file ]] || continue
+	config=$(jq -c "$filter // empty" "$file" 2>/dev/null) || config=""
+	[[ -n $config && $config != null ]] && break
+	config=""
 done
 [[ -n $config ]] || ask "no pushGuard config in $(basename "$root")/.claude/"
 
 [[ $(jq -r '.allowAgenticPush // false' <<<"$config") == true ]] ||
-  ask "$(basename "$root") has not enabled agentic pushes"
+	ask "$(basename "$root") has not enabled agentic pushes"
 
 want_remote=$(jq -r '.remote // "origin"' <<<"$config")
 [[ $remote == "$want_remote" ]] || ask "remote '$remote' is not the approved remote '$want_remote'"
 
 prefixes=()
 while IFS= read -r p; do
-  [[ -n $p ]] && prefixes+=("$p")
+	[[ -n $p ]] && prefixes+=("$p")
 done < <(jq -r '(.branchPrefixes // ["agent","build","chore","ci","debug","docs","feat","fix","perf","refactor","revert","style","test","backup"])[]?' <<<"$config")
 (( ${#prefixes[@]} )) || ask "config lists no branch prefixes"
 
 if [[ $(jq -r '.requireWorktree // false' <<<"$config") == true ]]; then
-  # In the main checkout both resolve to the same directory; in a linked
-  # worktree --git-dir points at .git/worktrees/<name> instead.
-  [[ "$(git -C "$repo_dir" rev-parse --git-dir)" != \
-     "$(git -C "$repo_dir" rev-parse --git-common-dir)" ]] ||
-    ask "not running from a linked worktree"
+	# In the main checkout both resolve to the same directory; in a linked
+	# worktree --git-dir points at .git/worktrees/<name> instead.
+	[[ "$(git -C "$repo_dir" rev-parse --git-dir)" != \
+	   "$(git -C "$repo_dir" rev-parse --git-common-dir)" ]] ||
+		ask "not running from a linked worktree"
 fi
 
 dsts=()
 for spec in "${refspecs[@]}"; do
-  # A leading + forces the update without the lease check --force-with-lease adds.
-  [[ $spec == +* ]] && ask "'$spec' is a forced refspec"
-  src=$spec
-  dst=$spec
-  if [[ $spec == *:* ]]; then
-    src=${spec%%:*}
-    dst=${spec#*:}
-  fi
-  [[ -n $src ]] || ask "'$spec' deletes a remote branch"
-  [[ -n $dst ]] || ask "'$spec' has no destination ref"
-  if [[ $dst == HEAD ]]; then
-    dst=$(git -C "$repo_dir" symbolic-ref --quiet --short HEAD) ||
-      ask "HEAD is detached, so its destination branch is unknown"
-  fi
-  dst=${dst#refs/heads/}
-  matched=""
-  for p in "${prefixes[@]}"; do
-    [[ $dst == "$p"/?* ]] && { matched=1; break; }
-  done
-  [[ -n $matched ]] || ask "destination branch '$dst' is not an agentic branch"
+	# A leading + forces the update without the lease check --force-with-lease adds.
+	[[ $spec == +* ]] && ask "'$spec' is a forced refspec"
+	src=$spec
+	dst=$spec
+	if [[ $spec == *:* ]]; then
+		src=${spec%%:*}
+		dst=${spec#*:}
+	fi
+	[[ -n $src ]] || ask "'$spec' deletes a remote branch"
+	[[ -n $dst ]] || ask "'$spec' has no destination ref"
+	if [[ $dst == HEAD ]]; then
+		dst=$(git -C "$repo_dir" symbolic-ref --quiet --short HEAD) ||
+			ask "HEAD is detached, so its destination branch is unknown"
+	fi
+	dst=${dst#refs/heads/}
+	matched=""
+	for p in "${prefixes[@]}"; do
+		[[ $dst == "$p"/?* ]] && { matched=1; break; }
+	done
+	[[ -n $matched ]] || ask "destination branch '$dst' is not an agentic branch"
 
-  dsts+=("$dst")
+	dsts+=("$dst")
 done
 
 # Rewriting your own un-reviewed branch is cleanup; rewriting one somebody has
 # read destroys what they reviewed. Only a force-push pays for this lookup, and
 # only once per distinct destination. Unknown answers fail closed.
 if (( rewrites_history )); then
-  checked=""
-  for dst in "${dsts[@]}"; do
-    [[ $checked == *"|$dst|"* ]] && continue
-    checked+="|$dst|"
-    prs=$(cd "$repo_dir" && timeout 5 gh pr list --head "$dst" --state open --json number 2>/dev/null) ||
-      ask "cannot reach the forge to check whether '$dst' has been reviewed"
-    total=0
-    while IFS= read -r num; do
-      [[ -n $num ]] || continue
-      seen=$(cd "$repo_dir" && timeout 5 gh pr view "$num" --json reviews,comments \
-             --jq '[(.reviews//[]|length),(.comments//[]|length)]|add' 2>/dev/null) ||
-        ask "cannot read review state of PR #$num for '$dst'"
-      [[ $seen =~ ^[0-9]+$ ]] || ask "unreadable review state for PR #$num"
-      total=$(( total + seen ))
-    done < <(jq -r 'if type=="array" then .[].number else empty end' <<<"$prs" 2>/dev/null)
-    (( total == 0 )) ||
-      ask "'$dst' carries $total review(s)/comment(s) across its open PR(s) — rewriting reviewed history needs approval"
-  done
+	checked=""
+	for dst in "${dsts[@]}"; do
+		[[ $checked == *"|$dst|"* ]] && continue
+		checked+="|$dst|"
+		prs=$(cd "$repo_dir" && timeout 5 gh pr list --head "$dst" --state open --json number 2>/dev/null) ||
+			ask "cannot reach the forge to check whether '$dst' has been reviewed"
+		total=0
+		while IFS= read -r num; do
+			[[ -n $num ]] || continue
+			seen=$(cd "$repo_dir" && timeout 5 gh pr view "$num" --json reviews,comments \
+			       --jq '[(.reviews//[]|length),(.comments//[]|length)]|add' 2>/dev/null) ||
+				ask "cannot read review state of PR #$num for '$dst'"
+			[[ $seen =~ ^[0-9]+$ ]] || ask "unreadable review state for PR #$num"
+			total=$(( total + seen ))
+		done < <(jq -r 'if type=="array" then .[].number else empty end' <<<"$prs" 2>/dev/null)
+		(( total == 0 )) ||
+			ask "'$dst' carries $total review(s)/comment(s) across its open PR(s) — rewriting reviewed history needs approval"
+	done
 fi
 
 allow "${#refspecs[@]} ref(s) under an agentic prefix on '$remote'"
