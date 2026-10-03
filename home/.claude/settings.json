@@ -42,6 +42,12 @@
 				"path": "~/project/github/tapppi/skills"
 			}
 		},
+		"ikeh": {
+			"source": {
+				"source": "directory",
+				"path": "/Users/tapani/project/github/mantadevoy/ikeh"
+			}
+		},
 		"anthropic-agent-skills": {
 			"source": {
 				"source": "github",
