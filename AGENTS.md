@@ -225,7 +225,9 @@ The plugin's two guards run on every Bash call:
   since this repo sets no `branchPrefixes` — runs without a prompt, including
   `--force-with-lease --force-if-includes` until the branch's PR carries a review
   or comment. Every other push prompts: `master`, other destinations, plain
-  `--force`/`-f`, deletes, another remote. Name the branch on each push.
+  `--force`/`-f`, deletes, another remote. Name the branch on each push. The
+  `ask` rules on `master` still prompt for any push whose text contains `main`
+  or `master`, so keep those words out of agent branch names.
 - **Worktree guard.** Whole-tree staging (`git add -A`, `git commit -a` and their
   relatives) in the main checkout is denied, and so is any rebase of `master`.
   `requireWorktree` is off here, so a small change may still be committed from the

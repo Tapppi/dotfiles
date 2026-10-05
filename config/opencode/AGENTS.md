@@ -62,9 +62,10 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  Where a nested repo enables the `ikeh-git` plugin or commits its own push
-  guard, that guard governs pushes there; elsewhere the user-level ask floor
-  is all that stands. Other `git -C` commands are judged by the session's normal
+  A `git -C <subrepo> push` is judged by the guards active in the current
+  session, reading the target repo's own `pushGuard`; a nested repo enabling
+  `ikeh-git` does not activate hooks in a parent session. With no guard active
+  in the session, the user-level ask floor is all that stands. Other `git -C` commands are judged by the session's normal
   permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a

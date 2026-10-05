@@ -91,9 +91,10 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  Where a nested repo enables the `ikeh-git` plugin or commits its own push
-  guard, that guard governs pushes there; elsewhere the user-level ask floor
-  is all that stands. Other `git -C` commands are judged by the session's normal
+  A `git -C <subrepo> push` is judged by the guards active in the current
+  session, reading the target repo's own `pushGuard`; a nested repo enabling
+  `ikeh-git` does not activate hooks in a parent session. With no guard active
+  in the session, the user-level ask floor is all that stands. Other `git -C` commands are judged by the session's normal
   permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
@@ -116,16 +117,35 @@ agent branches by enabling the `ikeh-git@ikeh` plugin in its committed
 versioned together in the repo they govern. Committed enablement installs nothing:
 on each machine the plugin is installed into that repo with
 `claude plugin install ikeh-git@ikeh --scope local`, and a repo whose plugin is
-not installed has no guard at all. A repo without the plugin prompts, which is the
-right default for anything shared or production-facing.
+not installed has no guard at all. Without the plugin there is no hook verdict:
+pushes fall to the session's permission mode, and the user-level ask floor catches
+only the forms it names.
+
+```json
+{
+  "pushGuard": {
+    "allowAgenticPush": true,
+    "remote": "origin",
+    "branchPrefixes": ["agent"],
+    "requireWorktree": false
+  }
+}
+```
+
+`allowAgenticPush` must be the boolean `true` or every push prompts; `remote` is
+the only remote a push may be approved for; `branchPrefixes` (a list) narrows the
+destinations, and when omitted the plugin's permissive default applies;
+`requireWorktree` (a boolean) approves pushes only from a linked worktree. A value
+of the wrong type makes every push prompt.
 
 The plugin's `ikeh-git:git-workflows` skill and its `references/push-guard.md`
 are the full rules; load the skill in a repo that enables it. In outline:
 
 - It approves a plain `git push` to the configured remote whose every destination
   sits under the repo's branch prefixes, with allowlisted flags only. A plain
-  chain of `git add <paths>`, `git commit -m …` and the push gets no verdict and
-  falls to the session's permission mode; every other push prompts, including
+  chain of `git add <paths>`, `git commit -m …` and a final push that names its
+  branch (not `HEAD`) and would be approved on its own gets no verdict and falls
+  to the session's permission mode; every other push prompts, including
   a bare `git push`, plain `--force`/`-f`, deletes and a different remote.
 - Branch naming is a **per-repo convention, never a global one**: without
   `branchPrefixes` the plugin's permissive default applies — `agent/`, the
