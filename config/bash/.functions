@@ -209,8 +209,9 @@ function cursor-record() {
 
 # Control the podman machine, which is deliberately left stopped on this laptop.
 # Its only long-lived tenant was the kokoro TTS server, and that now lives on
-# tmopro18 (see tieto scripts/tts/kokoro-server.sh); an idle libkrun VM with 8
-# cores and 19.5GB assigned is not worth carrying on battery for containers used
+# tmopro18 (see tieto scripts/tts/kokoro-server.sh); an idle libkrun VM with its
+# reserved cores and memory (see config_podman in macos-setup tasks/config.sh) is
+# not worth carrying on battery for containers used
 # a few times a week. Podman Desktop no longer starts it either — its
 # `preferences.podman.engine.autostart` is set to false — so container work
 # begins with `podvm up`.
