@@ -214,54 +214,35 @@ tool, never vendored here.
 - `.DS_Store`, `Thumbs.db`, `._*`
 - Backup tarballs
 
-## Pushing branches
+## Git workflows and pushing branches
 
-Pushes to agent branches on `origin` are pre-approved here and run without prompting —
-`agent/`, any conventional-commit prefix, plus `debug/` and `backup/` —
-including `--force-with-lease --force-if-includes` for rebase and squash cleanups:
+Git work here follows the `ikeh-git:git-workflows` skill from the `ikeh-git`
+plugin, which `.claude/settings.json` enables; load it before the first commit.
+The plugin's two guards run on every Bash call:
+
+- **Push guard.** A push to `origin` of an agent branch — `agent/`, any
+  conventional-commit prefix, `debug/` or `backup/`, the plugin's default list,
+  since this repo sets no `branchPrefixes` — runs without a prompt, including
+  `--force-with-lease --force-if-includes` until the branch's PR carries a review
+  or comment. Every other push prompts: `master`, other destinations, plain
+  `--force`/`-f`, deletes, another remote. Name the branch on each push. The
+  `ask` rules on `master` still prompt for any push whose text contains `main`
+  or `master`, so keep those words out of agent branch names.
+- **Worktree guard.** Whole-tree staging (`git add -A`, `git commit -a` and their
+  relatives) in the main checkout is denied, and so is any rebase of `master`.
+  `requireWorktree` is off here, so a small change may still be committed from the
+  main checkout by explicit path.
 
 ```bash
 git push -u origin agent/<name>
-git push origin agent/<name>
 git push --force-with-lease --force-if-includes origin agent/<name>
 ```
 
-Name the branch every time: a bare `git push` prompts even after `-u` has set
-the upstream, because the guard approves a destination it can read rather than
-one it would have to infer.
+The guard decides how you may push, never whether: push only when the request
+calls for it, and answer a prompt rather than reshaping the command until it
+stops. The `ask` rules on `master` in `.claude/settings.json` are a backstop for
+when the hook does not run, not a rule to reason from.
 
-The lease stops being pre-approved once the branch has an open PR carrying a
-review or comment: cleaning up your own history is fine, rewriting what someone
-has already read is not. It must be paired with `--force-if-includes` — the guard
-refuses a bare lease, because a background fetch refreshes the remote-tracking
-ref and degrades it into a plain force.
-
-Everything else prompts, and that is not only `master`: any destination outside the
-prefixes above — `release/1.2`, `hotfix-3` — prompts too, as do plain
-`--force`/`-f`, deletes and a different remote. `HEAD` is resolved to the branch
-you are on and judged by that same prefix rule. A push routed through
-`--git-dir`, `--work-tree`, `-c` or another option that redirects where it lands
-always prompts; plain `git -C <path> push` is evaluated exactly like a direct push.
-
-The guard reads one unquoted `git push` at a time. Quoting the branch
-(`git push origin "agent/$name"`) or chaining onto it (`git push … && gh pr create`)
-puts the command past what it will parse, so it prompts instead of pre-approving —
-keep the push on its own line, unquoted, and follow up in a separate command. The
-one exception is `cd <dir> && git push …`, which the guard normalizes and judges as
-the push it is — the approval then covers the whole command, `cd` included.
-
-The guard decides how you may push, never whether — push only when the request
-calls for it, and never restructure a command to dodge a prompt.
-
-Enforced by `.claude/hooks/git-push-guard.sh`, registered in `.claude/settings.json`
-— both committed, so the rule and the permission travel with the repo rather than
-living on one machine. This repo sets no `branchPrefixes`, so the list above is
-the guard's own built-in default rather than anything named in `settings.json`. That file also carries an `ask`
-rule on `master` destinations, so a push that names the default branch is refused
-even when the hook does not run at all. That rule matches the command text, so
-it only catches a push that spells `master` out: `git push origin HEAD`, a bare
-`git push`, or `git push origin` with no refspec still reach `master` without
-matching it. The hook catches those; the floor is a second line, not an equal
-one — and not one to reason from. Never plan a push around whether it would
-match the floor: decide by what the guard permits, and if a prompt appears,
-answer it rather than reshaping the command until it stops.
+Committed enablement installs nothing. On a new machine, run
+`claude plugin install ikeh-git@ikeh --scope local` in this repo; the parent
+macos-setup `tasks/install.sh` registers the `ikeh` marketplace.

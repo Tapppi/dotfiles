@@ -8,11 +8,13 @@
 - `statusline-command.sh` is the status line script showing model, directory,
   session start time, context tokens (with token-count-based color thresholds),
   rate limit percentages, and countdown to reset, in Solarized Dark colors.
-- `git-push-guard.sh` decides `git push` approvals, but is **not** a user-level
-  file: each participating repo commits its own copy under `.claude/hooks/` and
-  registers it in that repo's `.claude/settings.json`. The reference copy is
-  `macos-setup/.claude/hooks/git-push-guard.sh`; syncing a change means copying it
-  to each repo. See *Pushing branches* under Git Workflow.
+- The git guards (push guard, worktree guard) and the `git-workflows` skill
+  ship in the `ikeh-git` plugin from the private `ikeh` marketplace
+  (`mantadevoy/ikeh`), which `settings.json` registers as a directory source and
+  `macos-setup`'s `tasks/install.sh` clones and adds. The plugin is **not**
+  enabled at user scope: each repo enables `ikeh-git@ikeh` in its own
+  `.claude/settings.json` once its agent instructions have been checked against
+  the plugin's rules. See *Pushing branches* under Git Workflow.
 - User-level MCP servers are stored in `~/.claude.json`; that file is not
   tracked because it contains auto-generated state. The `macos-setup` repo
   configures these via `tasks/install.sh`.
@@ -89,9 +91,10 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  Where a nested repo commits a push guard (`macos-setup`, `dotfiles`,
-  `skills`) it governs pushes there; elsewhere the user-level ask floor is
-  all that stands. Other `git -C` commands are judged by the session's normal
+  A `git -C <subrepo> push` is judged by the guards active in the current
+  session, reading the target repo's own `pushGuard`; a nested repo enabling
+  `ikeh-git` does not activate hooks in a parent session. With no guard active
+  in the session, the user-level ask floor is all that stands. Other `git -C` commands are judged by the session's normal
   permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
@@ -105,22 +108,18 @@ This whole arrangement is an interim measure for an unsandboxed local workspace:
 it buys back a little autonomy without widening what an agent can reach. The
 intended end state is the opposite shape — agents working freely inside a sandbox,
 with scripted guards only where work crosses the boundary. Treat what follows as a
-stopgap to keep consistent, not as an architecture to build on.
+stopgap to keep consistent, not as an architecture to build on. The guards are
+guardrails against obvious agent mistakes, not a security boundary.
 
 **By default every `git push` prompts.** A repo waives that prompt for its own
-agent branches by committing a `git-push-guard.sh` PreToolUse hook under
-`.claude/hooks/` and registering it in the repo's committed `.claude/settings.json`
-— rule, mechanism and permission versioned together in the repo they govern. A
-repo without that hook prompts, which is the right default for anything shared or
-production-facing.
-
-Branch naming is a **per-repo convention, never a global one**: the guard ships a
-permissive default — `agent/`, the conventional-commit types, plus `debug/` and
-`backup/` — and each repo narrows it via `branchPrefixes`. A repo that omits
-`branchPrefixes` is governed by that default and by nothing in its own settings.
-Read the repo's own guidance for the names it expects rather than assuming. The
-guard decides **how** you may push, never **whether** — it removes a prompt, not
-the rule that you push only when the request calls for it.
+agent branches by enabling the `ikeh-git@ikeh` plugin in its committed
+`.claude/settings.json` together with a `pushGuard` block — rule and permission
+versioned together in the repo they govern. Committed enablement installs nothing:
+on each machine the plugin is installed into that repo with
+`claude plugin install ikeh-git@ikeh --scope local`, and a repo whose plugin is
+not installed has no guard at all. Without the plugin there is no hook verdict:
+pushes fall to the session's permission mode, and the user-level ask floor catches
+only the forms it names.
 
 ```json
 {
@@ -133,47 +132,40 @@ the rule that you push only when the request calls for it.
 }
 ```
 
-It approves only a single-line, unquoted `git push` invoked directly, whose
-remote matches, whose every destination ref sits under a configured prefix —
-including the right side of a `src:dst` refspec and `HEAD` resolved to the current
-branch — and whose flags are all on its allowlist: `-u`, `--set-upstream`,
-`--force-with-lease` (bare, or `=<ref>` naming only the ref), `--force-if-includes`,
-`--dry-run`,
-`--atomic`, `--no-tags`, `--porcelain`, `--progress`/`--no-progress`, `-q`/`--quiet`,
-`-v`/`--verbose`.
+`allowAgenticPush` must be the boolean `true` or every push prompts; `remote` is
+the only remote a push may be approved for; `branchPrefixes` (a list) narrows the
+destinations, and when omitted the plugin's permissive default applies;
+`requireWorktree` (a boolean) approves pushes only from a linked worktree. A value
+of the wrong type makes every push prompt.
 
-`--force-with-lease` is approved only while nobody has reviewed the branch: if an
-open PR on the destination carries any review or comment, it prompts instead.
-Cleaning up your own history is fine; rewriting what someone has already read is
-not. It must be paired with `--force-if-includes` — the guard refuses a bare lease,
-since any background fetch refreshes the remote-tracking ref and degrades it into
-a plain force.
+The plugin's `ikeh-git:git-workflows` skill and its `references/push-guard.md`
+are the full rules; load the skill in a repo that enables it. In outline:
 
-Everything else prompts: plain `--force`/`-f`, `--delete`, `--mirror`, `--prune`,
-a default-branch destination, a `:branch` delete refspec, a `+branch` forced
-refspec, a different remote, a bare `git push`, and `git push origin` with no
-refspec. A `git push` the guard cannot parse — quoting, a pipe, a second command —
-prompts rather than falling through, since the fall-through would otherwise reach
-a permissive default mode. A `--force-with-lease=<ref>:<expected>` that supplies its
-own expected value is a plain force in disguise, so it prompts too. Commands that
-merely mention a push in passing are left alone entirely. Never restructure a
-command to dodge a prompt; let it ask.
+- It approves a plain `git push` to the configured remote whose every destination
+  sits under the repo's branch prefixes, with allowlisted flags only. A plain
+  chain of `git add <paths>`, `git commit -m …` and a final push that names its
+  branch (not `HEAD`) and would be approved on its own gets no verdict and falls
+  to the session's permission mode; every other push prompts, including
+  a bare `git push`, plain `--force`/`-f`, deletes and a different remote.
+- Branch naming is a **per-repo convention, never a global one**: without
+  `branchPrefixes` the plugin's permissive default applies — `agent/`, the
+  conventional-commit types, `debug/` and `backup/`. Read the repo's own guidance
+  for the names it expects rather than assuming.
+- `--force-with-lease` must be paired with `--force-if-includes`, and is approved
+  only while the branch's open PR carries no review or comment.
+- Its worktree guard denies whole-tree staging (`git add -A`, `git commit -a` and
+  relatives) in a main checkout and any rebase of the default branch.
 
-The guard needs `jq` to read its input and write its verdict. Without it a push
-prompts and says so rather than going quiet. In that degraded mode it matches on
-raw text, so it over-prompts a little — `git commit -m push` trips it. That is the
-deliberate trade: a tighter pattern would miss `git --git-dir <path> push`.
-
-`git -C <path> push` is read as the push it is and judged on its merits. The
-other global options — `--git-dir`, `--work-tree`, `-c`, `--namespace`, or any the
-guard does not recognise — redirect which repository, config or worktree the push
-lands in, which the guard cannot verify, so those always prompt.
+The guard decides **how** you may push, never **whether** — it removes a prompt,
+not the rule that you push only when the request calls for it. Never restructure
+a command to dodge a prompt; let it ask.
 
 The `git push` entries in user-level `permissions.ask` are a fail-closed floor for
-repos with no guard; a guarded repo commits its own four-rule floor on
-`main`/`master` destinations, so its default branch survives the hook not
-running. Keep them disjoint from what the guard approves — an `ask` rule
-overrides a hook's `allow`.
+repos without the plugin; a repo that enables it commits its own four-rule floor on
+`main`/`master` destinations, so its default branch keeps a prompt when the hook
+does not run. That floor is deliberately broader than the guard — it prompts on
+any push whose text contains `main` or `master`, even one the guard would approve,
+since an `ask` rule overrides a hook's `allow`.
 
 **Neither floor is a rule to reason from.** Both are backstops for the hook
 failing to run, and both match on command text, so each has forms it cannot see —
@@ -193,13 +185,13 @@ Every `git push` rule there is mirrored onto the `git -* push` form, so an indir
 push to a default branch, a force-push or a delete prompts even where no guard is
 installed — while a safe `git -C … push` matches neither and is left to the guard.
 
-Separately — and this is the script's own lookup, not permission-rule precedence,
+Separately — and this is the plugin's own lookup, not permission-rule precedence,
 which unions rules across files and resolves them by decision type — the guard
 resolves its `pushGuard` config first-match-wins over `.claude/push-guard.json`,
 then `.claude/settings.local.json`, then the committed `.claude/settings.json`. A
 gitignored local file therefore outranks a repo's committed policy silently, so a
 stray `pushGuard` in one can loosen `requireWorktree` or `branchPrefixes` with no
-signal that the committed file was ignored.
+signal that the committed file was ignored. Keep `pushGuard` in the committed file.
 
 ## Platform Gotchas
 
