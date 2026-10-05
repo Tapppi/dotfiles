@@ -62,9 +62,9 @@
   session's original working directory to run commands in the subrepo.
   Always `cd` back to the original working directory before running any
   git command — never run bare `git` while `cd`-ed into a subrepo.
-  Where a nested repo commits a push guard (`macos-setup`, `dotfiles`,
-  `skills`) it governs pushes there; elsewhere the user-level ask floor is
-  all that stands. Other `git -C` commands are judged by the session's normal
+  Where a nested repo enables the `ikeh-git` plugin or commits its own push
+  guard, that guard governs pushes there; elsewhere the user-level ask floor
+  is all that stands. Other `git -C` commands are judged by the session's normal
   permission mode.
 - **NEVER replace a nested repo.** Do not remove, re-init, re-clone, or
   swap a nested repository directory (submodule or otherwise) for a
