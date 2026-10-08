@@ -8,3 +8,9 @@ indent_size = 2
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+
+# Markdown, including Cursor's .mdc rules: spaces, prose wrapped at 100 columns
+[*.{md,mdc}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
