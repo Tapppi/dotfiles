@@ -22,10 +22,11 @@ here is lost at the next sync.
 ## Plugins, hooks and permissions
 
 - Marketplaces are registered in `extraKnownMarketplaces`, with the tapppi-skills and ikeh
-  checkouts as directory sources. A small user-scope set is enabled in `enabledPlugins`. Other
-  plugins are enabled per repo (committed `enabledPlugins`, or local scope) and installed on each
-  machine with `claude plugin install <plugin>@<marketplace> --scope local`; a user-scope install
-  would enable the plugin everywhere.
+  checkouts as directory sources. A small user-scope set is enabled in `enabledPlugins`, where an
+  explicit `false` also keeps a plugin off in OpenCode and Cursor. Other plugins are enabled per
+  repo (committed `enabledPlugins`, or local scope) and installed on each machine with
+  `claude plugin install <plugin>@<marketplace> --scope local`; a user-scope install would enable
+  the plugin everywhere.
 - User-level hooks are herdr's SessionStart and those of the user-scope plugins. Repos add hooks
   through their plugins and document them.
 - Permissions are configured in `settings.json` `permissions` and in each repo's
@@ -84,9 +85,9 @@ before any system-level install, and consider a container instead of an ad-hoc i
 
 Skills that need Python libraries share a venv at `~/.local/share/agent-skills/venv/`. Install
 with `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>` and run scripts
-with that interpreter. It holds the document skills' dependencies (docx, pdf, pptx, xlsx) and
-Playwright with Chromium. A skill that asks for "an interpreter that can import X" means this one,
-unless a repo names another.
+with that interpreter. It holds the Python dependencies of the claude.ai-synced document skills
+(docx, pdf, pptx, xlsx) and Playwright with Chromium. A skill that asks for "an interpreter that
+can import X" means this one, unless a repo names another.
 
 ## Skills, plugins and MCP
 

@@ -87,9 +87,9 @@ before any system-level install, and consider a container instead of an ad-hoc i
 
 Skills that need Python libraries share a venv at `~/.local/share/agent-skills/venv/`. Install
 with `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>` and run scripts
-with that interpreter. It holds the document skills' dependencies (docx, pdf, pptx, xlsx) and
-Playwright with Chromium. A skill that asks for "an interpreter that can import X" means this one,
-unless a repo names another.
+with that interpreter. It holds the Python dependencies of the claude.ai-synced document skills
+(docx, pdf, pptx, xlsx) and Playwright with Chromium. A skill that asks for "an interpreter that
+can import X" means this one, unless a repo names another.
 
 ## Skills, plugins and MCP
 
