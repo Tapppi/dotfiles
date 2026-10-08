@@ -354,5 +354,20 @@
     "model-version:openai/gpt-5.3-codex->openai/gpt-5.4",
     "model-version:openai/gpt-5.3-codex->openai/gpt-5.4",
     "model-version:openai/gpt-5.3-codex->openai/gpt-5.4"
-  ]
+  ],
+  "mcp_env_allowlist": [
+    "CONTEXT7_API_KEY"
+  ],
+  "skills": {
+    "sources": [
+      "~/project/github/tapppi/skills/tapppi/browser/skills",
+      "~/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills"
+    ]
+  },
+  "claude_code": {
+    "plugins_override": {
+      "codex@openai-codex": false,
+      "document-skills@anthropic-agent-skills": false
+    }
+  }
 }
