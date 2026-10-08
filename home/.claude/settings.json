@@ -2,6 +2,11 @@
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
 	"model": "opus",
 	"effortLevel": "xhigh",
+	"modelSettings": {
+		"claude-opus-5-5": {
+			"effortLevel": "medium"
+		}
+	},
 	"awaySummaryEnabled": true,
 	"fallbackModel": [
 		"opus",
@@ -30,10 +35,16 @@
 	},
 	"enabledPlugins": {
 		"skill-creator@tapppi-skills": true,
-		"document-skills@anthropic-agent-skills": true,
+		"document-skills@anthropic-agent-skills": false,
 		"duckdb-skills@claude-plugins-official": true,
-		"superpowers@claude-plugins-official": true,
+		"superpowers@claude-plugins-official": false,
 		"codex@openai-codex": true
+	},
+	"skillOverrides": {
+		"anthropic-skills:docs": "off",
+		"anthropic-skills:chrome-browser": "off",
+		"anthropic-skills:built-in-browser": "off",
+		"anthropic-skills:computer-use": "off"
 	},
 	"extraKnownMarketplaces": {
 		"tapppi-skills": {
@@ -63,38 +74,6 @@
 	},
 	"permissions": {
 		"defaultMode": "auto",
-		"ask": [
-			"Bash(git push)",
-			"Bash(git push *main*)",
-			"Bash(git push *master*)",
-			"Bash(git push *--force)",
-			"Bash(git push *--force *)",
-			"Bash(git push *-f)",
-			"Bash(git push *-f *)",
-			"Bash(git push *-d)",
-			"Bash(git push *-d *)",
-			"Bash(git push *--delete*)",
-			"Bash(git push *--all*)",
-			"Bash(git push *--mirror*)",
-			"Bash(git push *--prune*)",
-			"Bash(git push *--receive-pack*)",
-			"Bash(git push *--exec*)",
-			"Bash(git -* push)",
-			"Bash(git -* push *main*)",
-			"Bash(git -* push *master*)",
-			"Bash(git -* push *--force)",
-			"Bash(git -* push *--force *)",
-			"Bash(git -* push *-f)",
-			"Bash(git -* push *-f *)",
-			"Bash(git -* push *-d)",
-			"Bash(git -* push *-d *)",
-			"Bash(git -* push *--delete*)",
-			"Bash(git -* push *--all*)",
-			"Bash(git -* push *--mirror*)",
-			"Bash(git -* push *--prune*)",
-			"Bash(git -* push *--receive-pack*)",
-			"Bash(git -* push *--exec*)"
-		],
 		"allow": [
 			"Edit(/**)",
 			"Edit(//tmp/**)",
