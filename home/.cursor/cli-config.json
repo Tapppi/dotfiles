@@ -12,7 +12,8 @@
 		"showLineNumbers": true,
 		"showThinkingBlocks": true,
 		"showStatusIndicators": true,
-		"showStatusLineRunningTime": true
+		"showStatusLineRunningTime": true,
+		"mode": "zen"
 	},
 	"attribution": {
 		"attributeCommitsToAgent": false,
@@ -128,5 +129,10 @@
 			"Mcp(playwright:*)",
 			"Mcp(google-dev-knowledge:*)"
 		]
+	},
+	"autoAcceptWebSearch": true,
+	"sandbox": {
+		"mode": "disabled",
+		"networkAccess": "user_config_with_defaults"
 	}
 }
