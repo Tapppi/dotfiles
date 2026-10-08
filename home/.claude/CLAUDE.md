@@ -17,8 +17,9 @@ here is lost at the next sync.
   `~/.claude/skills/context7-mcp/` and `~/.claude/rules/context7.md`. macos-setup's
   `./setup.sh context7` (an owner step; it needs sudo) restores ctx7's files and keeps the
   context7 MCP entry on `CONTEXT7_API_KEY`. Never run a plain `ctx7 setup`, which writes the key
-  into `~/.claude.json`; `ctx7 setup --claude --oauth` restores only the skill and rule and
-  leaves a keyless entry.
+  into `~/.claude.json`; `ctx7 setup --claude --oauth` restores the skill and rule but also
+  replaces the context7 entry with a keyless one, so follow a hand run with
+  `./setup.sh context7` to put the `CONTEXT7_API_KEY` form back.
 - claude.ai sync writes `~/.claude/skills/synced/` and `~/.claude/plugins/synced/`, and
   `skillOverrides` in `settings.json` hides synced skills by name.
 

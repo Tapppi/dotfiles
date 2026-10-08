@@ -29,9 +29,9 @@ file exists, OpenCode does not read `~/.claude/CLAUDE.md`.
 - OpenCode reads `~/.claude/skills/`, claude.ai-synced skills included (named
   `synced/<bucket>/<name>`), which `skillOverrides` does not hide. Instead, `permission.skill`
   denies the synced skills that depend on claude.ai's app or connectors, and oh-my-openagent's
-  `skills.disable` drops them from its `skill` tool; its agent prompts and slash commands may
-  still name them. The deny is enforced only in that `skill` tool, so a slash command or
-  `task(load_skills=…)` can still load such a skill.
+  `skills.disable` drops them from its `skill` tool by bucket-qualified name; its agent prompts
+  and slash commands may still name them. The deny is enforced only in that `skill` tool, so a
+  slash command or `task(load_skills=…)` can still load such a skill.
 
 ## Permissions and hooks
 
