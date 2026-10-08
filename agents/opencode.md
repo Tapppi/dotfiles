@@ -7,8 +7,8 @@ file exists, OpenCode does not read `~/.claude/CLAUDE.md`.
 
 - `opencode.json` (plugins `oh-my-openagent` and `opencode-claude-auth`, `skills.paths`,
   `permission.skill`, TUI) and `oh-my-openagent.json` (agent and category models, Claude Code
-  compatibility, `skills.sources`, `mcp_env_allowlist`) are synced from dotfiles
-  `config/opencode/`. herdr writes `plugins/herdr-agent-state.js`, `herdr-tui-session.js`,
+  compatibility, `skills.sources` and `skills.disable`, `mcp_env_allowlist`) are synced from
+  dotfiles `config/opencode/`. herdr writes `plugins/herdr-agent-state.js`, `herdr-tui-session.js`,
   `herdr-opencode/` and `tui.jsonc`. The binary comes from Nix.
 - npm plugins are listed in `opencode.json`; OpenCode has no marketplace. Skills come from a
   repo's `.agents/skills` and `.claude/skills`, `~/.agents/skills`, `~/.claude/skills`, and the
@@ -27,7 +27,10 @@ file exists, OpenCode does not read `~/.claude/CLAUDE.md`.
   like) expands empty unless `mcp_env_allowlist` names it, as it does `CONTEXT7_API_KEY`.
 - OpenCode reads `~/.claude/skills/`, claude.ai-synced skills included (named
   `synced/<bucket>/<name>`), which `skillOverrides` does not hide. Instead, `permission.skill`
-  denies the synced skills that depend on claude.ai's app or connectors; they may still be listed.
+  denies the synced skills that depend on claude.ai's app or connectors, and oh-my-openagent's
+  `skills.disable` drops them from its `skill` tool; its agent prompts and slash commands may
+  still name them. The deny is enforced only in that `skill` tool, so a slash command or
+  `task(load_skills=…)` can still load such a skill.
 
 ## Permissions and hooks
 
