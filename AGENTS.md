@@ -7,13 +7,16 @@ AGENTS.md for the full setup automation context.
 
 ## Repository Structure
 
-```
+```text
 dotfiles/
   home/                       # rsync → ~/
     .bash_profile             # Sources ~/.config/bash/.bash_profile
     .bashrc                   # Delegates to .bash_profile for interactive shells
-    .claude/                  # Claude Code config (no XDG support)
-    .cursor/                  # Cursor CLI: mcp.json, rules/*.mdc, cli-config.json (fallback copy)
+    .claude/                  # Claude Code: settings.json, keybindings.json, statusline-command.sh,
+                              # CLAUDE.md (generated from agents/); no XDG support
+    .codex/AGENTS.md          # Codex user-level instructions (generated from agents/)
+    .cursor/                  # Cursor CLI: mcp.json, cli-config.json (fallback copy),
+                              # rules/00-environment.mdc (generated from agents/)
     .hushlogin                # Suppress login banner
     .parallel/will-cite       # Silence GNU parallel citation warning
   config/                     # rsync → ~/.config/
@@ -35,12 +38,13 @@ dotfiles/
     micro/                    # Micro editor settings
     mise/                     # Mise runtime version manager config
     nnn/                      # nnn file manager plugins
-    opencode/                 # OpenCode AI agent config + AGENTS.md (user-level context)
+    opencode/                 # OpenCode config + AGENTS.md (generated from agents/)
     readline/inputrc          # Readline key bindings and completion settings
     ripgrep/                  # Ripgrep defaults
     terminal/                 # Terminal.app Solarized themes
     tmux/tmux.conf            # tmux with Ctrl+A prefix, vim keys, pbcopy
     wgetrc                    # wget config
+  agents/                     # Sources of the user-level agent instructions + render.sh
   bootstrap.sh                # rsync home/→~/ and config/→~/.config/
   keyboard-layouts/           # Custom Finnish Programmer keyboard layout
 ```
@@ -50,11 +54,34 @@ place: `install_dotfiles` copies them into `~/.config/bash/` during install.
 
 ## Build / Lint
 
-No build system or test suite. Validate shell scripts with:
+No build system or test suite. Validate shell scripts, and check that the generated agent
+instructions match their sources:
 
 ```sh
-shellcheck bootstrap.sh config/bash/.functions
+shellcheck bootstrap.sh config/bash/.functions agents/render.sh
+agents/render.sh --check
 ```
+
+## Generated agent instructions
+
+The user-level instruction files are rendered from `agents/`: `core.md` is the shared
+environment core, and `claude-code.md`, `codex.md`, `opencode.md` and `cursor.md` are the
+harness headers. `agents/render.sh` writes header plus core into each output, and the outputs
+are committed and deployed by the ordinary sync:
+
+| Header | Output | Deployed to |
+| --- | --- | --- |
+| `claude-code.md` | `home/.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
+| `codex.md` | `home/.codex/AGENTS.md` | `~/.codex/AGENTS.md` |
+| `opencode.md` | `config/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
+| `cursor.md` | `home/.cursor/rules/00-environment.mdc` | `~/.cursor/rules/00-environment.mdc` |
+
+- Edit `agents/`, run `agents/render.sh`, and commit the sources and outputs together. Never
+  edit an output by hand: `agents/render.sh --check` fails on a hand edit or a stale render.
+- Harness permissions live in harness config (`settings.json`, `cli-config.json`, Codex's config
+  layers). The instruction files say where they are configured, never what the rules are.
+- The ChatGPT/Codex app's custom-instructions pane writes `~/.codex/AGENTS.md`, and the next
+  sync overwrites that edit; carry a wanted change into `agents/`.
 
 ## Syncing to Home Directory
 
@@ -82,8 +109,10 @@ Some tools write their own config into paths this repo tracks:
 - `herdr integration install claude` writes
   `~/.claude/hooks/herdr-agent-state.sh` and a `SessionStart` entry in
   `~/.claude/settings.json`.
+- `herdr integration install codex` writes `~/.codex/herdr-agent-state.sh` and
+  `~/.codex/hooks.json`, beside the tracked `~/.codex/AGENTS.md`.
 
-Neither is vendored here. Both commands run from macos-setup's
+None of it is vendored here. These commands run from macos-setup's
 `tasks/install.sh` **after** `bootstrap.sh`, so the sync drops the tool's key and
 the tool writes it straight back. That ordering is the whole mechanism, and it is
 why the tracked `settings.json` carries no `hooks` key while the live one does.
@@ -101,9 +130,10 @@ both alone — so no mirror and no mirror exclude is needed for either.
 
 | Agent       | User-level config dir | Settings file       | User-level rules          | MCP config           |
 |-------------|----------------------|---------------------|--------------------------|---------------------|
-| Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md`              | `~/.claude.json` (untracked) |
-| Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/*.mdc` | `home/.cursor/mcp.json` |
-| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md`              | via oh-my-openagent plugin |
+| Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md` (generated)  | `~/.claude.json` (untracked) |
+| Codex       | `home/.codex/`       | `~/.codex/config.toml` (untracked, Codex-owned) over systems' `/etc/codex/config.toml` | `AGENTS.md` (generated) | `~/.codex/config.toml` (untracked) |
+| Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/00-environment.mdc` (generated) | `home/.cursor/mcp.json` |
+| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | via oh-my-openagent plugin |
 
 Agent skills are not in that table: they are not dotfiles' to manage. See
 [Tapppi/skills](https://github.com/Tapppi/skills) for the shared bundles, and
@@ -126,9 +156,9 @@ wrong silently disables the file rather than erroring:
 Cursor natively reads much of the Claude Code setup — repo `CLAUDE.md`,
 `.claude/skills/**/SKILL.md`, `.claude/agents/**`, `~/.claude/commands/`,
 `enabledPlugins` and hooks from `.claude/settings*.json` — so it needs no
-mirroring. It does **not** read `~/.claude/CLAUDE.md` (hence
-`home/.cursor/rules/*.mdc`) or Claude's `Bash(...)` permission entries (Cursor's
-shell tool is `Shell(...)`, so those load but never match).
+mirroring. It does **not** read `~/.claude/CLAUDE.md` (hence the generated
+`home/.cursor/rules/00-environment.mdc`) or Claude's `Bash(...)` permission entries
+(Cursor's shell tool is `Shell(...)`, so those load but never match).
 
 ### Shell permission syntax: spaces, not colons
 
@@ -164,18 +194,16 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 - Use `[[ ]]` for conditionals
 - Lowercase with underscores for function/variable names
 - EditorConfig: tabs (width 2), UTF-8, LF, trim trailing whitespace
+- Markdown (`.md`, `.mdc`): spaces, two-space list indentation, prose wrapped at 100 columns
+  (tables and a single long link or code span may overflow), fenced code with a language
 
 ## Git Conventions
 
 - This repo uses `master` branch
-- GPG signing via 1Password SSH agent (`gpg.format = ssh`)
+- Commits are SSH-signed through 1Password (`gpg.format = ssh`, `op-ssh-sign`)
 - Commit messages: imperative mood, concise (e.g. "Update Ghostty config")
-- After committing here, update the parent repo submodule pointer. Use
-  `git -C ..` so the shell CWD stays in the submodule:
-  ```sh
-  git -C .. add dotfiles
-  git -C .. commit -m "Update dotfiles"
-  ```
+- Once a change lands on `master` here, the parent macos-setup repo records the new
+  submodule pointer (`git add dotfiles`, commit "Update dotfiles").
 
 ### Git Identity and Attribution
 
@@ -184,13 +212,8 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
   Commits must look like normal developer commits.
 - **NEVER** change `user.name`, `user.email`, or any git identity
   configuration. The repository owner's identity must remain on all commits.
-- **Exception — unattended workflows**: If the agent must commit in an
-  unattended context (e.g. CI, cron, background automation) where the
-  owner's signing key is unavailable, it may temporarily set a placeholder
-  identity to allow the commit to proceed. In this case:
-  1. Clearly inform the user that commits were made with a placeholder identity.
-  2. Note that these commits need `git rebase` / `git commit --amend` to
-     restore the correct author before pushing to a shared remote.
+- A commit that cannot be signed follows the user-level *Commit signing* rules
+  (generated from `agents/core.md`); the identity never changes.
 
 ### Do Not Run Setup Scripts
 
@@ -199,14 +222,15 @@ See the parent repo's AGENTS.md for full shell script conventions. Key points:
 
 ### Edit Source Files Here, Not in `~/`
 
-**NEVER** edit deployed files directly in `~/`, `~/.claude/`, `~/.cursor/` or
-`~/.config/`. Edit the source in `home/` or `config/` here, then copy the
+**NEVER** edit deployed files directly in `~/`, `~/.claude/`, `~/.codex/`,
+`~/.cursor/` or `~/.config/`. Edit the source in `home/` or `config/` here, then copy the
 changed file to its destination (`cp home/.claude/foo ~/.claude/foo`). The home
 directory copies are deployment targets; this repo is the source of truth.
 
-The exception is config a tool writes into a path this repo tracks — see
-*Tool-owned config inside tracked files* above. Those are re-asserted by the
-tool, never vendored here.
+The generated instruction files are edited one step further back, in `agents/`
+(see *Generated agent instructions*). The exception is config a tool writes into
+a path this repo tracks (see *Tool-owned config inside tracked files* above),
+which the tool re-asserts and this repo never vendors.
 
 ### Files to Never Commit
 

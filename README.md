@@ -18,7 +18,7 @@ that repo for the full setup automation.
 Two sync directories plus standalone files at the repo root:
 
 - `home/` — rsynced to `~/` (files that don't support XDG):
-  `.bash_profile`, `.bashrc`, `.claude/`, `.hushlogin`, `.parallel/`
+  `.bash_profile`, `.bashrc`, `.claude/`, `.codex/`, `.cursor/`, `.hushlogin`, `.parallel/`
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
   `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
   `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
@@ -26,6 +26,9 @@ Two sync directories plus standalone files at the repo root:
   mirrored with `--delete`. A failing rsync is reported and becomes the script's exit
   status; the remaining sync still runs
 - `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
+- `agents/` — sources of the user-level agent instructions: a shared core, one header per
+  harness, and `render.sh`, which writes the generated files for Claude Code, Codex, OpenCode
+  and Cursor (`agents/render.sh --check` reports drift)
 
 ## What's inside
 
@@ -41,7 +44,10 @@ Two sync directories plus standalone files at the repo root:
 - `config/opencode/` — OpenCode AI agent config, including the `oh-my-openagent` plugin entrypoint
 - `config/ripgrep/` — Ripgrep defaults
 - `config/tmux/tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
-- `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline)
+- `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline, generated
+  `CLAUDE.md`)
+- `home/.codex/` — the generated Codex user-level `AGENTS.md`
+- `home/.cursor/` — Cursor CLI config and the generated `rules/00-environment.mdc`
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
 ## Application hotkeys
@@ -72,7 +78,7 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 - `config/opencode/oh-my-openagent.json` is the tracked companion config for
   agent/category model choices and plugin-managed behavior.
 - `config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
-  the user-level instruction file.
+  the user-level instruction file. It is generated from `agents/`; edit there.
 - This repo intentionally keeps the OpenCode-side customisation focused on the
   plugin entrypoint, companion config, and user-level instructions. MCP server
   inventory and bundled skills come from `oh-my-openagent` itself rather than a

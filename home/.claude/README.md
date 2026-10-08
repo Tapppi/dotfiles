@@ -10,7 +10,11 @@ Source of truth for `~/.claude/`. Synced from `dotfiles/home/.claude/` by
 | `settings.json`         | User-level Claude Code settings (model, effort, env, status line). |
 | `keybindings.json`      | Customized keyboard bindings.                                      |
 | `statusline-command.sh` | Status line script (model, dir, ctx tokens, rate-limit countdown). |
-| `CLAUDE.md`             | User-level rules loaded as context on every session.               |
+| `CLAUDE.md`             | User-level instructions, generated from dotfiles `agents/`; edit there. |
+
+The status line shows the model, directory, session start time, context tokens (coloured by
+token-count thresholds), rate-limit percentages and the countdown to reset, in Solarized Dark
+colours.
 
 ## Notable `settings.json` choices
 
