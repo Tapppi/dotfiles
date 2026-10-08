@@ -7,7 +7,7 @@
 	"notifications": true,
 	"hints": true,
 	"rewind": false,
-	"suggestNextPrompt": false,
+	"suggestNextPrompt": true,
 	"display": {
 		"showLineNumbers": true,
 		"showThinkingBlocks": true,
