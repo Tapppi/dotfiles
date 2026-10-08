@@ -26,11 +26,11 @@ here is lost at the next sync.
 ## Plugins, hooks and permissions
 
 - Marketplaces are registered in `extraKnownMarketplaces`, with the tapppi-skills and ikeh
-  checkouts as directory sources. A small user-scope set is enabled in `enabledPlugins`, where an
-  explicit `false` also keeps a plugin off in OpenCode and Cursor. Other plugins are enabled per
-  repo (committed `enabledPlugins`, or local scope) and installed on each machine with
-  `claude plugin install <plugin>@<marketplace> --scope local`; a user-scope install would enable
-  the plugin everywhere.
+  checkouts as directory sources. A small user-scope set is enabled in `enabledPlugins`, which
+  Cursor also reads (it loads only plugins set `true`); OpenCode loads no Claude Code plugins.
+  Other plugins are enabled per repo (committed `enabledPlugins`, or local scope) and installed on
+  each machine with `claude plugin install <plugin>@<marketplace> --scope local`; a user-scope
+  install would enable the plugin everywhere.
 - User-level hooks are herdr's SessionStart and those of the user-scope plugins. Repos add hooks
   through their plugins and document them.
 - Permissions are configured in `settings.json` `permissions` and in each repo's

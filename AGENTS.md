@@ -140,7 +140,7 @@ both alone — so no mirror and no mirror exclude is needed for either.
 | Claude Code | `home/.claude/`      | `settings.json`     | `CLAUDE.md` (generated)  | `~/.claude.json` (untracked) |
 | Codex       | `home/.codex/`       | `~/.codex/config.toml` (untracked, Codex-owned) over systems' `/etc/codex/config.toml` | `AGENTS.md` (generated) | `~/.codex/config.toml` (untracked) |
 | Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/00-environment.mdc` (generated) | `home/.cursor/mcp.json` |
-| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | via oh-my-openagent plugin |
+| OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | `opencode.json` (`mcp`) |
 
 Agent skills are not in that table: they are not dotfiles' to manage. See
 [Tapppi/skills](https://github.com/Tapppi/skills) for the shared bundles, and

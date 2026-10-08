@@ -6,38 +6,33 @@ file exists, OpenCode does not read `~/.claude/CLAUDE.md`.
 
 ## OpenCode configuration
 
-- `opencode.json` (plugins `oh-my-openagent` and `opencode-claude-auth`, `skills.paths`,
-  `permission.skill`, TUI) and `oh-my-openagent.json` (agent and category models, Claude Code
-  compatibility, `skills.sources` and `skills.disable`, `mcp_env_allowlist`) are synced from
-  dotfiles `config/opencode/`. herdr writes `plugins/herdr-agent-state.js`, `herdr-tui-session.js`,
-  `herdr-opencode/` and `tui.jsonc`. The binary comes from Nix.
-- npm plugins are listed in `opencode.json`; OpenCode has no marketplace. Skills come from a
-  repo's `.agents/skills` and `.claude/skills`, `~/.agents/skills`, `~/.claude/skills`, and the
-  `browser` and `frontend-design` directories named in both `skills.paths` and `skills.sources`
-  (oh-my-openagent's `skill` tool reads only the latter).
+- `opencode.json` (default `model` and `small_model`, `skills.paths`, the context7 `mcp` entry,
+  `permission.skill`, TUI) is synced from dotfiles `config/opencode/` and loads no npm plugins.
+  herdr writes `plugins/herdr-agent-state.js`, `herdr-tui-session.js`, `herdr-opencode/` and
+  `tui.jsonc`. The binary comes from Nix.
+- Providers are ChatGPT (`openai`, OpenCode's built-in OAuth) and z.ai (`zai-coding-plan`),
+  logged in with `opencode auth login`; their credentials stay in the untracked
+  `~/.local/share/opencode/auth.json`.
+- Skills come from a repo's `.agents/skills` and `.claude/skills`, `~/.agents/skills`,
+  `~/.claude/skills`, and the `skills.paths` directories: `browser`, `frontend-design` and the
+  ikeh-development plugin's skills from the ikeh checkout. Only the skills come across: the
+  plugin's route agents and hook have no OpenCode form, so its route dispatch does not resolve here.
 
 ## Claude Code compatibility
 
-- oh-my-openagent loads Claude Code plugins, user-scope ones everywhere and a local-scope one only
-  in the project of its first recorded install, unless the user `settings.json` or its
-  `plugins_override` sets them `false`; a repo's local enablement is not read. Here `codex` and
-  the `document-skills` plugin are off; the claude.ai-synced document skills, `browser` and
-  `frontend-design` are available.
-- It also loads MCP servers from `~/.claude.json` and `.mcp.json` files (context7 among them) and
-  Claude hooks, herdr's included. An MCP `${VAR}` whose name looks secret (`KEY`, `TOKEN` and the
-  like) expands empty unless `mcp_env_allowlist` names it, as it does `CONTEXT7_API_KEY`.
-- OpenCode reads `~/.claude/skills/`, claude.ai-synced skills included (named
-  `synced/<bucket>/<name>`), which `skillOverrides` does not hide. Instead, `permission.skill`
-  denies the synced skills that depend on claude.ai's app or connectors, and oh-my-openagent's
-  `skills.disable` drops them from its `skill` tool by bucket-qualified name; its agent prompts
-  and slash commands may still name them. The deny is enforced only in that `skill` tool, so a
-  slash command or `task(load_skills=…)` can still load such a skill.
+- OpenCode reads Claude Code's skill directories, and `~/.claude/CLAUDE.md` when this file is
+  absent. It loads no Claude Code plugins, hooks or MCP servers: context7 is its own `mcp` entry,
+  which inherits `CONTEXT7_API_KEY` from the environment and runs anonymously without it.
+- It also reads the claude.ai-synced skills in `~/.claude/skills/synced/`, which `skillOverrides`
+  does not hide. `permission.skill` denies the ones that depend on claude.ai's app or connectors,
+  which drops them from the skill list and refuses them in the `skill` tool; every skill is also a
+  slash command, and a slash command can still load a denied one.
 
 ## Permissions and hooks
 
 - Permission rules live in `opencode.json`; this file does not restate them.
-- Claude hooks run here: a hook's deny blocks the call, but an `ask` verdict does not prompt, so
-  the command runs. herdr's own OpenCode plugin also runs.
+- Claude hooks do not run here, so git guard hooks that repos enable for Claude Code do not apply,
+  but the repo's documented rules still do. herdr's own OpenCode plugin runs.
 
 ## About these instructions
 

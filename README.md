@@ -41,7 +41,7 @@ Two sync directories plus standalone files at the repo root:
   - Tab → Hyper (Cmd+Ctrl+Opt+Shift) when held, Tab when tapped
 - `config/lazygit/` — Lazygit TUI config
 - `config/mise/` — Mise runtime version manager config
-- `config/opencode/` — OpenCode AI agent config, including the `oh-my-openagent` plugin entrypoint
+- `config/opencode/` — OpenCode AI agent config (`opencode.json` and the generated `AGENTS.md`)
 - `config/ripgrep/` — Ripgrep defaults
 - `config/tmux/tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
 - `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline, generated
@@ -71,24 +71,20 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 | Hyper+J | Obsidian |
 | Hyper+M | Spotify |
 
-## OpenCode / OpenAgent notes
+## OpenCode notes
 
-- `config/opencode/opencode.json` is the synced OpenCode entrypoint and loads
-  `oh-my-openagent@latest` plus `opencode-claude-auth`.
-- `config/opencode/oh-my-openagent.json` is the tracked companion config for
-  agent/category model choices and plugin-managed behavior.
+- `config/opencode/opencode.json` is the synced OpenCode config. It loads no
+  npm plugins: skills come from `skills.paths` and the Claude Code and
+  `.agents` skill directories, and context7 is a native `mcp` entry that
+  inherits `CONTEXT7_API_KEY` from the environment.
+- Providers (ChatGPT through OpenCode's built-in OAuth, and z.ai) are logged
+  in with `opencode auth login`; their credentials stay in the untracked
+  `~/.local/share/opencode/auth.json`.
 - `config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
   the user-level instruction file. It is generated from `agents/`; edit there.
-- This repo intentionally keeps the OpenCode-side customisation focused on the
-  plugin entrypoint, companion config, and user-level instructions. MCP server
-  inventory and bundled skills come from `oh-my-openagent` itself rather than a
-  second hand-copied local mirror here.
-- Claude-specific auth remains explicit through the separate
-  `opencode-claude-auth` plugin entry in `opencode.json`.
-- No extra tmux/git-specific OpenCode wrapper config is tracked here. The repo
-  relies on the platform's built-in git/browser/tooling capabilities plus the
-  shared OpenAgent config instead of copying parallel custom wrappers into this
-  dotfiles repo.
+- oh-my-openagent is not part of this config. A setup that layers it on
+  OpenCode keeps its own config directory instead of editing these files.
+- No extra tmux/git-specific OpenCode wrapper config is tracked here.
 
 ## Attribution
 
