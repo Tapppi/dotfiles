@@ -76,7 +76,7 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 - `config/opencode/opencode.json` is the synced OpenCode config. It loads no
   npm plugins: skills come from `skills.paths` and the Claude Code and
   `.agents` skill directories, and context7 is a native `mcp` entry that
-  inherits `CONTEXT7_API_KEY` from the environment.
+  inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset).
 - Providers (ChatGPT through OpenCode's built-in OAuth, and z.ai) are logged
   in with `opencode auth login`; their credentials stay in the untracked
   `~/.local/share/opencode/auth.json`.

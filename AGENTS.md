@@ -142,6 +142,11 @@ both alone — so no mirror and no mirror exclude is needed for either.
 | Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/00-environment.mdc` (generated) | `home/.cursor/mcp.json` |
 | OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | `opencode.json` (`mcp`) |
 
+Codex's two layers: systems' `modules/darwin/codex.nix` writes `/etc/codex/config.toml` (model,
+effort, sandbox, approvals, the hooks feature, no self-update for the Nix binary), and Codex itself
+writes `~/.codex/config.toml` (project trust, TUI, hook trust hashes, marketplaces, plugins, MCP
+servers), whose keys override the system layer one by one.
+
 Agent skills are not in that table: they are not dotfiles' to manage. See
 [Tapppi/skills](https://github.com/Tapppi/skills) for the shared bundles, and
 the parent `macos-setup` repo's `docs/skills.md` for how capability reaches a
