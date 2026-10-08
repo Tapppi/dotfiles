@@ -111,6 +111,10 @@ Some tools write their own config into paths this repo tracks:
   `~/.claude/settings.json`.
 - `herdr integration install codex` writes `~/.codex/herdr-agent-state.sh` and
   `~/.codex/hooks.json`, beside the tracked `~/.codex/AGENTS.md`.
+- `herdr integration install cursor` writes `~/.cursor/herdr-agent-state.sh` and a
+  `sessionStart` entry in `~/.cursor/hooks.json`.
+- `herdr integration install opencode` writes `plugins/herdr-agent-state.js`,
+  `herdr-tui-session.js`, `herdr-opencode/` and `tui.jsonc` in `~/.config/opencode/`.
 
 None of it is vendored here. These commands run from macos-setup's
 `tasks/install.sh` **after** `bootstrap.sh`, so the sync drops the tool's key and
@@ -151,10 +155,13 @@ wrong silently disables the file rather than erroring:
   copy at `home/.cursor/cli-config.json` covers the fallback path when
   `XDG_CONFIG_HOME` is unset — keep the two byte-identical.
 - **Everything else is hardcoded to `~/.cursor/`** regardless of XDG: `mcp.json`,
-  `rules/`, `skills/`, `agents/`, `commands/`, `hooks.json` (from `home/.cursor/`).
+  `rules/`, `skills/`, `agents/`, `commands/`, `hooks.json`. Of these, only `mcp.json`
+  and `rules/` (plus the `cli-config.json` fallback copy) are tracked in `home/.cursor/`;
+  `hooks.json` is herdr's, and the others are not managed here.
 
-Cursor natively reads much of the Claude Code setup — repo `CLAUDE.md`,
-`.claude/skills/**/SKILL.md`, `.claude/agents/**`, `~/.claude/commands/`,
+Cursor natively reads much of the Claude Code setup — repo `AGENTS.md` and
+`CLAUDE.md` (following its `@` imports), `.claude/skills/**/SKILL.md`,
+`.claude/agents/**`, `~/.claude/commands/`,
 `enabledPlugins` and hooks from `.claude/settings*.json` — so it needs no
 mirroring. It does **not** read `~/.claude/CLAUDE.md` (hence the generated
 `home/.cursor/rules/00-environment.mdc`) or Claude's `Bash(...)` permission entries

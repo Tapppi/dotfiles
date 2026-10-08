@@ -9,7 +9,8 @@ file exists, OpenCode does not read `~/.claude/CLAUDE.md`.
 - `opencode.json` (plugins `oh-my-openagent` and `opencode-claude-auth`, `skills.paths`,
   `permission.skill`, TUI) and `oh-my-openagent.json` (agent and category models, Claude Code
   compatibility, `skills.sources`, `mcp_env_allowlist`) are synced from dotfiles
-  `config/opencode/`. herdr writes `plugins/herdr-*.js` and `tui.jsonc`. The binary comes from Nix.
+  `config/opencode/`. herdr writes `plugins/herdr-agent-state.js`, `herdr-tui-session.js`,
+  `herdr-opencode/` and `tui.jsonc`. The binary comes from Nix.
 - npm plugins are listed in `opencode.json`; OpenCode has no marketplace. Skills come from a
   repo's `.agents/skills` and `.claude/skills`, `~/.agents/skills`, `~/.claude/skills`, and the
   `browser` and `frontend-design` directories named in both `skills.paths` and `skills.sources`
@@ -111,8 +112,8 @@ can import X" means this one, unless a repo names another.
 - If no git workflow is defined for you and you are working in a repository, use worktrees,
   commit your work in logical units as they complete, and offer to merge or push the code when it
   is declared complete.
-- Unless a git workflow you are given requires it, push to main only on the user's request or
-  approval.
+- Unless a git workflow you are given requires it, push to the default branch (`main`, `master`)
+  only on the user's request or approval.
 - Commit only the changes you own.
 - Where the repo, a plugin or a skill does not say otherwise, make one logical change per commit.
   Prefer commits that each build and work; where that costs extra work, commit at the logical

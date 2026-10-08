@@ -14,11 +14,12 @@ not read `~/.claude/CLAUDE.md`, so this rule carries the shared core.
 - `cli-config.json` is XDG-resolved (`~/.config/cursor/`, with an identical fallback copy in
   `~/.cursor/`); `mcp.json` and `rules/` are in `~/.cursor/`. Cursor writes state into the live
   `cli-config.json`, which is never copied back into dotfiles.
-- Cursor reads a repo's `CLAUDE.md`, `.claude/skills`, `.claude/agents`, and `enabledPlugins` and
-  hooks from `.claude/settings*.json` natively. At user level it reads `~/.cursor/skills-cursor`,
-  `~/.claude/skills` (claude.ai-synced skills included), `~/.agents/skills` and the caches of
-  enabled Claude plugins. It honours `enabledPlugins` `false` but ignores `skillOverrides`, so the
-  synced skills hidden from Claude Code are listed here.
+- Cursor reads a repo's `AGENTS.md` and `CLAUDE.md` (following its `@` imports),
+  `.claude/skills`, `.claude/agents`, and `enabledPlugins` and hooks from `.claude/settings*.json`
+  natively. At user level it reads `~/.cursor/skills-cursor`, `~/.claude/skills` (claude.ai-synced
+  skills included), `~/.agents/skills` and the caches of enabled Claude plugins. It honours
+  `enabledPlugins` `false` but ignores `skillOverrides`, so the synced skills hidden from Claude
+  Code are listed here.
 - Permissions are `Shell(...)` entries in `cli-config.json` and are not restated here; Claude's
   `Bash(...)` entries never match.
 - herdr's `sessionStart` hook is in `~/.cursor/hooks.json` (herdr-owned, untracked); repos' Claude
@@ -100,8 +101,8 @@ can import X" means this one, unless a repo names another.
 - If no git workflow is defined for you and you are working in a repository, use worktrees,
   commit your work in logical units as they complete, and offer to merge or push the code when it
   is declared complete.
-- Unless a git workflow you are given requires it, push to main only on the user's request or
-  approval.
+- Unless a git workflow you are given requires it, push to the default branch (`main`, `master`)
+  only on the user's request or approval.
 - Commit only the changes you own.
 - Where the repo, a plugin or a skill does not say otherwise, make one logical change per commit.
   Prefer commits that each build and work; where that costs extra work, commit at the logical
