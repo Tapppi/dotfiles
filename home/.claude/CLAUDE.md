@@ -10,29 +10,26 @@ here is lost at the next sync.
   `home/.claude/`, whose README explains the choices. A setting changed inside Claude Code
   (`/model`, effort, `/skills`) lands in the live `settings.json`, and the next sync overwrites it
   unless dotfiles carries it too.
-- `~/.claude.json` holds MCP servers and session state and is not tracked. Its context7 entry
-  reads the key from the environment.
+- `~/.claude.json` holds MCP servers and session state and is not tracked.
 - Tool-written parts are restored by re-running the tool, not by editing: herdr's SessionStart
   hook in the live `settings.json` and `~/.claude/hooks/`, and ctx7's
   `~/.claude/skills/context7-mcp/` and `~/.claude/rules/context7.md`. macos-setup's
-  `./setup.sh context7` (an owner step; it needs sudo) restores ctx7's files and keeps the
-  context7 MCP entry on `CONTEXT7_API_KEY`. Never run a plain `ctx7 setup`, which writes the key
-  into `~/.claude.json`; `ctx7 setup --claude --oauth` restores the skill and rule but also
-  replaces the context7 entry with a keyless one, so follow a hand run with
-  `./setup.sh context7` to put the `CONTEXT7_API_KEY` form back.
+  `./setup.sh context7` (an owner step; it needs sudo) restores ctx7's files and keeps the key
+  out of `~/.claude.json`. Never run a plain `ctx7 setup`, which writes the key into
+  `~/.claude.json`; `ctx7 setup --claude --oauth` restores the skill and rule but also replaces
+  the context7 entry with a keyless one, so follow a hand run with `./setup.sh context7` to
+  restore that entry.
 - claude.ai sync writes `~/.claude/skills/synced/` and `~/.claude/plugins/synced/`, and
   `skillOverrides` in `settings.json` hides synced skills by name.
 
 ## Plugins, hooks and permissions
 
-- Marketplaces are registered in `extraKnownMarketplaces`, with the tapppi-skills and ikeh
-  checkouts as directory sources. A small user-scope set is enabled in `enabledPlugins`, which
-  Cursor also reads. Other plugins are enabled per repo (committed `enabledPlugins`, or local
-  scope) and installed on each machine with
+- Marketplaces are registered in `extraKnownMarketplaces`. A small user-scope set is enabled in
+  `enabledPlugins`, which Cursor also reads. Other plugins are enabled per repo (committed
+  `enabledPlugins`, or local scope) and installed on each machine with
   `claude plugin install <plugin>@<marketplace> --scope local`; a user-scope install would enable
   the plugin everywhere.
-- User-level hooks are herdr's SessionStart and those of the user-scope plugins. Repos add hooks
-  through their plugins and document them.
+- Repos add hooks through their plugins and document them.
 - Permissions are configured in `settings.json` `permissions` and in each repo's
   `.claude/settings.json`; this file does not restate them.
 
@@ -76,14 +73,13 @@ before any system-level install, and consider a container instead of an ad-hoc i
 ## Environment and secrets
 
 - Interactive bash shells source `~/.config/bash/.credentials` (untracked, mode `0600`), which
-  exports tool API keys such as `CONTEXT7_API_KEY`. Non-interactive shells (`bash -lc`, cron)
-  and apps launched from the Dock or Finder do not see them.
+  exports tool API keys. Non-interactive shells (`bash -lc`, cron) and apps launched from the
+  Dock or Finder do not see them.
 - Never commit or print a secret, and never write a variable's value into a file: reference the
   variable instead.
 - A workspace may carry a `mise.local.toml` that loads a local `0600` dotenv file; macos-setup's
   `tasks/projects.sh` renders it, and mise walks up across repo boundaries. Secrets come from
   1Password or the provider and are written into such files once, never fetched at shell start.
-  Where a workspace provides it, `jira-cli` reads `JIRA_API_TOKEN` from there.
 
 ## Agent-skills Python venv
 
@@ -99,7 +95,7 @@ can import X" means this one, unless a repo names another.
   published as the `tapppi-skills` marketplace. macos-setup's `docs/skills.md` explains how
   capability reaches a repo.
 - context7 is configured as an MCP server for current library, framework, SDK, API and CLI
-  documentation; prefer it to web search for those. It reads its key from `CONTEXT7_API_KEY`.
+  documentation; prefer it to web search for those.
 - Where this harness keeps its plugin and MCP configuration is in the section above.
 
 ## Working and git baseline

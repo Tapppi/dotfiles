@@ -68,14 +68,13 @@ before any system-level install, and consider a container instead of an ad-hoc i
 ## Environment and secrets
 
 - Interactive bash shells source `~/.config/bash/.credentials` (untracked, mode `0600`), which
-  exports tool API keys such as `CONTEXT7_API_KEY`. Non-interactive shells (`bash -lc`, cron)
-  and apps launched from the Dock or Finder do not see them.
+  exports tool API keys. Non-interactive shells (`bash -lc`, cron) and apps launched from the
+  Dock or Finder do not see them.
 - Never commit or print a secret, and never write a variable's value into a file: reference the
   variable instead.
 - A workspace may carry a `mise.local.toml` that loads a local `0600` dotenv file; macos-setup's
   `tasks/projects.sh` renders it, and mise walks up across repo boundaries. Secrets come from
   1Password or the provider and are written into such files once, never fetched at shell start.
-  Where a workspace provides it, `jira-cli` reads `JIRA_API_TOKEN` from there.
 
 ## Agent-skills Python venv
 
@@ -91,7 +90,7 @@ can import X" means this one, unless a repo names another.
   published as the `tapppi-skills` marketplace. macos-setup's `docs/skills.md` explains how
   capability reaches a repo.
 - context7 is configured as an MCP server for current library, framework, SDK, API and CLI
-  documentation; prefer it to web search for those. It reads its key from `CONTEXT7_API_KEY`.
+  documentation; prefer it to web search for those.
 - Where this harness keeps its plugin and MCP configuration is in the section above.
 
 ## Working and git baseline
