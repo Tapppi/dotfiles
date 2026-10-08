@@ -12,10 +12,13 @@ here is lost at the next sync.
   unless dotfiles carries it too.
 - `~/.claude.json` holds MCP servers and session state and is not tracked. Its context7 entry
   reads the key from the environment.
-- Tools write their own parts, and re-running the tool restores them, rather than editing: herdr's
-  SessionStart hook in the live `settings.json` and `~/.claude/hooks/`; ctx7's
-  `~/.claude/skills/context7-mcp/`, `~/.claude/rules/context7.md` and context7 MCP entry.
-  Re-running `ctx7 setup` writes the plain key back into `~/.claude.json`.
+- Tool-written parts are restored by re-running the tool, not by editing: herdr's SessionStart
+  hook in the live `settings.json` and `~/.claude/hooks/`, and ctx7's
+  `~/.claude/skills/context7-mcp/` and `~/.claude/rules/context7.md`. macos-setup's
+  `./setup.sh context7` (an owner step; it needs sudo) restores ctx7's files and keeps the
+  context7 MCP entry on `CONTEXT7_API_KEY`. Never run a plain `ctx7 setup`, which writes the key
+  into `~/.claude.json`; `ctx7 setup --claude --oauth` restores only the skill and rule and
+  leaves a keyless entry.
 - claude.ai sync writes `~/.claude/skills/synced/` and `~/.claude/plugins/synced/`, and
   `skillOverrides` in `settings.json` hides synced skills by name.
 

@@ -104,8 +104,10 @@ tool-integration steps on. `bootstrap.sh` has the details.
 
 Some tools write their own config into paths this repo tracks:
 
-- `ctx7 setup --claude` writes `~/.claude/skills/context7-mcp/` and
-  `~/.claude/rules/context7.md`.
+- `ctx7 setup --claude --oauth` writes `~/.claude/skills/context7-mcp/` and
+  `~/.claude/rules/context7.md`. macos-setup's install runs it only in that form and then
+  points the context7 MCP entry at `CONTEXT7_API_KEY`; a plain `ctx7 setup` writes the
+  key into `~/.claude.json`, and `--codex` appends to `~/.codex/AGENTS.md`.
 - `herdr integration install claude` writes
   `~/.claude/hooks/herdr-agent-state.sh` and a `SessionStart` entry in
   `~/.claude/settings.json`.
@@ -123,8 +125,9 @@ why the tracked `settings.json` carries no `hooks` key while the live one does.
 
 Do not copy a tool-written key into `home/` — that means tracking a hook path and
 payload the tool owns and rewrites between versions, which goes stale silently on
-the next upgrade. If one is missing from `~`, re-run the writing command
-(`./setup.sh herdr` in macos-setup for herdr) instead.
+the next upgrade. If one is missing from `~`, re-run the writing command through
+macos-setup instead (`./setup.sh herdr` for herdr, `./setup.sh context7` for ctx7 and the
+context7 MCP entries).
 
 **`~/.claude/skills/` and `~/.claude/hooks/` are not dotfiles' to manage.** The
 tools that write them own them, this repo tracks neither, and bootstrap leaves

@@ -29,7 +29,9 @@ would replace this file; none is used.
   enabled plugin applies in every project. Skills come from `~/.agents/skills`, a repo's
   `.agents/skills` (not `.claude/skills`), `~/.codex/skills/.system` and plugins, among others.
 - MCP servers are `[mcp_servers.*]` in `~/.codex/config.toml`; context7 receives
-  `CONTEXT7_API_KEY` from the environment through `env_vars`.
+  `CONTEXT7_API_KEY` from the environment through `env_vars`. macos-setup's `./setup.sh context7`
+  (an owner step; it needs sudo and refuses while Codex is running) re-asserts that entry.
+  Never run `ctx7 setup --codex`, which appends to this file.
 - Codex reads `AGENTS.md` (or `AGENTS.override.md`) from the repo root down to the working
   directory, in trusted projects only, and never `CLAUDE.md`; repos here keep their rules in
   `AGENTS.md`.
