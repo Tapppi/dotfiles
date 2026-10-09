@@ -19,6 +19,7 @@ dotfiles/
                               # rules/00-environment.mdc (generated from agents/)
     .hushlogin                # Suppress login banner
     .parallel/will-cite       # Silence GNU parallel citation warning
+    .pi/agent/AGENTS.md       # Pi user-level instructions (generated from agents/)
   config/                     # rsync → ~/.config/
     bash/.aliases             # Shell aliases (g=git)
     bash/.exports             # Environment variables, XDG dirs (EDITOR=nvim)
@@ -65,7 +66,7 @@ agents/render.sh --check
 ## Generated agent instructions
 
 The user-level instruction files are rendered from `agents/`: `core.md` is the shared
-environment core, and `claude-code.md`, `codex.md`, `opencode.md` and `cursor.md` are the
+environment core, and `claude-code.md`, `codex.md`, `opencode.md`, `cursor.md` and `pi.md` are the
 harness headers. `agents/render.sh` writes header plus core into each output, and the outputs
 are committed and deployed by the ordinary sync:
 
@@ -75,6 +76,7 @@ are committed and deployed by the ordinary sync:
 | `codex.md` | `home/.codex/AGENTS.md` | `~/.codex/AGENTS.md` |
 | `opencode.md` | `config/opencode/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
 | `cursor.md` | `home/.cursor/rules/00-environment.mdc` | `~/.cursor/rules/00-environment.mdc` |
+| `pi.md` | `home/.pi/agent/AGENTS.md` | `~/.pi/agent/AGENTS.md` |
 
 - Edit `agents/`, run `agents/render.sh`, and commit the sources and outputs together. Never
   edit an output by hand: `agents/render.sh --check` fails on a hand edit or a stale render.
@@ -82,6 +84,14 @@ are committed and deployed by the ordinary sync:
   layers). The instruction files say where they are configured, never what the rules are.
 - The ChatGPT/Codex app's custom-instructions pane writes `~/.codex/AGENTS.md`, and the next
   sync overwrites that edit; carry a wanted change into `agents/`.
+- Pi reads one user-level context file, `AGENTS.override.md`, `AGENTS.md` or `CLAUDE.md` (first
+  match) in `~/.pi/agent/` (or `$PI_CODING_AGENT_DIR`), then one per directory from the
+  filesystem root down to the working directory, all concatenated. It never reads
+  `~/.claude/CLAUDE.md` or follows `@` imports, and `--no-context-files` turns discovery off.
+  `/reload` re-reads the files in a running session. Only `AGENTS.md` is tracked under
+  `home/.pi/agent/`: `settings.json`, `auth.json`, `models-store.json` and `sessions/` belong to
+  Pi, and the plain rsync never deletes them. Do not render `SYSTEM.md` or `APPEND_SYSTEM.md`,
+  which replace or extend Pi's own system prompt.
 
 ## Syncing to Home Directory
 
@@ -141,6 +151,7 @@ both alone — so no mirror and no mirror exclude is needed for either.
 | Codex       | `home/.codex/`       | `~/.codex/config.toml` (untracked, Codex-owned) over systems' `/etc/codex/config.toml` | `AGENTS.md` (generated) | `~/.codex/config.toml` (untracked) |
 | Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/00-environment.mdc` (generated) | `home/.cursor/mcp.json` |
 | OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | `opencode.json` (`mcp`) |
+| Pi          | `home/.pi/agent/` (only `AGENTS.md`) | `~/.pi/agent/settings.json` (untracked, Pi-owned) | `AGENTS.md` (generated) | none in 0.87.1 |
 
 Codex's two layers: systems' `modules/darwin/codex.nix` writes `/etc/codex/config.toml` (model,
 effort, sandbox, approvals, the hooks feature, no self-update for the Nix binary), and Codex itself

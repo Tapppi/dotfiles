@@ -27,8 +27,8 @@ Two sync directories plus standalone files at the repo root:
   status; the remaining sync still runs
 - `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
 - `agents/` — sources of the user-level agent instructions: a shared core, one header per
-  harness, and `render.sh`, which writes the generated files for Claude Code, Codex, OpenCode
-  and Cursor (`agents/render.sh --check` reports drift)
+  harness, and `render.sh`, which writes the generated files for Claude Code, Codex, OpenCode,
+  Cursor and Pi (`agents/render.sh --check` reports drift)
 
 ## What's inside
 
@@ -48,6 +48,7 @@ Two sync directories plus standalone files at the repo root:
   `CLAUDE.md`)
 - `home/.codex/` — the generated Codex user-level `AGENTS.md`
 - `home/.cursor/` — Cursor CLI config and the generated `rules/00-environment.mdc`
+- `home/.pi/` — the generated Pi user-level `agent/AGENTS.md`
 - `keyboard-layouts/` — Custom Finnish Programmer keyboard layout
 
 ## Application hotkeys

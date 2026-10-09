@@ -21,6 +21,7 @@ output_map=(
 	"codex.md:home/.codex/AGENTS.md"
 	"opencode.md:config/opencode/AGENTS.md"
 	"cursor.md:home/.cursor/rules/00-environment.mdc"
+	"pi.md:home/.pi/agent/AGENTS.md"
 )
 
 # Define Function =render_one= — print one rendered output to stdout.
