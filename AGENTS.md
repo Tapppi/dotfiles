@@ -151,7 +151,7 @@ both alone — so no mirror and no mirror exclude is needed for either.
 | Codex       | `home/.codex/`       | `~/.codex/config.toml` (untracked, Codex-owned) over systems' `/etc/codex/config.toml` | `AGENTS.md` (generated) | `~/.codex/config.toml` (untracked) |
 | Cursor CLI  | `home/.cursor/` **and** `config/cursor/` | `config/cursor/cli-config.json` | `home/.cursor/rules/00-environment.mdc` (generated) | `home/.cursor/mcp.json` |
 | OpenCode    | `config/opencode/`   | `opencode.json`     | `AGENTS.md` (generated)  | `opencode.json` (`mcp`) |
-| Pi          | `home/.pi/agent/` (only `AGENTS.md`) | `~/.pi/agent/settings.json` (untracked, Pi-owned) | `AGENTS.md` (generated) | none in 0.87.1 |
+| Pi          | `home/.pi/agent/` (only `AGENTS.md`) | `~/.pi/agent/settings.json` (untracked, Pi-owned) | `AGENTS.md` (generated) | `~/.pi/agent/mcp.json` (Pi-owned, untracked) |
 
 Codex's two layers: systems' `modules/darwin/codex.nix` writes `/etc/codex/config.toml` (model,
 effort, sandbox, approvals, the hooks feature, no self-update for the Nix binary), and Codex itself
