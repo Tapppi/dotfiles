@@ -13,6 +13,20 @@
 		"context7": {
 			"type": "local",
 			"command": ["npx", "-y", "@upstash/context7-mcp"]
+		},
+		"browser-playwright": {
+			"type": "local",
+			"command": ["npx", "-y", "@playwright/mcp@latest"]
+		},
+		"browser-chrome-devtools": {
+			"type": "local",
+			"command": [
+				"npx",
+				"-y",
+				"chrome-devtools-mcp@latest",
+				"--no-performance-crux",
+				"--no-usage-statistics"
+			]
 		}
 	},
 	"permission": {

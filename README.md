@@ -78,6 +78,10 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
   npm plugins: skills come from `skills.paths` and the Claude Code and
   `.agents` skill directories, and context7 is a native `mcp` entry that
   inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset).
+  The `browser` plugin's two MCP servers (`browser-playwright` and
+  `browser-chrome-devtools`) are `mcp` entries too, since OpenCode loads the
+  plugin's skill from `skills.paths` but not its `.mcp.json`; keep them in step
+  with the plugin's `.mcp.json`.
 - Providers (ChatGPT through OpenCode's built-in OAuth, and z.ai) are logged
   in with `opencode auth login`; their credentials stay in the untracked
   `~/.local/share/opencode/auth.json`.
