@@ -56,11 +56,11 @@ The idea behind the split:
    until someone deletes it.
 4. **Install or re-assert** with a `./setup.sh` dispatch (`install`, or one harness such as
    `codex`, `pi`, `opencode`, `context7`, `herdr`): brew packages, mise runtimes, plugins, skill
-   links and MCP servers. `./setup.sh` with no argument prints the dispatches without changing
-   anything, and the macos-setup `README.md` describes them.
+   links and MCP servers. The dispatch `case` at the end of `setup.sh` names each dispatch with a
+   one-line description, and the macos-setup `README.md` describes them.
 5. **Activate systems** with `nix run .#build-switch` in the systems checkout.
 
-Steps 3 to 5 are owner steps: give the owner the command. Most dispatches ask for `sudo`, and some
+Steps 3 to 5 are owner steps: give the owner the command. Every dispatch asks for `sudo`, and some
 refuse while the harness they change is running. A repo or skill may allow a narrow exception;
 macos-setup allows `./setup.sh projects` for its `tool-update-review` skill only.
 
