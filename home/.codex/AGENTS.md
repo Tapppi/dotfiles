@@ -50,7 +50,7 @@ they win where they speak. The section above covers this harness's own configura
 
 ## Tools
 
-Use these where useful; they come from Homebrew, mise and Nix.
+Use these where useful; they come from Homebrew, mise (uv tools included) and Nix.
 
 - Containers: `podman` with compose and a Docker-compatible socket at `/var/run/docker.sock`;
   `kubectl`, `helm`, and `stern` for pod logs.
