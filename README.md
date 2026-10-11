@@ -85,13 +85,13 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 ## OpenCode notes
 
 - `config/opencode/opencode.json` is the synced OpenCode config, and `tui.json` beside it holds the
-  TUI settings and keybinds. The global config loads no npm plugins: skills come from
-  `skills.paths` and the Claude Code and `.agents` skill directories, and context7 is a native
-  `mcp` entry that inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset). The
-  `browser` plugin is enabled per repo, through a root `opencode.json` in each repo that loads
+  TUI settings; OpenCode's default keybinds apply. The global config loads no npm plugins: skills
+  come from `skills.paths` and the Claude Code and `.agents` skill directories, and context7 is a
+  native `mcp` entry that inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset).
+  The `browser` plugin is enabled per repo, through a root `opencode.json` in each repo that loads
   the plugin's own OpenCode module.
 - Providers (ChatGPT through OpenCode's built-in OAuth, and z.ai) are logged
-  in with `opencode auth login`; their credentials stay in the untracked
+  in with `opencode providers login`; their credentials stay in the untracked
   `~/.local/share/opencode/auth.json`.
 - `config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
   the user-level instruction file. It is generated from `agents/`; edit there.

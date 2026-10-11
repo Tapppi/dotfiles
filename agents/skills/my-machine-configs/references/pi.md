@@ -24,7 +24,8 @@ Only `AGENTS.md` is tracked; the sync never deletes Pi's own files. Never render
   context7 inherits `CONTEXT7_API_KEY` from the environment.
 - A repo adds packages in its committed `.pi/settings.json`; macos-setup, tieto and ikeh add the
   browser plugin, which registers its MCP servers itself. Project packages load only after `/trust`
-  in that repo, an owner step; a worktree inherits the repo's trust.
+  in that repo, an owner step. Pi matches trust by path: a worktree inside the repo (such as
+  `.claude/worktrees/`) inherits it, and a worktree elsewhere needs its own `/trust`.
 - Pi exposes MCP tools through codemode by default; exposure is configurable per server and per
   tool. Pi also reads a trusted repo's `.agents/skills`.
 

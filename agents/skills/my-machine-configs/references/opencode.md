@@ -6,10 +6,10 @@ For OpenCode's generic configuration, use its built-in `customize-opencode` skil
 
 | Path | Owner | Notes |
 | --- | --- | --- |
-| `~/.config/opencode/opencode.json`, `tui.json` | dotfiles `config/opencode/` | Models, providers, `skills.paths`, MCP servers, permissions; TUI keybinds |
+| `~/.config/opencode/opencode.json`, `tui.json` | dotfiles `config/opencode/` | Models, providers, `skills.paths`, MCP servers, permissions; TUI settings (default keybinds) |
 | `~/.config/opencode/AGENTS.md` | Generated from dotfiles `agents/` | While it exists, OpenCode does not read `~/.claude/CLAUDE.md` |
 | `plugins/herdr-agent-state.js`, `herdr-tui-session.js`, `herdr-opencode/`, `tui.jsonc` there | herdr | `./setup.sh herdr` |
-| `~/.local/share/opencode/auth.json` | OpenCode; untracked | Provider logins through `opencode auth login`; never copied anywhere |
+| `~/.local/share/opencode/auth.json` | OpenCode; untracked | Provider logins through `opencode providers login`; never copied anywhere |
 | `<repo>/opencode.json` | The repo | Per-repo plugins, such as the browser plugin's `opencode/browser.js` |
 
 The binary comes from Nix. `./setup.sh opencode` checks the installed setup and prints hints; it
