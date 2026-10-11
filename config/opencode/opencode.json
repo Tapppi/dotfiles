@@ -22,12 +22,5 @@
 			"built-in-browser": "deny",
 			"computer-use": "deny"
 		}
-	},
-	"tui": {
-		"scroll_speed": 4,
-		"keybinds": {
-			"input_submit": "ctrl+l",
-			"input_newline": "enter"
-		}
 	}
 }
