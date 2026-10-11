@@ -51,7 +51,7 @@ they win where they speak. The section above covers this harness's own configura
 
 ## Tools
 
-Use these where useful; they come from Homebrew, mise and Nix.
+Use these where useful; they come from Homebrew, mise (uv tools included) and Nix.
 
 - Containers: `podman` with compose and a Docker-compatible socket at `/var/run/docker.sock`;
   `kubectl`, `helm`, and `stern` for pod logs.
@@ -64,8 +64,8 @@ Use these where useful; they come from Homebrew, mise and Nix.
   `pip install`.
 - Shell: bash 5, `tmux`, `shellcheck`, `parallel`, `pv`; `pwsh` with PSScriptAnalyzer where
   installed.
-- Documents: `marp`, ghostscript. Media: `ffmpeg`, ImageMagick, `exiftool`, `tesseract`.
-  Network: `nmap`, `mtr`.
+- Documents: `marp`, ghostscript, `pandoc`, `qpdf`, `markitdown`. Media: `ffmpeg`, ImageMagick,
+  `exiftool`, `tesseract`. Network: `nmap`, `mtr`.
 
 Prefer what is installed. Install something new only when it is clearly needed or better, ask
 before any system-level install, and consider a container instead of an ad-hoc install.
@@ -81,13 +81,17 @@ before any system-level install, and consider a container instead of an ad-hoc i
   `tasks/projects.sh` renders it, and mise walks up across repo boundaries. Secrets come from
   1Password or the provider and are written into such files once, never fetched at shell start.
 
-## Agent-skills Python venv
+## Agent-skills Python venv and JS packages
 
 Skills that need Python libraries share a venv at `~/.local/share/agent-skills/venv/`. Install
 with `uv pip install --python ~/.local/share/agent-skills/venv/bin/python <pkg>` and run scripts
 with that interpreter. It holds the Python dependencies of the claude.ai-synced document skills
 (docx, pdf, pptx, xlsx) and Playwright with Chromium. A skill that asks for "an interpreter that
 can import X" means this one, unless a repo names another.
+
+The document skills' JS packages live in `~/.local/share/agent-skills/node/`. Run that JS from a
+scratch directory outside any project, as CommonJS (`.cjs` or `createRequire`), with `NODE_PATH` set
+to its `node_modules`; add a missing package there, never to a project.
 
 ## Skills, plugins and MCP
 
