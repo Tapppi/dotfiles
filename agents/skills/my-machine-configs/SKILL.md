@@ -74,6 +74,7 @@ entries go missing, re-run the dispatch that writes them rather than copying the
 | --- | --- |
 | A CLI tool or app | systems if it already owns that kind of tool, else macos-setup `Brewfile` then `intel.Brewfile` (a keg-only formula also needs `.path`). Ask before any install |
 | A language runtime | dotfiles `config/mise/config.toml` |
+| A Python or JS package for skills | The agent-skills venv and npm prefix in the instructions; macos-setup `install_agent_skills` (`./setup.sh agent-skills`) builds them |
 | Shell env, aliases, functions | dotfiles `config/bash/` (`.exports`, `.aliases`, `.functions`); macos-setup `.path`, `.extra` |
 | A secret or API key | The owner's `~/.config/bash/.credentials`, or a workspace dotenv: [shell-env.md](references/shell-env.md) |
 | Git config | dotfiles `config/git/config`; identity and signing key in macos-setup `.extra` |
