@@ -63,6 +63,9 @@ installs it for each harness from this checkout, always through macos-setup's ma
 - Codex: an absolute link at `${CODEX_HOME:-~/.codex}/skills/my-machine-configs`;
 - Pi: `pi install <dotfiles>/agents`, which loads `agents/skills/` as a package.
 
+Because Pi loads `agents/` as a package, it reads every Pi convention directory there. Never add
+`extensions/`, `prompts/` or `themes/` to `agents/`: Pi would load them for every session.
+
 So an edit here is live as soon as it is on the main checkout's branch; nothing renders it. Keep
 `SKILL.md` and each reference at or under about 200 lines and 2000 tokens, and keep everything in
 it fit for a public repo.
