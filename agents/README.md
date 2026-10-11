@@ -26,11 +26,10 @@ outputs are committed and deployed by the ordinary sync.
   replace the file; none is used.
 - While `~/.config/opencode/AGENTS.md` exists, OpenCode does not read `~/.claude/CLAUDE.md`, and
   Cursor never reads it, hence their own outputs.
-- Pi reads one user-level context file, `AGENTS.override.md`, `AGENTS.md` or `CLAUDE.md` (first
-  match) in `~/.pi/agent/` (or `$PI_CODING_AGENT_DIR`), then one per directory from the
-  filesystem root down to the working directory, all concatenated. It never reads
-  `~/.claude/CLAUDE.md` or follows `@` imports, `--no-context-files` turns discovery off, and
-  `/reload` re-reads the files in a running session. Do not render `SYSTEM.md` or
+- Pi reads its user-level context file from `~/.pi/agent/` (or `$PI_CODING_AGENT_DIR`), then
+  context files from the working directory and its parents; it does not read
+  `~/.claude/CLAUDE.md`. `--no-context-files` turns discovery off, and `/reload` re-reads the files
+  in a running session. Do not render `SYSTEM.md` or
   `APPEND_SYSTEM.md`, which replace or extend Pi's own system prompt.
 
 ## What goes where
@@ -38,8 +37,8 @@ outputs are committed and deployed by the ordinary sync.
 The instructions are always loaded, so they hold only how the agent should act, plus pointers:
 
 - `core.md`: the working baseline (platform, tools, secrets, git, signing, untrusted input), a
-  short map of the repos that configure the machine, the rules for changing config, and the
-  pointer to `my-machine-configs`.
+  one-sentence map of the repos that configure the machine, the rules for changing config, and
+  the pointer to `my-machine-configs`.
 - The headers: what the harness is, the lines an agent acts on in that harness, and a pointer to
   the harness's reference in `my-machine-configs`.
 - `skills/my-machine-configs/`: the machine specifics an agent needs only when it changes the
