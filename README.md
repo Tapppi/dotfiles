@@ -18,17 +18,27 @@ that repo for the full setup automation.
 Two sync directories plus standalone files at the repo root:
 
 - `home/` — rsynced to `~/` (files that don't support XDG):
-  `.bash_profile`, `.bashrc`, `.claude/`, `.codex/`, `.cursor/`, `.hushlogin`, `.parallel/`
+  `.bash_profile`, `.bashrc`, `.claude/`, `.codex/`, `.cursor/`, `.hushlogin`, `.parallel/`,
+  `.pi/`
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
-  `bash/`, `git/`, `tmux/`, `readline/`, `curlrc`, `wgetrc`, `ghostty/`, `karabiner/`,
-  `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `ripgrep/`, `fd/`, `terminal/`
+  `bash/`, `btop/`, `claude/`, `containers/`, `cursor/`, `fd/`, `gh/`, `ghostty/`, `git/`,
+  `karabiner/`, `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `readline/`, `ripgrep/`,
+  `terminal/`, `tmux/`, `curlrc`, `wgetrc`
 - `bootstrap.sh` — two rsyncs (`home/` → `~/` and `config/` → `~/.config/`), nothing
-  mirrored with `--delete`. A failing rsync is reported and becomes the script's exit
-  status; the remaining sync still runs
-- `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately)
+  mirrored with `--delete`, which would wipe every untracked file in `~` and `~/.config`. A
+  failing rsync is reported and becomes the script's exit status, which macos-setup's
+  `install_dotfiles` gates its tool steps on; the remaining sync still runs
+- `keyboard-layouts/` — custom Finnish Programmer keyboard layout (copied separately to
+  `~/Library/Keyboard Layouts/`)
 - `agents/` — sources of the user-level agent instructions: a shared core, one header per
   harness, and `render.sh`, which writes the generated files for Claude Code, Codex, OpenCode,
-  Cursor and Pi (`agents/render.sh --check` reports drift)
+  Cursor and Pi (`agents/render.sh --check` reports drift). It also holds the user-level
+  `my-machine-configs` skill. See [agents/README.md](agents/README.md)
+- `docs/harnesses.md` — each agent harness's config locations, what is tracked here, and the
+  config that tools write into tracked paths
+
+macos-setup's `.extra` and `.path` are not in this repo but land beside these files:
+`install_dotfiles` copies them into `~/.config/bash/` during install.
 
 ## What's inside
 
@@ -74,19 +84,19 @@ config — `v` and `c` now select browser profiles, and Calendar moved to `x`.
 
 ## OpenCode notes
 
-- `config/opencode/opencode.json` is the synced OpenCode config. It loads no
-  npm plugins: skills come from `skills.paths` and the Claude Code and
-  `.agents` skill directories, and context7 is a native `mcp` entry that
-  inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset).
-  The `browser` plugin's two MCP servers (`browser-playwright` and
-  `browser-chrome-devtools`) are `mcp` entries too, since OpenCode loads the
-  plugin's skill from `skills.paths` but not its `.mcp.json`; keep them in step
-  with the plugin's `.mcp.json`.
+- `config/opencode/opencode.json` is the synced OpenCode config, and `tui.json` beside it holds the
+  TUI settings; OpenCode's default keybinds apply. The global config loads no npm plugins: skills
+  come from `skills.paths` and the Claude Code and `.agents` skill directories, and context7 is a
+  native `mcp` entry that inherits `CONTEXT7_API_KEY` from the environment (anonymous when unset).
+  The `browser` plugin is enabled per repo, through a root `opencode.json` in each repo that loads
+  the plugin's own OpenCode module.
 - Providers (ChatGPT through OpenCode's built-in OAuth, and z.ai) are logged
-  in with `opencode auth login`; their credentials stay in the untracked
+  in with `opencode providers login`; their credentials stay in the untracked
   `~/.local/share/opencode/auth.json`.
 - `config/opencode/AGENTS.md` is synced to `~/.config/opencode/AGENTS.md` as
   the user-level instruction file. It is generated from `agents/`; edit there.
+- herdr writes its own plugin and TUI files (`tui.jsonc` among them) into
+  `~/.config/opencode/`; they are not tracked here.
 - oh-my-openagent is not part of this config. A setup that layers it on
   OpenCode keeps its own config directory instead of editing these files.
 - No extra tmux/git-specific OpenCode wrapper config is tracked here.
