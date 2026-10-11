@@ -8,5 +8,4 @@ Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
   `ctx7 setup --claude --oauth` restores ctx7's skill and rule but replaces the context7 MCP entry
   with a keyless one, so after such a run the owner restores it with macos-setup's
   `./setup.sh context7`.
-- Where Claude Code's configuration lives, what is tracked and what its tools own: the
-  `my-machine-configs` skill, `references/claude-code.md`.
+- Machine specifics: the `my-machine-configs` skill, `references/claude-code.md`.

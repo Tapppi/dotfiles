@@ -15,8 +15,7 @@ Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
   one through its slash command, which bypasses the deny.
 - context7 is configured as an MCP server for current library, framework, SDK, API and CLI
   documentation; prefer it to web search for those.
-- Where OpenCode's configuration, skills, plugins and MCP servers live: the `my-machine-configs`
-  skill, `references/opencode.md`.
+- Machine specifics: the `my-machine-configs` skill, `references/opencode.md`.
 
 ## About these instructions
 
@@ -26,18 +25,15 @@ harness section at the top of this file adds what differs in this harness.
 
 ## What configures this machine
 
-Checkouts live under `~/project/github/`:
-
-- `tapppi/systems`: Nix flakes, nix-darwin for this Mac and later other hosts; the setup is
-  migrating here.
-- `tapppi/macos-setup` with its `dotfiles` submodule: setup scripts and synced dotfiles, which
-  still own most of this Mac. These instructions are rendered from dotfiles `agents/`.
-- `tapppi/skills` and `mantadevoy/ikeh`: the `tapppi-skills` and `ikeh` plugin marketplaces.
-- `tapppi/tieto`: the owner's personal knowledge base, an Obsidian vault.
+Checkouts live under `~/project/github/`: `tapppi/systems` (Nix flakes with nix-darwin, the
+migration target), `tapppi/macos-setup` with its `dotfiles` submodule (setup scripts and synced
+dotfiles, which still own most of this Mac), the `tapppi-skills` and `ikeh` plugin marketplaces in
+`tapppi/skills` and `mantadevoy/ikeh`, and `tapppi/tieto`, the owner's personal knowledge base (an
+Obsidian vault).
 
 Load the `my-machine-configs` skill before you change tools, harness configuration, skills,
 plugins, MCP servers or other config under `~`: it says where each piece is managed and how a
-change deploys.
+change deploys. For a harness's generic configuration, use its own configuration skill or docs.
 
 - Change config at its source. A file synced from dotfiles is overwritten at the next sync, a
   setting changed inside a harness included, unless dotfiles carries the change. Change untracked
@@ -60,14 +56,12 @@ change deploys.
 Use these where useful; they come from Homebrew, mise (uv tools included) and Nix.
 
 - Containers: `podman` with compose and a Docker-compatible socket at `/var/run/docker.sock`;
-  `kubectl`, `helm`, and `stern` for pod logs.
-- Data: `jq`, `yq`, and `duckdb` for ad-hoc analysis of CSV, Parquet, JSON or test results.
-- HTTP: `curl`, `httpie` (`http`, `https`). Databases: `psql`, `redis-cli`, `sqlite3`, `kcat`.
-- Cloud: `gcloud`, `az` and `azcopy`, `terraform`. Search and files: `rg`, `fd`, `fzf`, `tree`.
-- Git and GitHub: `git`, and `gh` for search, pull requests, issues, checks and releases, with
-  explicit flags (`--repo`, `--json`, `--jq`, `--limit`) so it never prompts.
-- Runtimes through mise (node, go, rust, python and more); `uv` and `uvx` rather than
-  `pip install`.
+  `kubectl`, `helm`, `stern`.
+- Data: `jq`, `yq`, `duckdb`. HTTP: `curl`, `httpie` (`http`). Databases: `psql`, `redis-cli`,
+  `sqlite3`, `kcat`.
+- Cloud: `gcloud`, `az`, `azcopy`, `terraform`. Search and files: `rg`, `fd`, `fzf`, `tree`.
+- `gh` for GitHub, with explicit flags (`--repo`, `--json`, `--jq`, `--limit`) so it never prompts.
+- Runtimes through mise; `uv` and `uvx` rather than `pip install`.
 - Shell: bash 5, `tmux`, `shellcheck`, `parallel`, `pv`; `pwsh` with PSScriptAnalyzer where
   installed.
 - Documents: `marp`, ghostscript, `pandoc`, `qpdf`, `markitdown`. Media: `ffmpeg`, ImageMagick,
@@ -97,12 +91,6 @@ can import X" means this one, unless a repo names another.
 The document skills' JS packages live in `~/.local/share/agent-skills/node/`. Run that JS from a
 scratch directory outside any project, as CommonJS (`.cjs` or `createRequire`), with `NODE_PATH` set
 to its `node_modules`; add a missing package there, never to a project.
-
-## Skills, plugins and MCP
-
-- Each harness reads its own skill, plugin and MCP configuration, at user level or in a repo's
-  committed files; load `my-machine-configs` before adding or enabling any of them. For a
-  harness's generic configuration, use its own configuration skill or docs.
 
 ## Working and git baseline
 

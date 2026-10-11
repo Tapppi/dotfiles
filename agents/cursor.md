@@ -12,5 +12,4 @@ Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
 - Cursor ignores Claude Code's `skillOverrides`, so it lists the synced claude.ai skills that
   Claude Code hides. They depend on claude.ai's app or connectors; do not load them here.
 - Never copy the live `cli-config.json` back into dotfiles: Cursor writes account details into it.
-- Where Cursor's configuration lives, and what it reads from the Claude Code setup: the
-  `my-machine-configs` skill, `references/cursor.md`.
+- Machine specifics: the `my-machine-configs` skill, `references/cursor.md`.

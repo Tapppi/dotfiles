@@ -16,5 +16,4 @@ make changes in dotfiles.
 - context7 is configured as an MCP server for current library, framework, SDK, API and CLI
   documentation; prefer it to web search for those.
 - Never run `ctx7 setup --codex`, which appends to this file.
-- Where Codex's configuration layers, plugins, skills, MCP servers and hooks live: the
-  `my-machine-configs` skill, `references/codex.md`.
+- Machine specifics: the `my-machine-configs` skill, `references/codex.md`.

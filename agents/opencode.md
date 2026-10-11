@@ -14,5 +14,4 @@ Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
   one through its slash command, which bypasses the deny.
 - context7 is configured as an MCP server for current library, framework, SDK, API and CLI
   documentation; prefer it to web search for those.
-- Where OpenCode's configuration, skills, plugins and MCP servers live: the `my-machine-configs`
-  skill, `references/opencode.md`.
+- Machine specifics: the `my-machine-configs` skill, `references/opencode.md`.
