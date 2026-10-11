@@ -1,7 +1,5 @@
 # Pi: user-level instructions
 
-Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
-
 ## Pi
 
 - MCP servers, context7 among them, are reached by default through codemode: find their tools with

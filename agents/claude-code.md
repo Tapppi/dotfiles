@@ -1,7 +1,5 @@
 # Claude Code: user-level instructions
 
-Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
-
 ## Claude Code
 
 - Never run a plain `ctx7 setup`: it writes the context7 key into `~/.claude.json`.

@@ -8,7 +8,7 @@ outputs are.
 
 `core.md` is the shared core, and one header per harness adds what differs in that harness.
 `render.sh` writes header plus core into each output: the header's frontmatter (if it has any), a
-one-line banner naming the sources, the rest of the header, a blank line, then `core.md`. The
+one-line notice that the file is rendered, the rest of the header, a blank line, then `core.md`. The
 outputs are committed and deployed by the ordinary sync.
 
 | Header | Output | Deployed to |

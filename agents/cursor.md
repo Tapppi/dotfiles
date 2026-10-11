@@ -5,8 +5,6 @@ alwaysApply: true
 
 # Cursor: user-level rules
 
-Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
-
 ## Cursor
 
 - Cursor ignores Claude Code's `skillOverrides`, so it lists the synced claude.ai skills that
