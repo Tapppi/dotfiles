@@ -1,17 +1,14 @@
 # Pi: user-level instructions
 
-Generated from dotfiles `agents/`: edit there, run `agents/render.sh`, then sync. Pi reads this
-file as `~/.pi/agent/AGENTS.md` and does not read `~/.claude/CLAUDE.md`.
+Generated from dotfiles `agents/`; a hand edit here is lost at the next sync.
 
-## Pi configuration
+## Pi
 
-- `settings.json`, `auth.json`, `models-store.json`, `sessions/` and `mcp.json` in `~/.pi/agent/`
-  are Pi-owned and untracked; change settings and packages through Pi (`pi install`). Never copy
-  credentials into a repository. Skills come from Pi's skill directories and installed packages;
-  macos-setup's `docs/skills.md` lists where.
-- MCP servers, context7 among them, are in `mcp.json` and managed with `pi mcp` and `/mcp`.
-  Their tools are reached through codemode, as `mcp__<server>__<tool>` (find them with
-  `searchTools()`).
-- Pi loads one context file per directory, preferring `AGENTS.md` to `CLAUDE.md`, and follows no
-  `@` imports. Repos here keep their rules in `AGENTS.md`; a `CLAUDE.md` that only imports it
-  carries nothing to Pi.
+- MCP servers, context7 among them, are reached by default through codemode: find their tools with
+  `searchTools()`. A tool is named `mcp__<server>__<tool>`, with each non-alphanumeric character
+  in a name replaced by `_`.
+- context7 serves current library, framework, SDK, API and CLI documentation; prefer it to web
+  search for those.
+- If a loaded context file only references another file as `@path`, read that file.
+- For Pi's own configuration and its docs, load the `pi-config` skill. For how this machine sets
+  Pi up: the `my-machine-configs` skill, `references/pi.md`.
