@@ -1,5 +1,7 @@
 # OpenCode on this machine
 
+For OpenCode's generic configuration, use its built-in `customize-opencode` skill.
+
 ## Files and owners
 
 | Path | Owner | Notes |
