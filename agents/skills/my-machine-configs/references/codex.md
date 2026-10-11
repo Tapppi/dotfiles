@@ -23,7 +23,7 @@ and never `CLAUDE.md`.
 
 ## Plugins, skills and MCP servers
 
-- `install_codex` adds the user-wide plugins (`frontend-design`, `ikeh-development`) and
+- `./setup.sh codex` installs the user-level plugins (`frontend-design`, `ikeh-development`) and
   ikeh-development's Codex roles. `browser@tapppi-skills` stays installed but `enabled = false` at
   user level; a repo turns it on in its committed `.codex/config.toml`. A hand-run
   `codex plugin add` or the `/plugins` UI sets it back to enabled until `./setup.sh codex`
@@ -39,9 +39,9 @@ and never `CLAUDE.md`.
 The config layers enable hooks. herdr writes `~/.codex/herdr-agent-state.sh` and
 `~/.codex/hooks.json`; restore them with `./setup.sh herdr`. A new or changed hook needs review in
 `/hooks`, which stores its trust as a hash in `~/.codex/config.toml`, so any edit sends it back for
-review. The git guards repos enable for Claude Code do not run in Codex.
+review.
 
-`./setup.sh codex` and `./setup.sh context7` ask for `sudo` and refuse while Codex is running.
+`./setup.sh codex` and `./setup.sh context7` refuse while Codex is running.
 
 Deeper: `~/project/github/tapppi/macos-setup/docs/harnesses.md`,
 `~/project/github/tapppi/macos-setup/docs/skills.md` and systems `modules/darwin/codex.nix`.

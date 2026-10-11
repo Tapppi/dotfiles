@@ -5,7 +5,7 @@
 | Path | Owner | Change it by |
 | --- | --- | --- |
 | `~/.claude/settings.json`, `keybindings.json`, `statusline-command.sh` | dotfiles `home/.claude/` (its `README.md` explains the choices) | Editing dotfiles, then syncing |
-| `~/.claude/CLAUDE.md` | Generated from dotfiles `agents/` | Editing `agents/`, then `agents/render.sh` |
+| `~/.claude/CLAUDE.md` | Generated from dotfiles `agents/` | Editing dotfiles `agents/` (its `README.md`) |
 | `~/.claude.json` | Claude Code: user-scope MCP servers, session state | `claude mcp …`; never copy it into dotfiles |
 | `~/.claude/hooks/` and the `hooks` key of the live `settings.json` | herdr | `./setup.sh herdr` |
 | `~/.claude/skills/context7-mcp/`, `~/.claude/rules/context7.md` | ctx7 | `./setup.sh context7` |
@@ -25,13 +25,12 @@ environment, never a literal. A plain `ctx7 setup` writes the key into that file
 - Marketplaces are declared in `extraKnownMarketplaces` in the tracked `settings.json`; the
   user-level `enabledPlugins` there holds the small set every repo gets.
 - A plugin for one repo is enabled in that repo's committed `.claude/settings.json`
-  `enabledPlugins`; `browser@tapppi-skills` is enabled this way in macos-setup, tieto and ikeh.
-  `claude plugin install` defaults to user scope, which enables a plugin in every repo, so pass
-  `--scope project` or `--scope local`. macos-setup `docs/skills.md` has the per-machine steps.
-- A workspace manifest (`.tapppi-project.json`) can enable plugins at local scope in its repos
-  through `./setup.sh projects`; see the header of macos-setup `tasks/projects.sh`.
+  `enabledPlugins`. `claude plugin install` defaults to user scope, which enables a plugin in
+  every repo, so pass `--scope project` or `--scope local`.
+- A workspace manifest can enable plugins at local scope in its repos through
+  `./setup.sh projects` (macos-setup `README.md`).
 - Permissions live in `settings.json` `permissions` and in each repo's `.claude/settings.json`.
-- Repos add hooks through their plugins, such as `ikeh-git`'s push and worktree guards.
+- Hooks come from the tracked `settings.json`, herdr, and the plugins a repo enables.
 
 Deeper: `~/project/github/tapppi/macos-setup/docs/harnesses.md` (what `install` does for Claude
 Code) and `~/project/github/tapppi/macos-setup/docs/skills.md`.

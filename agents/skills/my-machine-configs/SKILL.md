@@ -28,7 +28,7 @@ All checkouts live under `~/project/github/`.
 | [dotfiles](https://github.com/Tapppi/dotfiles) | `tapppi/macos-setup/dotfiles` (submodule) | Shell and harness config synced into `~`; the user-level agent instructions and this skill, under `agents/`. Public |
 | Tapppi/skills | `tapppi/skills` | The `tapppi-skills` marketplace: shared plugins and skill bundles. Private |
 | mantadevoy/ikeh | `mantadevoy/ikeh` | The `ikeh` marketplace: `ikeh-git`, `ikeh-development`. Private |
-| Tapppi/tieto | `tapppi/tieto` | The owner's personal knowledge base (Obsidian); migration notes in `konehuone/sysmi/`. Private |
+| Tapppi/tieto | `tapppi/tieto` | The owner's personal knowledge base (Obsidian). Private |
 | workspace | `tapppi` (local only) | Coordinates the migration; its `AGENTS.md` holds the live state |
 
 The idea behind the split:
@@ -46,23 +46,18 @@ The idea behind the split:
 
 ## How a change deploys
 
-1. **Edit the source** in the owning repo, in a worktree, following that repo's `AGENTS.md`. The
-   deployed copy under `~` is a target, not a source.
-2. **Render generated files.** The user-level instruction files come from `dotfiles/agents/`:
-   edit there, run `agents/render.sh`, and commit sources and outputs together.
-3. **Sync** with `./setup.sh dotfiles`: `bootstrap.sh` rsyncs dotfiles `home/` to `~` and
-   `config/` to `~/.config/`, then the dispatch re-asserts tool-written config and the
-   `my-machine-configs` link. The rsync never deletes, so a file removed from dotfiles stays live
-   until someone deletes it.
-4. **Install or re-assert** with a `./setup.sh` dispatch (`install`, or one harness such as
+1. **Edit the source** in the owning repo, following that repo's `AGENTS.md`. The deployed copy
+   under `~` is a target, not a source. The user-level instruction files are generated from
+   dotfiles `agents/`.
+2. **Sync** with `./setup.sh dotfiles`: dotfiles `home/` goes to `~` and `config/` to
+   `~/.config/`, then tool-written config and the `my-machine-configs` link are re-asserted. The
+   sync never deletes, so a file removed from dotfiles stays live until someone deletes it.
+3. **Install or re-assert** with a `./setup.sh` dispatch (`install`, or one harness such as
    `codex`, `pi`, `opencode`, `context7`, `herdr`): brew packages, mise runtimes, plugins, skill
-   links and MCP servers. The dispatch `case` at the end of `setup.sh` names each dispatch with a
-   one-line description, and the macos-setup `README.md` describes them.
-5. **Activate systems** with `nix run .#build-switch` in the systems checkout.
+   links and MCP servers. The macos-setup `README.md` lists the dispatches.
+4. **Activate systems** with `nix run .#build-switch` in the systems checkout.
 
-Steps 3 to 5 are owner steps: give the owner the command. Every dispatch asks for `sudo`, and some
-refuse while the harness they change is running. A repo or skill may allow a narrow exception;
-macos-setup allows `./setup.sh projects` for its `tool-update-review` skill only.
+Steps 2 to 4 are owner steps: give the owner the command, unless the repo you work in allows it.
 
 Untracked files that a tool owns (`~/.claude.json`, `~/.codex/config.toml`, Pi's
 `~/.pi/agent/settings.json` and `mcp.json`) change through that tool's CLI. When a tool's own
@@ -72,14 +67,14 @@ entries go missing, re-run the dispatch that writes them rather than copying the
 
 | To change | Go to |
 | --- | --- |
-| A CLI tool or app | systems if it already owns that kind of tool, else macos-setup `Brewfile` then `intel.Brewfile` (a keg-only formula also needs `.path`). Ask before any install |
+| A CLI tool or app | systems if it already owns that kind of tool, else the macos-setup `Brewfile` (its docs give the conventions). Ask before any install |
 | A language runtime | dotfiles `config/mise/config.toml` |
-| A Python or JS package for skills | The agent-skills venv and npm prefix in the instructions; macos-setup `install_agent_skills` (`./setup.sh agent-skills`) builds them |
+| A Python or JS package for skills | The agent-skills venv and npm prefix in the instructions; macos-setup `./setup.sh agent-skills` builds them |
 | Shell env, aliases, functions | dotfiles `config/bash/` (`.exports`, `.aliases`, `.functions`); macos-setup `.path`, `.extra` |
 | A secret or API key | The owner's `~/.config/bash/.credentials`, or a workspace dotenv: [shell-env.md](references/shell-env.md) |
 | Git config | dotfiles `config/git/config`; identity and signing key in macos-setup `.extra` |
 | A harness setting, env var, permission or hook | That harness's reference below |
-| A plugin, skill or MCP server for one repo | macos-setup `docs/skills.md`: the committed per-repo files and the per-machine steps |
+| A plugin, skill or MCP server for one repo | That repo's own config; macos-setup `docs/skills.md` says how capability reaches a repo |
 | A user-level skill or the user-level instructions | dotfiles `agents/` and its `README.md` |
 | App configuration, login items, macOS defaults | macos-setup `tasks/config.sh`, `tasks/macos.sh` |
 | Hotkeys and Hammerspoon | systems |

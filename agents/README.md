@@ -43,7 +43,8 @@ The instructions are always loaded, so they hold only how the agent should act, 
   the harness's reference in `my-machine-configs`.
 - `skills/my-machine-configs/`: the machine specifics an agent needs only when it changes the
   machine's configuration: where each harness keeps its config, what is tracked and what tools
-  own, how changes deploy, PATH and credentials. It links into the repos' docs for depth.
+  own, how changes deploy, PATH and credentials. It documents the machine only: a repo's
+  internals and a plugin's behaviour belong to that repo's or plugin's docs, which it links to.
 
 Name a concrete config value in the instructions only where the agent must act on it; anything
 else duplicates the config and drifts. Harness permissions, for one, live in harness config
