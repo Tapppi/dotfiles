@@ -35,6 +35,10 @@ granular vars with a single `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`.
 `CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1` is set independently — outside the
 umbrella, separate concern.
 
+`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=4` lets a subagent delegate further, up to four layers below
+the main session. Ikeh-method workstreams (the ikeh-development plugin) count on that depth; Codex
+gets the same limit from `[agents] max_depth = 4` in the systems-managed `/etc/codex/config.toml`.
+
 ### `statusLine.refreshInterval: 300`
 
 Re-runs the status line script every 5 minutes so the rate-limit

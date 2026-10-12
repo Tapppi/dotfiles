@@ -30,7 +30,7 @@ environment, never a literal. A plain `ctx7 setup` writes the key into that file
 - A workspace manifest can enable plugins at local scope in its repos through
   `./setup.sh projects` (macos-setup `README.md`).
 - Permissions live in `settings.json` `permissions` and in each repo's `.claude/settings.json`.
-- Hooks come from the tracked `settings.json`, herdr, and the plugins a repo enables.
+- Hooks come from herdr (written into the live `settings.json`) and the plugins a repo enables.
 
 Deeper: `~/project/github/tapppi/macos-setup/docs/harnesses.md` (what `install` does for Claude
 Code) and `~/project/github/tapppi/macos-setup/docs/skills.md`.

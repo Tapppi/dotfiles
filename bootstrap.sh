@@ -64,7 +64,9 @@ doIt() {
 	# Nothing is mirrored with --delete: a plain rsync only ever adds, and a
 	# --delete on home/ or config/ would wipe every untracked file in ~ and
 	# ~/.config. ~/.claude/skills/ and ~/.claude/hooks/ are likewise left alone:
-	# dotfiles owns neither, and the tools that write them do.
+	# the tools that write them own their entries, and the one skill dotfiles
+	# provides there (agents/skills/my-machine-configs) is a link that
+	# macos-setup's install writes after this sync, not a synced copy.
 
 	# Install custom keyboard layout bundles
 	mkdir -p ~/Library/Keyboard\ Layouts

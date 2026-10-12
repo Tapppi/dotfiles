@@ -21,8 +21,11 @@ back into dotfiles: `authInfo` carries account details.
 - At user level: `~/.claude/skills`, `~/.agents/skills`, `~/.codex/skills`, `~/.claude/commands/`
   and enabled Claude Code plugins, so it lists `my-machine-configs` and `context7-mcp` twice. It
   honours `enabledPlugins: false` but ignores `skillOverrides`.
-- A repo's Claude Code plugin loads in Cursor only through an install record made in the repo's
-  main checkout (macos-setup `docs/skills.md`); in worktrees it may not load. Claude's
+- A repo's Claude Code plugin reaches Cursor as its skill only, through Cursor's Claude Code
+  compatibility; Cursor starts no MCP server from a Claude Code plugin. A repo that wants plugin
+  servers in Cursor commits them in its own `.cursor/mcp.json`, and Cursor asks for approval
+  (`cursor-agent mcp list`). The `browser` repos copy the two servers from tapppi/skills
+  `tapppi/browser/.mcp.json`, so they must follow it (macos-setup `docs/skills.md`). Claude's
   `Bash(...)` permission entries never match Cursor's `Shell(...)` tool.
 
 ## Known gaps
