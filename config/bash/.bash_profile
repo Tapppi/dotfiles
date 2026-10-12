@@ -31,8 +31,6 @@ debug_exec() {
 # Activate Homebrew (must be before sourcing dotfiles that use brew --prefix)
 if [ -x "/opt/homebrew/bin/brew" ]; then
 	eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [ -x "/usr/local/bin/brew" ]; then
-	eval "$(/usr/local/bin/brew shellenv)"
 fi
 
 # Load the shell dotfiles, and then some:
