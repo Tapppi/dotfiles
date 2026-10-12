@@ -92,6 +92,14 @@ activate_zoxide() {
 	eval "$(zoxide init bash)"
 }
 
+# Activate devenv environments on cd into directories trusted with `devenv allow`.
+# The hook prepends itself to PROMPT_COMMAND, so it must load after PATH is set up.
+activate_devenv() {
+	if command -v devenv >/dev/null 2>&1; then
+		eval "$(devenv hook bash)"
+	fi
+}
+
 # Add tab completion for many Bash commands
 load_compat_completions() {
 	if command -v brew >/dev/null 2>&1 && [[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]]; then
@@ -166,6 +174,7 @@ load_brew_completions() {
 
 debug_exec 1 activate_mise
 debug_exec 0 activate_zoxide
+debug_exec 0 activate_devenv
 debug_exec 1 load_compat_completions
 debug_exec 0 load_alias_completions
 debug_exec 1 load_brew_completions
