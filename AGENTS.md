@@ -70,12 +70,11 @@ commit "Update dotfiles").
 
 The plugin's guards:
 
-- **Push guard.** A push to `origin` of an agent branch (`agent/`, any conventional-commit
-  prefix, `debug/` or `backup/`: the plugin's default list, since this repo sets no
-  `branchPrefixes`) runs without a prompt, including `--force-with-lease --force-if-includes`
-  until the branch's PR carries a review or comment. Every other push prompts. Name the branch on
-  each push, and keep `main` and `master` out of agent branch names: the `ask` rules prompt for
-  any push whose text contains them.
+- **Push guard.** What it denies, asks about and lets through is in the skill's
+  [push guard reference](https://github.com/mantadevoy/ikeh/blob/main/plugins/ikeh-git/skills/git-workflows/references/push-guard.md).
+  This repo opts in with the plugin's default branch prefixes (`agent/` among them, since it sets
+  no `branchPrefixes`) and `requireWorktree` off. Name the branch on each push, and keep `main` and
+  `master` out of agent branch names: the `ask` rules prompt for any push whose text contains them.
 - **Worktree guard.** Whole-tree staging in the main checkout is denied, and so is any rebase of
   `master`. `requireWorktree` is off, so a small change may be committed from the main checkout by
   explicit path.
