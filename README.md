@@ -18,8 +18,8 @@ that repo for the full setup automation.
 Two sync directories plus standalone files at the repo root:
 
 - `home/` — rsynced to `~/` (files that don't support XDG):
-  `.bash_profile`, `.bashrc`, `.claude/`, `.codex/`, `.cursor/`, `.hushlogin`, `.parallel/`,
-  `.pi/`
+  `.bash_profile`, `.bashrc`, `.claude/`, `.codex/`, `.cursor/`, `.hushlogin`, `.local/bin/`,
+  `.parallel/`, `.pi/`
 - `config/` — rsynced to `~/.config/` (XDG-compliant config):
   `bash/`, `btop/`, `claude/`, `containers/`, `cursor/`, `fd/`, `gh/`, `ghostty/`, `git/`,
   `karabiner/`, `lazygit/`, `micro/`, `mise/`, `nnn/`, `opencode/`, `readline/`, `ripgrep/`,
@@ -56,6 +56,9 @@ macos-setup's `.extra` and `.path` are not in this repo but land beside these fi
 - `config/tmux/tmux.conf` — tmux with Ctrl+A prefix, vim keys, pbcopy
 - `home/.claude/` — Claude Code user-level config (settings, keybindings, statusline, generated
   `CLAUDE.md`)
+- `home/.local/bin/docker` — a `docker` shim that runs `exec podman "$@"`; the Docker socket
+  itself comes from macos-setup's `config_podman`. It sits first on PATH, so it shadows a real
+  Docker CLI: delete it if one is ever installed
 - `home/.codex/` — the generated Codex user-level `AGENTS.md`
 - `home/.cursor/` — Cursor CLI config and the generated `rules/00-environment.mdc`
 - `home/.pi/` — the generated Pi user-level `agent/AGENTS.md`

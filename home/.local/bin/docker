@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# docker -> podman shim: the Docker CLI is not installed; podman is Docker-compatible.
+exec podman "$@"
