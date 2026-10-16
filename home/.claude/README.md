@@ -40,9 +40,9 @@ the main session. Ikeh-method workstreams (the ikeh plugin) count on that depth.
 nesting limit for the models in use; the systems-managed `/etc/codex/config.toml` caps how many
 subagent threads one session runs at once instead.
 
-`CLAUDE_CODE_AUTO_COMPACT_WINDOW=450000` sets the compaction point for every session, subagents
-included, at 450k tokens rather than near the model's full window. It is a plain integer (`450k`
-reads as 450). Codex compacts at the same point through `model_auto_compact_token_limit` in the
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000` sets the compaction point for every session, subagents
+included, at 400k tokens rather than near the model's full window. It is a plain integer (`400k`
+reads as 400). Codex compacts at the same point through `model_auto_compact_token_limit` in the
 same systems-managed file.
 
 ### `statusLine.refreshInterval: 300`
