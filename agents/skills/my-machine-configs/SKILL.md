@@ -27,7 +27,7 @@ All checkouts live under `~/project/github/`.
 | [macos-setup](https://github.com/Tapppi/macos-setup) | `tapppi/macos-setup` | Brewfile, `setup.sh` and `tasks/*.sh`: installs, harness setup, app config, macOS defaults, per-project env. Public |
 | [dotfiles](https://github.com/Tapppi/dotfiles) | `tapppi/macos-setup/dotfiles` (submodule) | Shell and harness config synced into `~`; the user-level agent instructions and this skill, under `agents/`. Public |
 | Tapppi/skills | `tapppi/skills` | The `tapppi-skills` marketplace: shared plugins and skill bundles. Private |
-| mantadevoy/ikeh | `mantadevoy/ikeh` | The `ikeh` marketplace: `ikeh-git`, `ikeh-development`. Private |
+| mantadevoy/ikeh | `mantadevoy/ikeh` | The `ikeh` marketplace: `ikeh` (the development method) and `ikeh-git`. Private |
 | Tapppi/tieto | `tapppi/tieto` | The owner's personal knowledge base (Obsidian). Private |
 | workspace | `tapppi` (local only) | Coordinates the migration; its `AGENTS.md` holds the live state |
 

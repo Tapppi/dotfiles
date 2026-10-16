@@ -5,7 +5,7 @@
 	"skills": {
 		"paths": [
 			"~/.claude/plugins/marketplaces/claude-plugins-official/plugins/frontend-design/skills",
-			"~/project/github/mantadevoy/ikeh/plugins/ikeh-development/skills"
+			"~/project/github/mantadevoy/ikeh/plugins/ikeh/skills"
 		]
 	},
 	"mcp": {

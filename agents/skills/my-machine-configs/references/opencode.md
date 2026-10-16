@@ -19,7 +19,7 @@ writes no OpenCode state.
 
 - Skills come from a repo's `.agents/skills` and `.claude/skills`, `~/.agents/skills`,
   `~/.claude/skills` (so `my-machine-configs` and ctx7's `context7-mcp` reach it from there) and
-  the `skills.paths` in `opencode.json`, which add `frontend-design` and ikeh-development's skills.
+  the `skills.paths` in `opencode.json`, which add `frontend-design` and the `ikeh` plugin's skills.
 - OpenCode loads no Claude Code plugins, hooks or MCP servers. Its own plugins are JS modules
   listed under `plugin`; the global config loads none, and a repo's root `opencode.json` can add
   some.
