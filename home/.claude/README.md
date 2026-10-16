@@ -36,8 +36,14 @@ granular vars with a single `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`.
 umbrella, separate concern.
 
 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=4` lets a subagent delegate further, up to four layers below
-the main session. Ikeh-method workstreams (the ikeh-development plugin) count on that depth; Codex
-gets the same limit from `[agents] max_depth = 4` in the systems-managed `/etc/codex/config.toml`.
+the main session. Ikeh-method workstreams (the ikeh plugin) count on that depth. Codex has no
+nesting limit for the models in use; the systems-managed `/etc/codex/config.toml` caps how many
+subagent threads one session runs at once instead.
+
+`CLAUDE_CODE_AUTO_COMPACT_WINDOW=400000` sets the compaction point for every session, subagents
+included, at 400k tokens rather than near the model's full window. It is a plain integer (`400k`
+reads as 400). Codex compacts at the same point through `model_auto_compact_token_limit` in the
+same systems-managed file.
 
 ### `statusLine.refreshInterval: 300`
 
