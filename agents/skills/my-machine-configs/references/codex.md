@@ -23,11 +23,13 @@ and never `CLAUDE.md`.
 
 ## Plugins, skills and MCP servers
 
-- `./setup.sh codex` installs the user-level plugins (`frontend-design`, `ikeh-development`) and
-  ikeh-development's Codex roles. `browser@tapppi-skills` stays installed but `enabled = false` at
-  user level; a repo turns it on in its committed `.codex/config.toml`. A hand-run
-  `codex plugin add` or the `/plugins` UI sets it back to enabled until `./setup.sh codex`
-  re-asserts the flag.
+- `./setup.sh codex` installs the user-level `frontend-design` plugin. The ikeh method reaches
+  Codex from ikeh's own installer, an owner step run from the ikeh checkout, never from
+  macos-setup: it installs `ikeh@ikeh-codex`, the roles in `~/.codex/agents/` and the `ikeh` MCP
+  server. That makes `ikeh` user-level in Codex, where Claude Code enables it per repo: the
+  installer writes only into a Codex home and has no per-repo mode. `browser@tapppi-skills` and `ikeh-git@ikeh` stay installed but `enabled = false` at user
+  level; a repo turns one on in its committed `.codex/config.toml`. A hand-run `codex plugin add`
+  or the `/plugins` UI sets it back to enabled until `./setup.sh codex` re-asserts the flag.
 - Skills come from `~/.codex/skills/` (links to `my-machine-configs` and ctx7's `context7-mcp`;
   Codex calls this root deprecated), its bundled `~/.codex/skills/.system`, a repo's
   `.agents/skills` (not `.claude/skills`) and plugins.

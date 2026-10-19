@@ -27,6 +27,8 @@ environment, never a literal. A plain `ctx7 setup` writes the key into that file
 - A plugin for one repo is enabled in that repo's committed `.claude/settings.json`
   `enabledPlugins`. `claude plugin install` defaults to user scope, which enables a plugin in
   every repo, so pass `--scope project` or `--scope local`.
+- `ikeh@ikeh` (the development method) loads in place from the ikeh checkout's `plugins/ikeh` and is
+  enabled per repo like `ikeh-git@ikeh`, never at user level.
 - A workspace manifest can enable plugins at local scope in its repos through
   `./setup.sh projects` (macos-setup `README.md`).
 - Permissions live in `settings.json` `permissions` and in each repo's `.claude/settings.json`.

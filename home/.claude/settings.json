@@ -40,7 +40,6 @@
 		"document-skills@anthropic-agent-skills": false,
 		"duckdb-skills@claude-plugins-official": true,
 		"superpowers@claude-plugins-official": false,
-		"codex@openai-codex": true,
 		"frontend-design@claude-plugins-official": true
 	},
 	"skillOverrides": {
@@ -66,12 +65,6 @@
 			"source": {
 				"source": "github",
 				"repo": "anthropics/skills"
-			}
-		},
-		"openai-codex": {
-			"source": {
-				"source": "github",
-				"repo": "openai/codex-plugin-cc"
 			}
 		},
 		"claude-plugins-official": {
