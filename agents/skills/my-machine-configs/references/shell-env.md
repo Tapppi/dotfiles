@@ -10,6 +10,9 @@ mise shims  ->  Homebrew (GNU tools' gnubin, explicit keg-only)  ->  Nix (/run/c
 
 - Homebrew wins over Nix for anything both provide, so a tool moves to Nix by leaving Homebrew,
   never by reordering PATH. That is how `nvim` resolves to the Nix build.
+- Inside a devenv environment (a shell, herdr pane or Claude Code session started from a devenv
+  shell, so `DEVENV_PROFILE` is set), `~/.bash_profile` puts `$DEVENV_PROFILE/bin` back in front
+  of all of that, in login shells (`bash -lc` included) and in interactive ones through `~/.bashrc`.
 - The PATH order is set in macos-setup and dotfiles; macos-setup `docs/conventions.md` has the
   details, keg-only formulae included.
 
